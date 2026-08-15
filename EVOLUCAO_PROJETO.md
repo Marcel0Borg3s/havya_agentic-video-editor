@@ -157,13 +157,43 @@ Arquivos finais prontos para publicação
 
 ### Fase 2 — Contratos e configuração
 
-- [ ] Criar modelos para perfil de edição.
+- [x] Criar modelos para perfil de edição.
 - [ ] Evoluir `CreativeBrief`.
-- [ ] Evoluir `EditPlan` de forma compatível.
-- [ ] Adicionar assets de abertura e fechamento.
-- [ ] Adicionar overlays tipados.
-- [ ] Adicionar configuração de Shorts.
-- [ ] Adicionar testes de validação.
+- [x] Evoluir `EditPlan` de forma compatível.
+- [x] Adicionar assets de abertura e fechamento.
+- [x] Adicionar overlays tipados.
+- [x] Adicionar configuração de Shorts.
+- [x] Adicionar testes de validação.
+- [ ] Integrar os novos contratos ao pipeline e à interface.
+
+Suíte completa validada:
+
+```text
+uv run pytest -q
+75 passed, 0 failed, 2 skipped
+```
+
+Implementado nesta etapa:
+
+- `MediaAsset` para abertura, fechamento, música, logo e outros assets.
+- `EditingOptions` para silêncio, hesitações, repetições, takes ruins e transições.
+- `CaptionOptions` para legendas.
+- `OverlayOptions` para título, CTA, créditos e textos customizados.
+- `ShortsOptions` para quantidade, duração e formato vertical.
+- `AIOptions` para provider, modelo e configuração por variável de ambiente.
+- `EditingProfile` como perfil configurável.
+- `OutputOptions` para formato e metadados de saída.
+- Campos opcionais `profile` e `output` em `EditPlan`, mantendo planos antigos válidos.
+- Testes em `tests/test_editing_profiles.py`.
+
+Validação realizada:
+
+```text
+uv run pytest -q tests/test_editing_profiles.py tests/test_captions.py
+9 passed
+```
+
+Observação: o primeiro comando executado com `pytest` global falhou por ausência do módulo `src` no ambiente Python do sistema. O comando oficial deve ser executado com `uv run`, que utiliza o ambiente do projeto.
 
 ### Fase 3 — MVP de vídeo completo
 
@@ -247,6 +277,9 @@ A primeira implementação deve criar os novos modelos e testes, preservando o c
 - Concluída a auditoria inicial da arquitetura.
 - Definida a estratégia de evolução incremental.
 - Definida a Fase 2 como próxima etapa.
+- Criados os contratos iniciais de perfil de edição, assets, overlays, Shorts, IA e saída.
+- Mantida a compatibilidade com o `EditPlan` existente.
+- Suíte completa validada: 75 testes passaram e 2 foram ignorados.
 
 ## Registro de testes
 
