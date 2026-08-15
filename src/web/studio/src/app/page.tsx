@@ -8,7 +8,6 @@ import {
   FolderOpen,
   Plus,
   Trash2,
-  Film,
   Loader2,
   AlertCircle,
   CheckCircle2,
@@ -72,8 +71,8 @@ export default function ProjectPicker() {
     <div className="h-full flex flex-col items-center justify-center p-8">
       <div className="w-full max-w-2xl">
         <div className="flex items-center gap-3 mb-8">
-          <Film className="w-8 h-8 text-accent" />
-          <h1 className="text-3xl font-bold tracking-tight">AVE Studio</h1>
+          <img src="/branding/havya-white.jpeg" alt="Havya" className="w-10 h-10 rounded object-cover" />
+          <h1 className="text-3xl font-bold tracking-tight">Havya Studio</h1>
         </div>
 
         <div className="flex items-center justify-between mb-4">

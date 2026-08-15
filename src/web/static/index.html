@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AVE Studio</title>
+  <title>Havya Studio</title>
   <link rel="stylesheet" href="/static/styles.css" />
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Component scripts MUST load before Alpine so window.briefBuilder,
@@ -42,7 +42,10 @@
   -->
   <main x-data="{ view: 'brief-builder', currentJobId: '', promotedJobId: '' }" class="mx-auto max-w-5xl p-6">
     <header class="mb-8">
-      <h1 class="text-3xl font-bold">AVE Studio</h1>
+      <div class="flex items-center gap-3">
+        <img src="/static/branding/havya-white.jpeg" alt="Havya" class="h-10 w-10 rounded object-cover" />
+        <h1 class="text-3xl font-bold">Havya Studio</h1>
+      </div>
       <p class="text-slate-400">Agentic Video Editor — brief, preview, pointed edits.</p>
     </header>
 

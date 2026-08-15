@@ -76,7 +76,8 @@ export function Toolbar({ projectName, projectId }: ToolbarProps) {
         <ArrowLeft className="w-4 h-4" />
       </button>
 
-      <span className="font-semibold text-sm truncate max-w-48">{projectName}</span>
+      <img src="/branding/havya-white.jpeg" alt="Havya" className="w-6 h-6 rounded object-cover" />
+      <span className="font-semibold text-sm truncate max-w-48">Havya Studio · {projectName}</span>
 
       <div className={`text-xs font-medium ml-2 ${statusColor()}`}>
         {isRunning && <Loader2 className="w-3 h-3 animate-spin inline mr-1" />}

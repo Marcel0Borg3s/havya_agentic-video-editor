@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AVE Studio",
-  description: "Agentic Video Editor -- creative direction, chat feedback, and pointed edits.",
+  title: "Havya Studio",
+  description: "Havya Studio — edição automática de vídeos com IA.",
 };
 
 export default function RootLayout({
@@ -23,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full dark`}>
+    <html lang="pt-BR" className={`${geistSans.variable} ${geistMono.variable} h-full dark`}>
       <body className="h-full overflow-hidden bg-background text-foreground font-sans antialiased">
         {children}
       </body>

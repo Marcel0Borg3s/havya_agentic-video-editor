@@ -1,4 +1,4 @@
-"""FastAPI application for AVE Studio.
+"""FastAPI application for Havya Studio.
 
 Exposes the REST + WebSocket API and serves rendered media files. The
 frontend is a standalone Next.js app (see ``src/web/studio/``). Also owns
@@ -52,7 +52,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(
-    title="AVE Studio",
+    title="Havya Studio",
     version="0.1.0",
     description="Agentic Video Editor web UI and API layer.",
     lifespan=lifespan,

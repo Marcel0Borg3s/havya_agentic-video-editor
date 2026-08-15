@@ -317,6 +317,9 @@ A primeira implementação deve criar os novos modelos e testes, preservando o c
 - Backend web atualizado para aceitar perfil inline em jobs e re-runs.
 - A suíte Python permaneceu em 104 testes aprovados.
 - Build frontend pendente: este ambiente possui Node/npm, mas não possui pnpm nem `node_modules`.
+- Marca visual padronizada para `Havya Studio`.
+- Logo branco copiado de `/home/mb/projects/HAVYA/Template/havya_white.jpeg` para os frontends.
+- Alterações locais de configuração do pnpm foram preservadas para commit separado.
 
 ## Registro de testes
 

@@ -1,4 +1,4 @@
-# AVE Studio (Frontend)
+# Havya Studio (Frontend)
 
 Next.js frontend for the Agentic Video Editor. See the [root README](../../../README.md) for full project documentation.
 

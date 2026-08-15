@@ -1,4 +1,4 @@
-"""FastAPI routes for the AVE Studio job API.
+"""FastAPI routes for the Havya Studio job API.
 
 All three endpoints operate against the :class:`~src.web.jobs.JobRegistry`
 that is stored on ``app.state.job_registry`` by the app's lifespan handler.
