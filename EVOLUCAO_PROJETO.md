@@ -164,6 +164,9 @@ Arquivos finais prontos para publicação
 - [x] Adicionar overlays tipados.
 - [x] Adicionar configuração de Shorts.
 - [x] Adicionar testes de validação.
+- [x] Criar carregador de perfil YAML validado.
+- [x] Criar perfil inicial `styles/youtube-default.yaml`.
+- [x] Adicionar testes de carregamento e round-trip YAML.
 - [ ] Integrar os novos contratos ao pipeline e à interface.
 
 Suíte completa validada:
@@ -279,7 +282,10 @@ A primeira implementação deve criar os novos modelos e testes, preservando o c
 - Definida a Fase 2 como próxima etapa.
 - Criados os contratos iniciais de perfil de edição, assets, overlays, Shorts, IA e saída.
 - Mantida a compatibilidade com o `EditPlan` existente.
-- Suíte completa validada: 75 testes passaram e 2 foram ignorados.
+- Suíte completa validada na etapa de contratos: 75 testes passaram e 2 foram ignorados.
+- Criado carregamento validado de perfis YAML em `src/pipeline/profiles.py`.
+- Criado perfil inicial `styles/youtube-default.yaml`.
+- Suíte completa validada na etapa de perfis: 80 testes passaram e 2 foram ignorados.
 
 ## Registro de testes
 

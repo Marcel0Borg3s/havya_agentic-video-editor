@@ -1,0 +1,31 @@
+name: youtube-default
+opening: null
+closing: null
+editing:
+  remove_silence: true
+  silence_threshold: 0.8
+  remove_hesitations: true
+  remove_repetitions: true
+  detect_bad_takes: true
+  detect_scene_changes: true
+  transition_type: cut
+  transition_duration: 0.3
+captions:
+  enabled: true
+  style: default
+  language: null
+  position: bottom
+overlays: []
+shorts:
+  enabled: true
+  count: 3
+  duration_seconds: 60
+  aspect_ratio: '9:16'
+  captions_enabled: true
+  cta_enabled: true
+ai:
+  enabled: true
+  provider: gemini
+  model: null
+  api_key_env: GOOGLE_API_KEY
+  base_url: null
