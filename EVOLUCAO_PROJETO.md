@@ -206,8 +206,17 @@ Observação: o primeiro comando executado com `pytest` global falhou por ausên
 - [x] Implementar normalização de assets externos.
 - [x] Implementar montagem de abertura, conteúdo e fechamento.
 - [ ] Validar manualmente pela interface local quando o aplicativo executável estiver disponível.
-- [ ] Integrar legendas.
-- [ ] Integrar título, CTA e créditos.
+- [x] Integrar controle de legendas pelo perfil.
+- [x] Integrar título, CTA e créditos como overlays determinísticos.
+- [ ] Validar visualmente pela interface local executável.
+
+Suíte completa validada:
+
+```text
+uv run pytest -q
+104 passed, 0 failed
+```
+
 - [ ] Implementar cortes e transições básicas.
 - [ ] Gerar um único MP4 final.
 - [ ] Criar testes com vídeos sintéticos.
@@ -297,6 +306,9 @@ A primeira implementação deve criar os novos modelos e testes, preservando o c
 - Integração adicionada ao Editor após composição de B-Roll, preservando offsets do conteúdo.
 - Testes automatizados da etapa: 92 passaram e 2 foram ignorados.
 - Teste manual foi adiado até existir uma interface local executável para validação visual.
+- Controle de legendas integrado ao perfil de edição.
+- Título, CTA de inscrição e créditos integrados como overlays FFmpeg determinísticos.
+- Testes automatizados da etapa: 104 passaram.
 
 ## Registro de testes
 

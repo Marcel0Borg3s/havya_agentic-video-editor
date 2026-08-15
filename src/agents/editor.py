@@ -126,6 +126,7 @@ from src.models.schemas import (
     Shot,
 )
 from src.tools.assets import assemble_with_assets
+from src.tools.overlays import apply_plan_overlays
 from src.tools.captions import (
     burn_ass_subtitles,
     generate_ass_captions,
@@ -507,7 +508,12 @@ def _compute_output_paths(
     normalize_paths: list[Path] = []
     for entry, shot in resolved:
         clip_paths.append(working_dir / f"clip_{entry.position:02d}.mp4")
-        if has_words_in_window(shot, entry.start_trim, entry.end_trim):
+        captions_enabled = (
+            plan.profile is None or plan.profile.captions.enabled
+        )
+        if captions_enabled and has_words_in_window(
+            shot, entry.start_trim, entry.end_trim
+        ):
             caption_ass_paths.append(
                 working_dir / f"clip_{entry.position:02d}_captions.ass"
             )
@@ -1004,6 +1010,22 @@ def run_editor(
             "B-Roll compositing done — %d overlay(s) applied",
             len(overlays),
         )
+
+    # --------------------------------------------------------------------- #
+    # Optional text overlays (before assets, so opening/closing remain clean)
+    # --------------------------------------------------------------------- #
+    if edit_plan.profile is not None or edit_plan.output.title or edit_plan.output.channel_name or edit_plan.output.credits:
+        overlaid_path = working_dir / "with_overlays.mp4"
+        overlay_result = apply_plan_overlays(
+            video=str(final_output),
+            plan=edit_plan,
+            output=str(overlaid_path),
+            working_dir=str(working_dir / "overlays"),
+        )
+        if overlay_result != str(final_output):
+            final_output.unlink()
+            overlaid_path.rename(final_output)
+            logger.info("Text overlays applied")
 
     # --------------------------------------------------------------------- #
     # Optional opening/closing assets (last, deterministic stage)
