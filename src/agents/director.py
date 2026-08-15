@@ -430,7 +430,6 @@ def build_director(brief: CreativeBrief) -> Agent:
         description=_AGENT_DESCRIPTION,
         instruction=instruction,
         tools=[analyze_footage, search_moments],
-        output_schema=DirectorOutput,
     )
 
 
@@ -448,7 +447,6 @@ director: Agent = Agent(
     description=_AGENT_DESCRIPTION,
     instruction=DIRECTOR_INSTRUCTION,
     tools=[analyze_footage, search_moments],
-    output_schema=DirectorOutput,
 )
 
 
@@ -510,7 +508,8 @@ def run_director(
                     f"Brief JSON: {brief.model_dump_json()}\n\n"
                     f"Footage index path (use this exact path in tool "
                     f"calls): {footage_index_path}\n\n"
-                    "Produce the EditPlan now."
+                    "Produce ONLY the EditPlan JSON object now. Do not call set_model_response. "
+            "Return no markdown fences and no commentary."
                 )
             )
         ],
