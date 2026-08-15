@@ -319,7 +319,9 @@ A primeira implementação deve criar os novos modelos e testes, preservando o c
 - Build frontend pendente: este ambiente possui Node/npm, mas não possui pnpm nem `node_modules`.
 - Marca visual padronizada para `Havya Studio`.
 - Logo branco copiado de `/home/mb/projects/HAVYA/Template/havya_white.jpeg` para os frontends.
-- Alterações locais de configuração do pnpm foram preservadas para commit separado.
+- Configuração do pnpm ajustada para autorizar o build do `sharp` sem duplicidade.
+- Fluxo oficial de inicialização local documentado em `src/web/studio/README.md`.
+- Build frontend ainda deve ser validado no ambiente local com `pnpm build`.
 
 ## Registro de testes
 
