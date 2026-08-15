@@ -125,6 +125,7 @@ from src.models.schemas import (
     FootageIndex,
     Shot,
 )
+from src.tools.assets import assemble_with_assets
 from src.tools.captions import (
     burn_ass_subtitles,
     generate_ass_captions,
@@ -830,6 +831,23 @@ def run_editor(
             f"{edit_plan.music_path}"
         )
 
+    # Pre-flight: optional opening/closing assets must exist before the
+    # Gemini-backed Editor agent is started.
+    if edit_plan.profile is not None:
+        asset_paths = [
+            asset.path
+            for asset in (edit_plan.profile.opening, edit_plan.profile.closing)
+            if asset is not None
+        ]
+        missing_assets = sorted(
+            path for path in asset_paths if not Path(path).exists()
+        )
+        if missing_assets:
+            raise FileNotFoundError(
+                "EditPlan references media assets that do not exist on disk: "
+                + ", ".join(missing_assets)
+            )
+
     (
         working_dir,
         final_dir,
@@ -926,7 +944,6 @@ def run_editor(
             f"{final_output}. Agent response was: {agent_response!r}"
         )
 
-    # --------------------------------------------------------------------- #
     # B-Roll compositing (post-agent, deterministic)
     #
     # The agent sequenced only A-Roll clips into the base video. Now we
@@ -987,5 +1004,25 @@ def run_editor(
             "B-Roll compositing done — %d overlay(s) applied",
             len(overlays),
         )
+
+    # --------------------------------------------------------------------- #
+    # Optional opening/closing assets (last, deterministic stage)
+    # --------------------------------------------------------------------- #
+    # This must happen after B-Roll compositing: B-Roll timeline offsets are
+    # relative to the content video and must not include opening duration.
+    profile = edit_plan.profile
+    if profile is not None and (profile.opening or profile.closing):
+        assembled_path = working_dir / "assembled_assets.mp4"
+        assemble_with_assets(
+            content_video=str(final_output),
+            output=str(assembled_path),
+            opening_path=profile.opening.path if profile.opening else None,
+            closing_path=profile.closing.path if profile.closing else None,
+            working_dir=str(working_dir / "assets"),
+            resolution="1080x1920",
+        )
+        final_output.unlink()
+        assembled_path.rename(final_output)
+        logger.info("Opening/closing asset assembly done")
 
     return str(final_output)

@@ -203,8 +203,9 @@ Observação: o primeiro comando executado com `pytest` global falhou por ausên
 
 ### Fase 3 — MVP de vídeo completo
 
-- [ ] Normalizar assets externos.
-- [ ] Montar abertura, conteúdo e fechamento.
+- [x] Implementar normalização de assets externos.
+- [x] Implementar montagem de abertura, conteúdo e fechamento.
+- [ ] Validar manualmente pela interface local quando o aplicativo executável estiver disponível.
 - [ ] Integrar legendas.
 - [ ] Integrar título, CTA e créditos.
 - [ ] Implementar cortes e transições básicas.
@@ -292,6 +293,10 @@ A primeira implementação deve criar os novos modelos e testes, preservando o c
 - Perfil integrado ao `run_pipeline`, CLI e jobs web.
 - Adicionados testes de integração em `tests/test_pipeline_profile.py`.
 - Suíte completa validada na etapa de integração: 82 testes passaram e 2 foram ignorados.
+- Implementada normalização e montagem determinística de abertura/fechamento em `src/tools/assets.py`.
+- Integração adicionada ao Editor após composição de B-Roll, preservando offsets do conteúdo.
+- Testes automatizados da etapa: 92 passaram e 2 foram ignorados.
+- Teste manual foi adiado até existir uma interface local executável para validação visual.
 
 ## Registro de testes
 
