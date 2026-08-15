@@ -322,12 +322,14 @@ A primeira implementação deve criar os novos modelos e testes, preservando o c
 - Configuração do pnpm ajustada para autorizar o build do `sharp` sem duplicidade.
 - Fluxo oficial de inicialização local documentado em `src/web/studio/README.md`.
 - Build frontend ainda deve ser validado no ambiente local com `pnpm build`.
+- Validação manual realizada: Havya Studio abriu localmente e a interface visual funcionou sem carregar vídeos.
 
 ## Registro de testes
 
 | Data | Comando | Resultado | Observações |
 |---|---|---|---|
-| — | — | — | A registrar na primeira etapa de implementação |
+| 2026-08-15 | `uv run pytest -q` | 104 passed | Suíte Python completa |
+| 2026-08-15 | Havya Studio local | Aprovado | Interface abriu e funcionou sem carregar vídeos |
 
 ## Decisões pendentes
 
