@@ -52,6 +52,10 @@ class CreateJobRequest(BaseModel):
     pipeline_path: str = Field(
         ..., description="Filesystem path to the YAML pipeline manifest."
     )
+    profile_path: str | None = Field(
+        default=None,
+        description="Optional filesystem path to a validated editing profile YAML.",
+    )
 
 
 class CreateJobResponse(BaseModel):
@@ -94,6 +98,7 @@ async def create_job(
         brief=payload.brief,
         footage_index_path=payload.footage_index_path,
         pipeline_path=payload.pipeline_path,
+        profile_path=payload.profile_path,
     )
     return CreateJobResponse(job_id=job.id, status=job.status)
 

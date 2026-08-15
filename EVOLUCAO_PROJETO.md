@@ -167,7 +167,10 @@ Arquivos finais prontos para publicação
 - [x] Criar carregador de perfil YAML validado.
 - [x] Criar perfil inicial `styles/youtube-default.yaml`.
 - [x] Adicionar testes de carregamento e round-trip YAML.
-- [ ] Integrar os novos contratos ao pipeline e à interface.
+- [x] Integrar perfil ao `run_pipeline`.
+- [x] Adicionar opção CLI `--profile`.
+- [x] Transportar o perfil pelos jobs web e re-runs.
+- [ ] Integrar os novos contratos ao renderizador e à interface.
 
 Suíte completa validada:
 
@@ -286,6 +289,9 @@ A primeira implementação deve criar os novos modelos e testes, preservando o c
 - Criado carregamento validado de perfis YAML em `src/pipeline/profiles.py`.
 - Criado perfil inicial `styles/youtube-default.yaml`.
 - Suíte completa validada na etapa de perfis: 80 testes passaram e 2 foram ignorados.
+- Perfil integrado ao `run_pipeline`, CLI e jobs web.
+- Adicionados testes de integração em `tests/test_pipeline_profile.py`.
+- Suíte completa validada na etapa de integração: 82 testes passaram e 2 foram ignorados.
 
 ## Registro de testes
 

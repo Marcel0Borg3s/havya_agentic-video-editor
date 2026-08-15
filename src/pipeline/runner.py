@@ -67,7 +67,8 @@ from src.agents.director import (
 from src.agents.editor import run_editor
 from src.agents.reviewer import run_reviewer
 from src.agents.trim_refiner import refine_plan
-from src.models.schemas import CreativeBrief, EditPlan, ReviewScore
+from src.models.schemas import CreativeBrief, EditPlan, EditingProfile, ReviewScore
+from src.pipeline.profiles import load_editing_profile
 
 # --------------------------------------------------------------------------- #
 # Transient error retry
@@ -624,6 +625,7 @@ def run_pipeline(
     footage_index_path: str,
     *,
     human_approval: bool = True,
+    profile_path: str | None = None,
 ) -> PipelineResult:
     """Execute a YAML-defined agent pipeline end to end.
 
@@ -691,6 +693,9 @@ def run_pipeline(
             f"footage_index_path does not exist: {footage_index_path}"
         )
 
+    profile: EditingProfile | None = (
+        load_editing_profile(profile_path) if profile_path else None
+    )
     manifest = _load_pipeline(pipeline_path)
     _log(
         f"[pipeline] loaded manifest {manifest.name!r} with "
@@ -712,6 +717,10 @@ def run_pipeline(
                 result.edit_plan = _with_transient_retry(
                     run_director, brief, footage_index_path
                 )
+                if profile is not None:
+                    result.edit_plan = result.edit_plan.model_copy(
+                        update={"profile": profile}
+                    )
             if step.gate == "human_approval":
                 if human_approval:
                     approved = _prompt_human_approval(result.edit_plan)
@@ -755,6 +764,10 @@ def run_pipeline(
             result.edit_plan = _with_transient_retry(
                 refine_plan, result.edit_plan, footage_index_path
             )
+            if profile is not None:
+                result.edit_plan = result.edit_plan.model_copy(
+                    update={"profile": profile}
+                )
             _log_step_end(
                 step.agent,
                 time.monotonic() - t0,

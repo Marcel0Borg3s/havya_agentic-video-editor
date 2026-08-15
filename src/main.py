@@ -222,6 +222,21 @@ def cli() -> None:
     ),
 )
 @click.option(
+    "--profile",
+    "profile_path",
+    type=click.Path(
+        exists=False,
+        file_okay=True,
+        dir_okay=False,
+        path_type=Path,
+    ),
+    default=None,
+    help=(
+        "Optional editing profile YAML. It is validated and attached to the "
+        "EditPlan for downstream rendering."
+    ),
+)
+@click.option(
     "--output-dir",
     "output_dir",
     type=click.Path(
@@ -259,6 +274,7 @@ def edit(
     brief_arg: str,
     pipeline_path: Path,
     style_path: Path | None,
+    profile_path: Path | None,
     output_dir: Path,
     skip_preprocess: bool,
     no_approval: bool,
@@ -270,6 +286,8 @@ def edit(
     # references work even when Click didn't see them.
     footage_dir = footage_dir.expanduser()
     pipeline_path = pipeline_path.expanduser()
+    if profile_path is not None:
+        profile_path = profile_path.expanduser()
     output_dir = output_dir.expanduser()
 
     if not pipeline_path.exists() or not pipeline_path.is_file():
@@ -284,6 +302,8 @@ def edit(
     if style_path is not None:
         brief = _apply_style_override(brief, style_path)
         click.echo(f"[cli] using style override: {brief.style_ref}")
+    if profile_path is not None:
+        click.echo(f"[cli] using editing profile: {profile_path}")
 
     # Decide whether to run preprocess. --skip-preprocess is a best-effort
     # hint: if the cached index is missing we fall through to preprocess
@@ -337,6 +357,7 @@ def edit(
             brief,
             str(footage_index_path),
             human_approval=not no_approval,
+            profile_path=str(profile_path) if profile_path is not None else None,
         )
     except FileNotFoundError as exc:
         raise click.ClickException(f"pipeline input missing: {exc}") from exc
