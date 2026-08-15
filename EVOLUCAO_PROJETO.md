@@ -323,6 +323,8 @@ A primeira implementação deve criar os novos modelos e testes, preservando o c
 - Fluxo oficial de inicialização local documentado em `src/web/studio/README.md`.
 - Build frontend ainda deve ser validado no ambiente local com `pnpm build`.
 - Validação manual realizada: Havya Studio abriu localmente e a interface visual funcionou sem carregar vídeos.
+- Corrigido erro do ADK/Gemini ao processar `EditPlan` com configuração aninhada: Director agora usa schema AI mínimo e anexa configurações após a resposta.
+- Suíte Python após correção: 104 testes aprovados.
 
 ## Registro de testes
 

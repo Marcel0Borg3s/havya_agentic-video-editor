@@ -77,8 +77,9 @@ import yaml
 from google.adk.agents import Agent
 from google.adk.runners import InMemoryRunner
 from google.genai import types as genai_types
+from pydantic import BaseModel
 
-from src.models.schemas import CreativeBrief, EditPlan
+from src.models.schemas import CreativeBrief, EditPlan, EditPlanEntry
 from src.tools.analyze import analyze_footage, search_moments
 
 logger = logging.getLogger(__name__)
@@ -96,6 +97,19 @@ _AGENT_DESCRIPTION = (
     "Creative director that converts a brief + footage index into a "
     "structured EditPlan."
 )
+
+
+class DirectorOutput(BaseModel):
+    """Minimal AI-facing plan schema.
+
+    Operational profile/output settings are attached by the pipeline after
+    the Director responds. Keeping them out of the ADK output schema avoids
+    automatic-function-calling failures with deeply nested configuration.
+    """
+
+    entries: list[EditPlanEntry]
+    music_path: str | None = None
+    total_duration: float
 
 DIRECTOR_INSTRUCTION = """\
 You are the Director agent for an AI video editor. Your job is to turn a
@@ -416,7 +430,7 @@ def build_director(brief: CreativeBrief) -> Agent:
         description=_AGENT_DESCRIPTION,
         instruction=instruction,
         tools=[analyze_footage, search_moments],
-        output_schema=EditPlan,
+        output_schema=DirectorOutput,
     )
 
 
@@ -434,7 +448,7 @@ director: Agent = Agent(
     description=_AGENT_DESCRIPTION,
     instruction=DIRECTOR_INSTRUCTION,
     tools=[analyze_footage, search_moments],
-    output_schema=EditPlan,
+    output_schema=DirectorOutput,
 )
 
 
@@ -534,7 +548,13 @@ def run_director(
                 "that the FootageIndex contains at least one shot and "
                 "that the model returned a non-empty structured response."
             )
-        return EditPlan.model_validate_json(final_text)
+        parsed = DirectorOutput.model_validate_json(final_text)
+        return EditPlan(
+            brief=brief,
+            entries=parsed.entries,
+            music_path=parsed.music_path,
+            total_duration=parsed.total_duration,
+        )
 
     # The ADK InMemoryRunner occasionally completes the event stream
     # without producing a final text response (the model emits only
