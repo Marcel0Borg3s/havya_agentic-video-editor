@@ -8,6 +8,56 @@ export interface CreativeBrief {
   style_ref: string | null;
 }
 
+export interface MediaAsset {
+  path: string;
+  role: "opening" | "closing" | "music" | "logo" | "other";
+}
+
+export interface EditingProfile {
+  name: string;
+  opening: MediaAsset | null;
+  closing: MediaAsset | null;
+  editing: {
+    remove_silence: boolean;
+    silence_threshold: number;
+    remove_hesitations: boolean;
+    remove_repetitions: boolean;
+    detect_bad_takes: boolean;
+    detect_scene_changes: boolean;
+    transition_type: "cut" | "fade" | "dissolve";
+    transition_duration: number;
+  };
+  captions: {
+    enabled: boolean;
+    style: string;
+    language: string | null;
+    position: "top" | "center" | "bottom";
+  };
+  overlays: Array<{
+    role: "title" | "subtitle" | "subscribe" | "credits" | "custom";
+    text: string;
+    start: number;
+    duration: number;
+    position: "top" | "center" | "bottom-third" | "bottom";
+    style: string;
+  }>;
+  shorts: {
+    enabled: boolean;
+    count: number;
+    duration_seconds: number;
+    aspect_ratio: "9:16";
+    captions_enabled: boolean;
+    cta_enabled: boolean;
+  };
+  ai: {
+    enabled: boolean;
+    provider: string;
+    model: string | null;
+    api_key_env: string | null;
+    base_url: string | null;
+  };
+}
+
 export interface WordTimestamp {
   word: string;
   start: number;

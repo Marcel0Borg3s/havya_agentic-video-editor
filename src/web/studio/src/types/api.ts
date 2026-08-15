@@ -1,6 +1,6 @@
 /** API-specific types for requests, responses, and WebSocket messages. */
 
-import type { CreativeBrief, ReviewScore } from "./schemas";
+import type { CreativeBrief, EditingProfile, ReviewScore } from "./schemas";
 
 // --- Projects ---
 
@@ -49,6 +49,8 @@ export interface CreateJobRequest {
   brief: CreativeBrief;
   footage_index_path: string;
   pipeline_path: string;
+  profile_path?: string | null;
+  profile?: EditingProfile | null;
 }
 
 export interface CreateJobResponse {

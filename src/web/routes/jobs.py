@@ -14,7 +14,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field, ValidationError
 
-from src.models.schemas import CreativeBrief, EditPlan, FootageIndex, Shot
+from src.models.schemas import CreativeBrief, EditPlan, EditingProfile, FootageIndex, Shot
 from src.web.jobs import JobRegistry
 
 #: Float tolerance when matching ``EditPlanEntry.shot_id`` start_time
@@ -55,6 +55,10 @@ class CreateJobRequest(BaseModel):
     profile_path: str | None = Field(
         default=None,
         description="Optional filesystem path to a validated editing profile YAML.",
+    )
+    profile: EditingProfile | None = Field(
+        default=None,
+        description="Optional inline editing profile configured by the UI.",
     )
 
 
@@ -99,6 +103,7 @@ async def create_job(
         footage_index_path=payload.footage_index_path,
         pipeline_path=payload.pipeline_path,
         profile_path=payload.profile_path,
+        profile=payload.profile,
     )
     return CreateJobResponse(job_id=job.id, status=job.status)
 

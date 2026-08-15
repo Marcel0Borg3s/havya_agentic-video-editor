@@ -209,6 +209,10 @@ Observação: o primeiro comando executado com `pytest` global falhou por ausên
 - [x] Integrar controle de legendas pelo perfil.
 - [x] Integrar título, CTA e créditos como overlays determinísticos.
 - [ ] Validar visualmente pela interface local executável.
+- [x] Adicionar seleção visual de perfil no Studio.
+- [x] Adicionar campos visuais de abertura, fechamento, título, canal e créditos.
+- [x] Adicionar controles visuais de legendas e Shorts.
+- [ ] Validar build do frontend com Node/pnpm e executar o Studio localmente.
 
 Suíte completa validada:
 
@@ -309,6 +313,10 @@ A primeira implementação deve criar os novos modelos e testes, preservando o c
 - Controle de legendas integrado ao perfil de edição.
 - Título, CTA de inscrição e créditos integrados como overlays FFmpeg determinísticos.
 - Testes automatizados da etapa: 104 passaram.
+- Studio atualizado para transportar configuração visual de perfil, assets, overlays, legendas e Shorts.
+- Backend web atualizado para aceitar perfil inline em jobs e re-runs.
+- A suíte Python permaneceu em 104 testes aprovados.
+- Build frontend pendente: este ambiente possui Node/npm, mas não possui pnpm nem `node_modules`.
 
 ## Registro de testes
 

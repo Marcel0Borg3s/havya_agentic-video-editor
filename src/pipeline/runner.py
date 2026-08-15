@@ -626,6 +626,7 @@ def run_pipeline(
     *,
     human_approval: bool = True,
     profile_path: str | None = None,
+    profile: EditingProfile | None = None,
 ) -> PipelineResult:
     """Execute a YAML-defined agent pipeline end to end.
 
@@ -693,7 +694,7 @@ def run_pipeline(
             f"footage_index_path does not exist: {footage_index_path}"
         )
 
-    profile: EditingProfile | None = (
+    resolved_profile: EditingProfile | None = profile or (
         load_editing_profile(profile_path) if profile_path else None
     )
     manifest = _load_pipeline(pipeline_path)
@@ -717,9 +718,9 @@ def run_pipeline(
                 result.edit_plan = _with_transient_retry(
                     run_director, brief, footage_index_path
                 )
-                if profile is not None:
+                if resolved_profile is not None:
                     result.edit_plan = result.edit_plan.model_copy(
-                        update={"profile": profile}
+                        update={"profile": resolved_profile}
                     )
             if step.gate == "human_approval":
                 if human_approval:
@@ -764,9 +765,9 @@ def run_pipeline(
             result.edit_plan = _with_transient_retry(
                 refine_plan, result.edit_plan, footage_index_path
             )
-            if profile is not None:
+            if resolved_profile is not None:
                 result.edit_plan = result.edit_plan.model_copy(
-                    update={"profile": profile}
+                    update={"profile": resolved_profile}
                 )
             _log_step_end(
                 step.agent,

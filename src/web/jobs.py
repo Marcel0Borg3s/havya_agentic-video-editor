@@ -47,7 +47,7 @@ from typing import Any
 from src.agents.editor import run_editor
 from src.agents.reviewer import run_reviewer
 from src.agents.trim_refiner import refine_plan
-from src.models.schemas import CreativeBrief, EditPlan
+from src.models.schemas import CreativeBrief, EditPlan, EditingProfile
 from src.pipeline.profiles import load_editing_profile
 from src.pipeline.runner import (
     PipelineResult,
@@ -183,6 +183,7 @@ class Job:
     footage_index_path: str
     pipeline_path: str
     profile_path: str | None = None
+    profile: EditingProfile | None = None
     #: Execution path this job should take. ``"full-pipeline"`` runs the
     #: standard :func:`run_pipeline` flow. ``"feedback-rerun"`` re-runs the
     #: Director (with accumulated feedback) -> trim_refiner -> editor ->
@@ -259,6 +260,7 @@ class Job:
             "footage_index_path": self.footage_index_path,
             "pipeline_path": self.pipeline_path,
             "profile_path": self.profile_path,
+            "profile": self.profile.model_dump() if self.profile else None,
             "feedback_history": list(self.feedback_history),
             "progress_log": list(self.progress_log),
             "result": self.result,
@@ -557,6 +559,7 @@ class JobRegistry:
         footage_index_path: str,
         pipeline_path: str,
         profile_path: str | None = None,
+        profile: EditingProfile | None = None,
     ) -> Job:
         """Create a new pending job and enqueue it for the worker."""
         job = Job(
@@ -566,6 +569,7 @@ class JobRegistry:
             footage_index_path=footage_index_path,
             pipeline_path=pipeline_path,
             profile_path=profile_path,
+            profile=profile,
         )
         self._jobs[job.id] = job
         self._queue.put_nowait(job.id)
@@ -640,6 +644,7 @@ class JobRegistry:
             footage_index_path=parent.footage_index_path,
             pipeline_path=parent.pipeline_path,
             profile_path=parent.profile_path,
+            profile=parent.profile,
             job_type="feedback-rerun",
             parent_job_id=parent.id,
             feedback_history=history,
@@ -708,6 +713,7 @@ class JobRegistry:
             footage_index_path=parent.footage_index_path,
             pipeline_path=parent.pipeline_path,
             profile_path=parent.profile_path,
+            profile=parent.profile,
             job_type="editor-only",
             parent_job_id=parent.id,
             feedback_history=list(parent.feedback_history),
@@ -779,6 +785,7 @@ class JobRegistry:
             footage_index_path=parent.footage_index_path,
             pipeline_path=parent.pipeline_path,
             profile_path=parent.profile_path,
+            profile=parent.profile,
             job_type="reviewer-only",
             parent_job_id=parent.id,
             feedback_history=list(parent.feedback_history),
@@ -895,6 +902,7 @@ class JobRegistry:
                         brief=job.brief,
                         footage_index_path=job.footage_index_path,
                         profile_path=job.profile_path,
+                        profile=job.profile,
                         human_approval=False,
                     )
             # Flush any trailing partial line that never got a newline.
@@ -972,7 +980,7 @@ class JobRegistry:
             job.footage_index_path,
             feedback=combined_feedback,
         )
-        if job.profile_path:
+        if job.profile is None and job.profile_path:
             revised_plan = revised_plan.model_copy(
                 update={"profile": load_editing_profile(job.profile_path)}
             )
@@ -984,7 +992,7 @@ class JobRegistry:
         refined = _with_transient_retry(
             refine_plan, revised_plan, job.footage_index_path
         )
-        if job.profile_path:
+        if job.profile is None and job.profile_path:
             refined = refined.model_copy(
                 update={"profile": load_editing_profile(job.profile_path)}
             )
