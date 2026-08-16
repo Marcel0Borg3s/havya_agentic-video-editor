@@ -39,25 +39,37 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
   const [shortsCount, setShortsCount] = useState(3);
   const [shortsDuration, setShortsDuration] = useState(60);
   const [submitting, setSubmitting] = useState(false);
+  const [loadingOptions, setLoadingOptions] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (open) {
-      api.getPipelines().then((p) => {
-        setPipelines(p);
-        if (p.length > 0 && !pipelinePath) setPipelinePath(p[0].path);
-      }).catch(() => {});
-      api.getStyles().then((s) => {
-        setStyles(s);
-        if (s.length > 0 && !profilePath) {
-          setProfilePath(s.find((x) => x.name === "youtube-default")?.path ?? s[0].path);
-        }
-      }).catch(() => {});
-    }
+    if (!open) return;
+    setLoadingOptions(true);
+    setError("");
+    const pipelineRequest = api.getPipelines().then((p) => {
+      setPipelines(p);
+      if (p.length > 0 && !pipelinePath) setPipelinePath(p[0].path);
+    }).catch(() => setError("Não foi possível carregar os pipelines."));
+    const styleRequest = api.getStyles().then((s) => {
+      setStyles(s);
+      if (s.length > 0 && !profilePath) {
+        setProfilePath(s.find((x) => x.name === "youtube-default")?.path ?? s[0].path);
+      }
+    }).catch(() => setError("Não foi possível carregar os perfis."));
+    Promise.allSettled([pipelineRequest, styleRequest]).finally(() => setLoadingOptions(false));
   }, [open, pipelinePath, profilePath]);
 
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !submitting) setOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open, submitting, setOpen]);
+
   const handleSubmit = useCallback(async () => {
-    if (!project?.footage_index_path || !pipelinePath) return;
+    if (!project?.footage_index_path || !pipelinePath || project.status !== "ready") return;
     setSubmitting(true);
     setError("");
     try {
@@ -253,6 +265,9 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
           {error && (
             <p className="text-destructive text-[10px]">{error}</p>
           )}
+          {project?.status !== "ready" && (
+            <p className="text-amber-400 text-[10px]">Aguarde o processamento do vídeo terminar antes de gerar.</p>
+          )}
         </div>
 
         <div className="flex justify-end gap-2 px-4 py-3 border-t border-border">
@@ -260,11 +275,11 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
             onClick={() => setOpen(false)}
             className="px-3 py-1.5 rounded border border-border text-xs hover:bg-surface-hover transition-colors"
           >
-            Cancel
+            Cancelar
           </button>
           <button
             onClick={handleSubmit}
-            disabled={submitting || !pipelinePath}
+            disabled={submitting || loadingOptions || !pipelinePath || project?.status !== "ready"}
             className="flex items-center gap-1.5 px-4 py-1.5 rounded bg-accent hover:bg-accent-hover text-black text-xs font-medium disabled:opacity-50 transition-colors"
           >
             {submitting && <Loader2 className="w-3 h-3 animate-spin" />}

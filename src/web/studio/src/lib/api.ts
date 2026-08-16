@@ -18,18 +18,34 @@ import type { EditPlanEntry } from "@/types/schemas";
 
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, init);
-  if (!res.ok) {
-    let detail = `HTTP ${res.status}`;
-    try {
-      const body = await res.json();
-      if (body?.detail) detail = typeof body.detail === "string" ? body.detail : JSON.stringify(body.detail);
-    } catch { /* non-JSON */ }
-    throw new Error(detail);
+async function request<T>(path: string, init?: RequestInit, timeoutMs = 30000): Promise<T> {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(`${BASE}${path}`, {
+      ...init,
+      signal: init?.signal ?? controller.signal,
+    });
+    if (!res.ok) {
+      let detail = `HTTP ${res.status}`;
+      try {
+        const body = await res.json();
+        if (body?.detail) {
+          detail = typeof body.detail === "string" ? body.detail : JSON.stringify(body.detail);
+        }
+      } catch { /* non-JSON */ }
+      throw new Error(detail);
+    }
+    if (res.status === 204) return undefined as T;
+    return res.json();
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new Error("O servidor demorou para responder. Verifique se o backend está ativo.");
+    }
+    throw error;
+  } finally {
+    window.clearTimeout(timeout);
   }
-  if (res.status === 204) return undefined as T;
-  return res.json();
 }
 
 // --- Browse ---
@@ -70,10 +86,13 @@ export const uploadProject = async (name: string, rawVideo: File, opening?: File
   form.append("raw_video", rawVideo);
   if (opening) form.append("opening", opening);
   if (closing) form.append("closing", closing);
-  return request<{ id: string; name: string; status: string }>("/api/projects/upload", {
+  // Large multipart bodies exceed Next.js' 10 MB rewrite/proxy limit.
+  // Send uploads directly to FastAPI instead of through the Next proxy.
+  const apiOrigin = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  return request<{ id: string; name: string; status: string }>(`${apiOrigin}/api/projects/upload`, {
     method: "POST",
     body: form,
-  });
+  }, 10 * 60 * 1000);
 };
 
 export const deleteProject = (id: string) =>
