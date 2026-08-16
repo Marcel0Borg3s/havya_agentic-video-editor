@@ -11,6 +11,9 @@ import {
   Loader2,
   AlertCircle,
   CheckCircle2,
+  Sparkles,
+  Film,
+  Scissors,
 } from "lucide-react";
 
 export default function ProjectPicker() {
@@ -75,14 +78,30 @@ export default function ProjectPicker() {
           <h1 className="text-3xl font-bold tracking-tight">Havya Studio</h1>
         </div>
 
+        <div className="mb-8 rounded-xl border border-accent/30 bg-accent/5 p-6">
+          <div className="flex items-start gap-4">
+            <div className="rounded-lg bg-accent/15 p-3 text-accent"><Sparkles className="w-6 h-6" /></div>
+            <div>
+              <h2 className="text-xl font-semibold">Transforme seu vídeo em conteúdo pronto</h2>
+              <p className="text-sm text-muted mt-2 max-w-xl">Envie um vídeo bruto e, opcionalmente, uma abertura e uma finalização. O Havya analisa o material, monta o vídeo completo, aplica legendas e prepara Shorts para o YouTube.</p>
+              <button onClick={() => setShowCreate(true)} className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded bg-accent hover:bg-accent-hover text-black text-sm font-semibold transition-colors"><Plus className="w-4 h-4" />Criar novo vídeo</button>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-3 mt-6 pt-5 border-t border-border/60 text-xs text-muted">
+            <div className="flex items-center gap-2"><Film className="w-4 h-4 text-accent" /> Vídeo completo</div>
+            <div className="flex items-center gap-2"><Scissors className="w-4 h-4 text-accent" /> Cortes automáticos</div>
+            <div className="flex items-center gap-2"><Sparkles className="w-4 h-4 text-accent" /> Shorts para YouTube</div>
+          </div>
+        </div>
+
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-medium text-muted">Projects</h2>
+          <div><h2 className="text-lg font-medium">Seus vídeos</h2><p className="text-xs text-muted mt-1">Projetos prontos para gerar ou revisar.</p></div>
           <button
             onClick={() => setShowCreate(true)}
             className="flex items-center gap-2 px-3 py-1.5 rounded bg-accent hover:bg-accent-hover text-black text-sm font-medium transition-colors"
           >
             <Plus className="w-4 h-4" />
-            New Project
+            Novo vídeo
           </button>
         </div>
 
@@ -100,7 +119,7 @@ export default function ProjectPicker() {
         {!loading && projects.length === 0 && !error && (
           <div className="text-center py-12 border border-dashed border-border rounded-lg">
             <FolderOpen className="w-10 h-10 mx-auto mb-3 text-muted" />
-            <p className="text-muted">No projects yet. Create one to get started.</p>
+            <p className="text-muted">Ainda não há vídeos. Comece enviando seu vídeo bruto.</p>
           </div>
         )}
 
@@ -146,17 +165,18 @@ export default function ProjectPicker() {
         {showCreate && (
           <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
             <div className="bg-surface border border-border rounded-lg p-6 w-full max-w-md">
-              <h3 className="text-lg font-semibold mb-4">New Project</h3>
+              <h3 className="text-lg font-semibold mb-1">Criar novo vídeo</h3>
+              <p className="text-xs text-muted mb-5">Selecione a pasta que contém o vídeo bruto. Abertura e finalização serão configuradas na próxima etapa.</p>
 
-              <label className="block text-sm text-muted mb-1">Project name</label>
+              <label className="block text-sm text-muted mb-1">Nome do vídeo/projeto</label>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Summer Campaign"
+                placeholder="Ex.: Vídeo institucional"
                 className="w-full px-3 py-2 rounded border border-border bg-background text-foreground mb-4 focus:outline-none focus:border-accent"
               />
 
-              <label className="block text-sm text-muted mb-1">Footage directory</label>
+              <label className="block text-sm text-muted mb-1">Pasta do vídeo bruto</label>
               <button
                 type="button"
                 onClick={() => setShowFolderPicker(true)}
@@ -166,7 +186,7 @@ export default function ProjectPicker() {
                 {footageDir ? (
                   <span className="font-mono text-sm truncate">{footageDir}</span>
                 ) : (
-                  <span className="text-muted text-sm">Click to browse...</span>
+                  <span className="text-muted text-sm">Selecionar pasta com vídeo...</span>
                 )}
               </button>
 

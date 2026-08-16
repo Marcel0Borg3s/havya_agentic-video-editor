@@ -208,7 +208,7 @@ Observação: o primeiro comando executado com `pytest` global falhou por ausên
 - [ ] Validar manualmente pela interface local quando o aplicativo executável estiver disponível.
 - [x] Integrar controle de legendas pelo perfil.
 - [x] Integrar título, CTA e créditos como overlays determinísticos.
-- [ ] Validar visualmente pela interface local executável.
+- [x] Fazer primeira revisão UX da tela inicial orientada à geração automática.
 - [x] Adicionar seleção visual de perfil no Studio.
 - [x] Adicionar campos visuais de abertura, fechamento, título, canal e créditos.
 - [x] Adicionar controles visuais de legendas e Shorts.
@@ -323,6 +323,7 @@ A primeira implementação deve criar os novos modelos e testes, preservando o c
 - Fluxo oficial de inicialização local documentado em `src/web/studio/README.md`.
 - Build frontend ainda deve ser validado no ambiente local com `pnpm build`.
 - Validação manual realizada: Havya Studio abriu localmente e a interface visual funcionou sem carregar vídeos.
+- Tela inicial revisada para comunicar geração automática de vídeo, com CTA "Criar novo vídeo" e linguagem orientada a vídeo bruto.
 - Corrigido parcialmente o erro do ADK/Gemini ao processar `EditPlan` com configuração aninhada.
 - Director alterado para parsing manual do JSON, sem `output_schema` e sem `set_model_response` automático.
 - Suíte Python após correção: 104 testes aprovados.
