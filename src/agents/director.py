@@ -79,6 +79,7 @@ from google.adk.runners import InMemoryRunner
 from google.genai import types as genai_types
 from pydantic import BaseModel
 
+from src.config import DIRECTOR_MODEL
 from src.models.schemas import CreativeBrief, EditPlan, EditPlanEntry
 from src.tools.analyze import analyze_footage, search_moments
 
@@ -88,7 +89,7 @@ logger = logging.getLogger(__name__)
 # Constants
 # --------------------------------------------------------------------------- #
 
-_MODEL_ID = "gemini-3.1-pro-preview"
+_MODEL_ID = DIRECTOR_MODEL
 _AGENT_NAME = "director"
 _APP_NAME = "agentic-video-editor"
 _USER_ID = "director-user"

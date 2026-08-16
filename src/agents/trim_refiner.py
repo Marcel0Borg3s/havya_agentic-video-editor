@@ -27,13 +27,14 @@ from pathlib import Path
 
 from pydantic import BaseModel, Field
 
+from src.config import TRIM_REFINER_MODEL
 from src.models.schemas import EditPlan, EditPlanEntry, FootageIndex, Shot
 
 # --------------------------------------------------------------------------- #
 # Constants
 # --------------------------------------------------------------------------- #
 
-_GEMINI_MODEL = "gemini-3.1-pro-preview"
+_GEMINI_MODEL = TRIM_REFINER_MODEL
 
 #: Seconds of context on each side of a trim point.
 _PROBE_MARGIN_SECONDS = 3.0

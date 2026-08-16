@@ -58,7 +58,9 @@ _ALLOWED_REVIEW_VIDEO_PATH: contextvars.ContextVar[str | None] = contextvars.Con
 # Constants
 # --------------------------------------------------------------------------- #
 
-_GEMINI_MODEL = "gemini-3.1-pro-preview"
+from src.config import ANALYSIS_MODEL
+
+_GEMINI_MODEL = ANALYSIS_MODEL
 
 # Files larger than this must be uploaded via the Gemini File API rather than
 # inlined as bytes. Inline payloads are subject to per-request size limits and

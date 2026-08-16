@@ -118,6 +118,7 @@ from google.adk.agents import Agent
 from google.adk.runners import InMemoryRunner
 from google.genai import types as genai_types
 
+from src.config import EDITOR_MODEL
 from src.models.schemas import (
     CreativeBrief,
     EditPlan,
@@ -141,7 +142,7 @@ logger = logging.getLogger(__name__)
 # Constants
 # --------------------------------------------------------------------------- #
 
-_MODEL_ID = "gemini-3.1-pro-preview"
+_MODEL_ID = EDITOR_MODEL
 _AGENT_NAME = "editor"
 _APP_NAME = "agentic-video-editor"
 _USER_ID = "editor-user"

@@ -70,6 +70,7 @@ from google.adk.agents import Agent
 from google.adk.runners import InMemoryRunner
 from google.genai import types as genai_types
 
+from src.config import REVIEWER_MODEL
 from src.models.schemas import CreativeBrief, ReviewScore
 from src.tools.analyze import _ALLOWED_REVIEW_VIDEO_PATH, review_output
 
@@ -77,7 +78,7 @@ from src.tools.analyze import _ALLOWED_REVIEW_VIDEO_PATH, review_output
 # Constants
 # --------------------------------------------------------------------------- #
 
-_MODEL_ID = "gemini-3.1-pro-preview"
+_MODEL_ID = REVIEWER_MODEL
 _AGENT_NAME = "reviewer"
 _APP_NAME = "agentic-video-editor"
 _USER_ID = "reviewer-user"
