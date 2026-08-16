@@ -8,6 +8,7 @@ interface ProjectState {
   error: string;
   fetchProjects: () => Promise<void>;
   createProject: (name: string, footageDir: string) => Promise<string>;
+  addUploadingProject: (project: { id: string; name: string; status: string }) => void;
   deleteProject: (id: string) => Promise<void>;
   pollProject: (id: string) => Promise<Project>;
 }
@@ -33,13 +34,55 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     return res.id;
   },
 
+  addUploadingProject: (project) => {
+    const now = new Date().toISOString();
+    set({
+      projects: [
+        ...get().projects.filter((item) => item.id !== project.id),
+        {
+          id: project.id,
+          name: project.name,
+          footage_dir: "Upload recebido",
+          footage_index_path: "",
+          status: project.status as Project["status"],
+          shot_count: 0,
+          total_duration: 0,
+          created_at: now,
+          error: null,
+        },
+      ],
+    });
+  },
+
   deleteProject: async (id) => {
     await api.deleteProject(id);
     set({ projects: get().projects.filter((p) => p.id !== id) });
   },
 
   pollProject: async (id) => {
-    const project = await api.getProject(id);
+    let project: Project;
+    try {
+      project = await api.getProject(id);
+    } catch (error) {
+      // A backend restart can clear the in-memory project while the UI is
+      // polling. Keep the page usable instead of creating an unhandled
+      // promise rejection and a stuck loading state.
+      if (String(error).includes("Project not found") || String(error).includes("HTTP 404")) {
+        set({ projects: get().projects.filter((p) => p.id !== id) });
+        return {
+          id,
+          name: "",
+          footage_dir: "",
+          footage_index_path: "",
+          status: "failed",
+          shot_count: 0,
+          total_duration: 0,
+          created_at: new Date().toISOString(),
+          error: "O projeto não está mais disponível. Crie-o novamente.",
+        };
+      }
+      throw error;
+    }
     const existing = get().projects;
     const found = existing.some((p) => p.id === id);
     set({

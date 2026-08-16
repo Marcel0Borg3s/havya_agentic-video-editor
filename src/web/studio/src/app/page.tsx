@@ -19,7 +19,7 @@ import {
 
 export default function ProjectPicker() {
   const router = useRouter();
-  const { projects, loading, error, fetchProjects, createProject, deleteProject } =
+  const { projects, loading, error, fetchProjects, createProject, addUploadingProject, deleteProject } =
     useProjectStore();
   const [showCreate, setShowCreate] = useState(false);
   const [name, setName] = useState("");
@@ -60,8 +60,8 @@ export default function ProjectPicker() {
     setCreateError("");
     try {
       if (rawVideo) {
-        await api.uploadProject(name.trim(), rawVideo, openingFile ?? undefined, closingFile ?? undefined);
-        await fetchProjects();
+        const uploaded = await api.uploadProject(name.trim(), rawVideo, openingFile ?? undefined, closingFile ?? undefined);
+        addUploadingProject(uploaded);
       } else {
         await createProject(name.trim(), footageDir.trim());
       }
@@ -76,7 +76,7 @@ export default function ProjectPicker() {
     } finally {
       setCreating(false);
     }
-  }, [name, footageDir, rawVideo, openingFile, closingFile, createProject]);
+  }, [name, footageDir, rawVideo, openingFile, closingFile, createProject, addUploadingProject]);
 
   const statusIcon = (status: string) => {
     switch (status) {
