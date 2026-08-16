@@ -154,7 +154,7 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
             <p className="text-muted mt-1">{project?.name ?? "Projeto atual"} · {project?.shot_count ?? 0} cenas analisadas</p>
           </div>
 
-          <p className="text-muted">Adicione os elementos opcionais e clique em Gerar vídeo. A edição será feita automaticamente.</p>
+          <p className="text-muted">Configure apenas o que precisar. Título, créditos e legendas são opcionais.</p>
 
           {/* Perfil de geração */}
           {pipelines.length > 1 && (
@@ -253,11 +253,11 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
 
               <label className="block pl-2"><span className="text-muted font-medium">Opening path (optional)</span><input value={openingPath} onChange={(e) => setOpeningPath(e.target.value)} placeholder="/path/to/opening.mp4" className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground" /></label>
               <label className="block pl-2"><span className="text-muted font-medium">Closing path (optional)</span><input value={closingPath} onChange={(e) => setClosingPath(e.target.value)} placeholder="/path/to/closing.mp4" className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground" /></label>
-              <label className="block pl-2"><span className="text-muted font-medium">Video title (optional)</span><input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title overlay" className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground" /></label>
-              <label className="block pl-2"><span className="text-muted font-medium">Channel name (optional)</span><input value={channelName} onChange={(e) => setChannelName(e.target.value)} placeholder="My channel" className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground" /></label>
-              <label className="block pl-2"><span className="text-muted font-medium">Final credits (optional)</span><input value={credits} onChange={(e) => setCredits(e.target.value)} placeholder="Credits" className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground" /></label>
-              <label className="flex items-center gap-2 pl-2"><input type="checkbox" checked={captionsEnabled} onChange={(e) => setCaptionsEnabled(e.target.checked)} /> Automatic captions</label>
-              <label className="flex items-center gap-2 pl-2"><input type="checkbox" checked={shortsEnabled} onChange={(e) => setShortsEnabled(e.target.checked)} /> Generate Shorts</label>
+              <label className="block pl-2"><span className="text-muted font-medium">Título (opcional)</span><input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Título exibido no vídeo" className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground" /></label>
+              <label className="block pl-2"><span className="text-muted font-medium">Canal (opcional)</span><input value={channelName} onChange={(e) => setChannelName(e.target.value)} placeholder="Nome do canal" className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground" /></label>
+              <label className="block pl-2"><span className="text-muted font-medium">Créditos (opcional)</span><input value={credits} onChange={(e) => setCredits(e.target.value)} placeholder="Texto dos créditos" className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground" /></label>
+              <label className="flex items-center gap-2 pl-2"><input type="checkbox" checked={captionsEnabled} onChange={(e) => setCaptionsEnabled(e.target.checked)} /> Adicionar legendas automáticas</label>
+              <label className="flex items-center gap-2 pl-2"><input type="checkbox" checked={shortsEnabled} onChange={(e) => setShortsEnabled(e.target.checked)} /> Criar Shorts</label>
               {shortsEnabled && <div className="flex gap-3 pl-2"><label className="flex-1">Shorts count<input type="number" min={1} max={20} value={shortsCount} onChange={(e) => setShortsCount(Number(e.target.value) || 1)} className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground" /></label><label className="flex-1">Short duration<input type="number" min={5} max={180} value={shortsDuration} onChange={(e) => setShortsDuration(Number(e.target.value) || 60)} className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground" /></label></div>}
             </div>
           )}

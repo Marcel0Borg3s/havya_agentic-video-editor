@@ -91,16 +91,16 @@ cp .env.example .env
 # Edit .env and add your Google AI API key
 ```
 
-The default model for all Gemini-powered stages is `gemini-2.5-flash`,
+The default model for all Gemini-powered stages is `gemini-2.0-flash`,
 which is cheaper and generally faster for the personal-use MVP. Models can
 be overridden independently in `.env`:
 
 ```dotenv
-GEMINI_DIRECTOR_MODEL=gemini-2.5-flash
-GEMINI_REVIEWER_MODEL=gemini-2.5-flash
-GEMINI_ANALYSIS_MODEL=gemini-2.5-flash
-GEMINI_EDITOR_MODEL=gemini-2.5-flash
-GEMINI_TRIM_REFINER_MODEL=gemini-2.5-flash
+GEMINI_DIRECTOR_MODEL=gemini-2.0-flash
+GEMINI_REVIEWER_MODEL=gemini-2.0-flash
+GEMINI_ANALYSIS_MODEL=gemini-2.0-flash
+GEMINI_EDITOR_MODEL=gemini-2.0-flash
+GEMINI_TRIM_REFINER_MODEL=gemini-2.0-flash
 ```
 
 Use a Pro model only for stages that need deeper editorial reasoning, for
