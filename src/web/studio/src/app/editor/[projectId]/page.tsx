@@ -17,6 +17,7 @@ import { Inspector } from "@/components/inspector/Inspector";
 import { Console } from "@/components/Console";
 import { RunPipelineDialog } from "@/components/dialogs/RunPipelineDialog";
 import { ChatPanel } from "@/components/ChatPanel";
+import { GenerationProgress } from "@/components/GenerationProgress";
 import { useUiStore } from "@/stores/uiStore";
 
 export default function EditorPage() {
@@ -135,6 +136,7 @@ export default function EditorPage() {
 
       <RunPipelineDialog projectId={projectId} />
       {chatOpen && <ChatPanel />}
+      <GenerationProgress />
     </div>
   );
 }

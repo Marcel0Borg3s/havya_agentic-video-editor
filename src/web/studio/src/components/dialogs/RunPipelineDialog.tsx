@@ -127,7 +127,7 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
       <div className="w-full max-w-sm bg-surface border border-border rounded-lg shadow-xl">
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-          <h2 className="text-sm font-semibold">Run Pipeline</h2>
+          <div><h2 className="text-sm font-semibold">Gerar vídeo</h2><p className="text-[10px] text-muted">O Havya monta o vídeo completo e prepara Shorts.</p></div>
           <button
             onClick={() => setOpen(false)}
             className="p-1 rounded hover:bg-surface-hover text-muted"
@@ -137,7 +137,14 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
         </div>
 
         <div className="p-4 space-y-3 text-xs">
-          {/* Pipeline selector */}
+          <div className="rounded-lg border border-accent/30 bg-accent/5 p-3">
+            <p className="font-medium text-foreground">Vídeo bruto</p>
+            <p className="text-muted mt-1">{project?.name ?? "Projeto atual"} · {project?.shot_count ?? 0} cenas analisadas</p>
+          </div>
+
+          <p className="text-muted">Adicione os elementos opcionais e clique em Gerar vídeo. A edição será feita automaticamente.</p>
+
+          {/* Perfil de geração */}
           {pipelines.length > 1 && (
             <label className="block">
               <span className="text-muted font-medium">Pipeline</span>
@@ -157,7 +164,7 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
 
           {styles.length > 0 && (
             <label className="block">
-              <span className="text-muted font-medium">Editing profile</span>
+              <span className="text-muted font-medium">Perfil de geração</span>
               <select
                 value={profilePath}
                 onChange={(e) => setProfilePath(e.target.value)}
@@ -172,24 +179,13 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
             </label>
           )}
 
-          {/* Footage info */}
-          <div className="text-[11px] text-muted bg-background/50 rounded p-2.5">
-            <span className="font-medium text-foreground">{project?.name ?? "Project"}</span>
-            <span className="ml-2 text-muted">
-              {project?.shot_count ?? 0} shots
-              {pipelines.length === 1 && (
-                <span> -- {pipelines[0].name} pipeline</span>
-              )}
-            </span>
-          </div>
-
-          {/* Advanced toggle */}
+          {/* Opções adicionais */}
           <button
             onClick={() => setShowAdvanced(!showAdvanced)}
             className="flex items-center gap-1 text-muted hover:text-foreground transition-colors"
           >
             {showAdvanced ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-            <span className="text-[11px]">Advanced options</span>
+            <span className="text-[11px]">Mais opções</span>
           </button>
 
           {showAdvanced && (
@@ -272,7 +268,7 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
             className="flex items-center gap-1.5 px-4 py-1.5 rounded bg-accent hover:bg-accent-hover text-black text-xs font-medium disabled:opacity-50 transition-colors"
           >
             {submitting && <Loader2 className="w-3 h-3 animate-spin" />}
-            Run
+            Gerar vídeo
           </button>
         </div>
       </div>

@@ -212,7 +212,10 @@ Observação: o primeiro comando executado com `pytest` global falhou por ausên
 - [x] Adicionar seleção visual de perfil no Studio.
 - [x] Adicionar campos visuais de abertura, fechamento, título, canal e créditos.
 - [x] Adicionar controles visuais de legendas e Shorts.
-- [ ] Validar build do frontend com Node/pnpm e executar o Studio localmente.
+- [x] Validar build do frontend com Node/pnpm e executar o Studio localmente.
+- [x] Adicionar barra de progresso do processamento.
+- [x] Tratar quota de IA sem retries longos quando a cota é zero.
+- [ ] Substituir seleção de pasta por upload direto de vídeo bruto, intro e finalização.
 
 Suíte completa validada:
 
@@ -324,6 +327,10 @@ A primeira implementação deve criar os novos modelos e testes, preservando o c
 - Build frontend ainda deve ser validado no ambiente local com `pnpm build`.
 - Validação manual realizada: Havya Studio abriu localmente e a interface visual funcionou sem carregar vídeos.
 - Tela inicial revisada para comunicar geração automática de vídeo, com CTA "Criar novo vídeo" e linguagem orientada a vídeo bruto.
+- Diálogo de geração simplificado para destacar vídeo bruto, perfil, intro/finalização e ação "Gerar vídeo".
+- Barra visual de progresso adicionada ao editor com etapas de análise, planejamento, cortes, renderização e revisão.
+- Erros de quota Gemini agora interrompem retries inúteis e recebem mensagem amigável no frontend.
+- Suíte Python após UX/progresso: 106 testes aprovados.
 - Corrigido parcialmente o erro do ADK/Gemini ao processar `EditPlan` com configuração aninhada.
 - Director alterado para parsing manual do JSON, sem `output_schema` e sem `set_model_response` automático.
 - Suíte Python após correção: 104 testes aprovados.

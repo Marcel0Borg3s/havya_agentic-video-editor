@@ -77,6 +77,12 @@ from src.pipeline.profiles import load_editing_profile
 _TRANSIENT_DELAYS = (30, 60, 120)  # seconds — exponential-ish backoff
 
 
+def _is_quota_exhausted(exc: Exception) -> bool:
+    """Return True for permanent quota exhaustion, not transient 429s."""
+    text = str(exc).upper()
+    return "RESOURCE_EXHAUSTED" in text or "QUOTA EXCEEDED" in text
+
+
 def _with_transient_retry(fn, *args, **kwargs):
     """Call *fn* with retries on transient Gemini errors (502, 503, 429).
 
@@ -87,7 +93,15 @@ def _with_transient_retry(fn, *args, **kwargs):
     for attempt, delay in enumerate(_TRANSIENT_DELAYS):
         try:
             return fn(*args, **kwargs)
-        except (genai_errors.ServerError, genai_errors.ClientError) as exc:
+        except Exception as exc:
+            if _is_quota_exhausted(exc):
+                raise RuntimeError(
+                    "Gemini quota exhausted for the configured model. "
+                    "Configure another AI provider/model or disable AI for "
+                    "deterministic editing."
+                ) from exc
+            if not isinstance(exc, (genai_errors.ServerError, genai_errors.ClientError)):
+                raise
             _log(
                 f"[pipeline] transient error (attempt {attempt + 1}/"
                 f"{len(_TRANSIENT_DELAYS) + 1}): {exc}"

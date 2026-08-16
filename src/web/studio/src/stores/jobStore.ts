@@ -69,7 +69,12 @@ export const useJobStore = create<JobState>((set) => ({
     });
   },
 
-  setFailed: (error) => set({ pipelineStatus: "failed", error }),
+  setFailed: (error) => {
+    const friendly = /RESOURCE_EXHAUSTED|quota exceeded/i.test(error)
+      ? "A cota da IA configurada foi excedida. Configure outro modelo/provedor ou desative a IA para continuar com a edição determinística."
+      : error;
+    set({ pipelineStatus: "failed", error: friendly });
+  },
 
   reset: () =>
     set({
