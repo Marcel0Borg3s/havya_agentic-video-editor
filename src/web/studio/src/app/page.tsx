@@ -35,6 +35,15 @@ export default function ProjectPicker() {
     fetchProjects();
   }, [fetchProjects]);
 
+  useEffect(() => {
+    if (!showCreate) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !creating) setShowCreate(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [showCreate, creating]);
+
   // Poll preprocessing projects.
   useEffect(() => {
     const preprocessing = projects.filter((p) => p.status === "preprocessing");
@@ -52,12 +61,16 @@ export default function ProjectPicker() {
     try {
       if (rawVideo) {
         await api.uploadProject(name.trim(), rawVideo, openingFile ?? undefined, closingFile ?? undefined);
+        await fetchProjects();
       } else {
         await createProject(name.trim(), footageDir.trim());
       }
       setShowCreate(false);
       setName("");
       setFootageDir("");
+      setRawVideo(null);
+      setOpeningFile(null);
+      setClosingFile(null);
     } catch (e) {
       setCreateError((e as Error).message);
     } finally {
@@ -116,7 +129,7 @@ export default function ProjectPicker() {
         {loading && projects.length === 0 && (
           <div className="text-center py-12 text-muted">
             <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" />
-            Loading projects...
+            Carregando vídeos...
           </div>
         )}
 
@@ -128,6 +141,9 @@ export default function ProjectPicker() {
           <div className="text-center py-12 border border-dashed border-border rounded-lg">
             <FolderOpen className="w-10 h-10 mx-auto mb-3 text-muted" />
             <p className="text-muted">Ainda não há vídeos. Comece enviando seu vídeo bruto.</p>
+            <button onClick={() => setShowCreate(true)} className="mt-4 inline-flex items-center gap-2 px-3 py-2 rounded bg-accent hover:bg-accent-hover text-black text-sm font-medium">
+              <Plus className="w-4 h-4" /> Criar primeiro vídeo
+            </button>
           </div>
         )}
 
@@ -151,7 +167,7 @@ export default function ProjectPicker() {
               </div>
               <div className="text-right text-xs text-muted shrink-0">
                 {p.status === "ready" && <span>{p.shot_count} shots</span>}
-                {p.status === "preprocessing" && <span>Indexing...</span>}
+                {p.status === "preprocessing" && <span>Preparando...</span>}
                 {p.status === "failed" && (
                   <span className="text-destructive">Failed</span>
                 )}
@@ -172,9 +188,9 @@ export default function ProjectPicker() {
         {/* Create dialog */}
         {showCreate && (
           <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-            <div className="bg-surface border border-border rounded-lg p-6 w-full max-w-md">
-              <h3 className="text-lg font-semibold mb-1">Criar novo vídeo</h3>
-              <p className="text-xs text-muted mb-5">Selecione a pasta que contém o vídeo bruto. Abertura e finalização serão configuradas na próxima etapa.</p>
+            <div role="dialog" aria-modal="true" aria-labelledby="create-title" className="bg-surface border border-border rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+              <h3 id="create-title" className="text-lg font-semibold mb-1">Criar novo vídeo</h3>
+              <p className="text-xs text-muted mb-5">Envie um vídeo bruto ou selecione uma pasta local. Abertura e finalização são opcionais.</p>
 
               <label className="block text-sm text-muted mb-1">Nome do vídeo/projeto</label>
               <input
@@ -186,7 +202,7 @@ export default function ProjectPicker() {
 
               <label className="block mb-4 rounded border border-accent/30 bg-accent/5 p-3 cursor-pointer">
                 <span className="text-sm text-foreground">Enviar vídeo bruto</span>
-                <span className="block text-xs text-muted mt-1">Obrigatório · MP4, MOV, M4V ou MKV</span>
+                <span className="block text-xs text-muted mt-1">Obrigatório se não selecionar uma pasta · MP4, MOV, M4V ou MKV</span>
                 <input type="file" accept="video/mp4,video/quicktime,video/x-m4v,video/x-matroska" onChange={(e) => setRawVideo(e.target.files?.[0] ?? null)} className="mt-2 w-full text-xs" />
                 {rawVideo && <span className="block text-xs text-accent mt-1">{rawVideo.name}</span>}
               </label>
@@ -203,7 +219,7 @@ export default function ProjectPicker() {
                 {footageDir ? (
                   <span className="font-mono text-sm truncate">{footageDir}</span>
                 ) : (
-                  <span className="text-muted text-sm">Selecionar pasta com vídeo...</span>
+                  <span className="text-muted text-sm">Ou selecionar pasta com vídeos...</span>
                 )}
               </button>
 
@@ -216,17 +232,17 @@ export default function ProjectPicker() {
                   onClick={() => setShowCreate(false)}
                   className="px-4 py-2 rounded text-sm text-muted hover:text-foreground transition-colors"
                 >
-                  Cancel
+                  Cancelar
                 </button>
                 <button
                   onClick={handleCreate}
-                  disabled={creating || !name.trim() || !footageDir.trim()}
+                  disabled={creating || !name.trim() || (!rawVideo && !footageDir.trim())}
                   className="px-4 py-2 rounded bg-accent hover:bg-accent-hover text-black text-sm font-medium disabled:opacity-50 transition-colors"
                 >
                   {creating ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
-                    "Create"
+                    "Criar vídeo"
                   )}
                 </button>
               </div>
