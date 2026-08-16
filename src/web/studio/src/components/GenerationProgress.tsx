@@ -23,7 +23,8 @@ function currentStage(lines: string[]): number {
 
 export function GenerationProgress() {
   const status = useJobStore((s) => s.pipelineStatus);
-  const lines = useJobStore((s) => s.progressLines.map((entry) => entry.line));
+  const progressEntries = useJobStore((s) => s.progressLines);
+  const lines = progressEntries.map((entry) => entry.line);
   const error = useJobStore((s) => s.error);
   const active = currentStage(lines);
   const percent = status === "completed" ? 100 : Math.max(8, Math.round(((active + 1) / stages.length) * 100));

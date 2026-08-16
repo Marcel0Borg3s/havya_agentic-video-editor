@@ -337,6 +337,9 @@ A primeira implementação deve criar os novos modelos e testes, preservando o c
 - Upload direto implementado para vídeo bruto, intro e finalização.
 - Testes de upload: 3 aprovados; suíte completa: 109 testes aprovados.
 - Build frontend validado com `pnpm run build`.
+- Corrigido loop infinito do React na barra de progresso causado por seletor Zustand que criava arrays novos.
+- Projeto ausente após reinício do backend agora é tratado sem rejeição não capturada no frontend.
+- Python: 109 testes aprovados; build frontend aprovado.
 - Corrigido parcialmente o erro do ADK/Gemini ao processar `EditPlan` com configuração aninhada.
 - Director alterado para parsing manual do JSON, sem `output_schema` e sem `set_model_response` automático.
 - Suíte Python após correção: 104 testes aprovados.

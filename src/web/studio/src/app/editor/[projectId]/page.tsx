@@ -37,6 +37,8 @@ export default function EditorPage() {
         useMediaStore.getState().setFootageIndexPath(p.footage_index_path);
         useMediaStore.getState().fetchCatalog();
       }
+    }).catch((error) => {
+      console.warn("Unable to restore project:", error);
     });
 
     // Restore the latest completed job if no active job.
