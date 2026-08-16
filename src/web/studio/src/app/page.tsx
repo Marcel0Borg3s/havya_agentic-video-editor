@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useProjectStore } from "@/stores/projectStore";
 import { FolderPicker } from "@/components/FolderPicker";
+import * as api from "@/lib/api";
 import {
   FolderOpen,
   Plus,
@@ -23,6 +24,9 @@ export default function ProjectPicker() {
   const [showCreate, setShowCreate] = useState(false);
   const [name, setName] = useState("");
   const [footageDir, setFootageDir] = useState("");
+  const [rawVideo, setRawVideo] = useState<File | null>(null);
+  const [openingFile, setOpeningFile] = useState<File | null>(null);
+  const [closingFile, setClosingFile] = useState<File | null>(null);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState("");
   const [showFolderPicker, setShowFolderPicker] = useState(false);
@@ -42,11 +46,15 @@ export default function ProjectPicker() {
   }, [projects]);
 
   const handleCreate = useCallback(async () => {
-    if (!name.trim() || !footageDir.trim()) return;
+    if (!name.trim() || (!rawVideo && !footageDir.trim())) return;
     setCreating(true);
     setCreateError("");
     try {
-      await createProject(name.trim(), footageDir.trim());
+      if (rawVideo) {
+        await api.uploadProject(name.trim(), rawVideo, openingFile ?? undefined, closingFile ?? undefined);
+      } else {
+        await createProject(name.trim(), footageDir.trim());
+      }
       setShowCreate(false);
       setName("");
       setFootageDir("");
@@ -55,7 +63,7 @@ export default function ProjectPicker() {
     } finally {
       setCreating(false);
     }
-  }, [name, footageDir, createProject]);
+  }, [name, footageDir, rawVideo, openingFile, closingFile, createProject]);
 
   const statusIcon = (status: string) => {
     switch (status) {
@@ -176,7 +184,16 @@ export default function ProjectPicker() {
                 className="w-full px-3 py-2 rounded border border-border bg-background text-foreground mb-4 focus:outline-none focus:border-accent"
               />
 
-              <label className="block text-sm text-muted mb-1">Pasta do vídeo bruto</label>
+              <label className="block mb-4 rounded border border-accent/30 bg-accent/5 p-3 cursor-pointer">
+                <span className="text-sm text-foreground">Enviar vídeo bruto</span>
+                <span className="block text-xs text-muted mt-1">Obrigatório · MP4, MOV, M4V ou MKV</span>
+                <input type="file" accept="video/mp4,video/quicktime,video/x-m4v,video/x-matroska" onChange={(e) => setRawVideo(e.target.files?.[0] ?? null)} className="mt-2 w-full text-xs" />
+                {rawVideo && <span className="block text-xs text-accent mt-1">{rawVideo.name}</span>}
+              </label>
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <label className="rounded border border-border p-3 cursor-pointer"><span className="text-xs text-muted">Intro (opcional)</span><input type="file" accept="video/*" onChange={(e) => setOpeningFile(e.target.files?.[0] ?? null)} className="mt-2 w-full text-[10px]" />{openingFile && <span className="block text-[10px] text-accent mt-1 truncate">{openingFile.name}</span>}</label>
+                <label className="rounded border border-border p-3 cursor-pointer"><span className="text-xs text-muted">Finalização (opcional)</span><input type="file" accept="video/*" onChange={(e) => setClosingFile(e.target.files?.[0] ?? null)} className="mt-2 w-full text-[10px]" />{closingFile && <span className="block text-[10px] text-accent mt-1 truncate">{closingFile.name}</span>}</label>
+              </div>
               <button
                 type="button"
                 onClick={() => setShowFolderPicker(true)}

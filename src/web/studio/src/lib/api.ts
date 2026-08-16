@@ -64,6 +64,18 @@ export const createProject = (name: string, footage_dir: string) =>
     body: JSON.stringify({ name, footage_dir }),
   });
 
+export const uploadProject = async (name: string, rawVideo: File, opening?: File, closing?: File) => {
+  const form = new FormData();
+  form.append("name", name);
+  form.append("raw_video", rawVideo);
+  if (opening) form.append("opening", opening);
+  if (closing) form.append("closing", closing);
+  return request<{ id: string; name: string; status: string }>("/api/projects/upload", {
+    method: "POST",
+    body: form,
+  });
+};
+
 export const deleteProject = (id: string) =>
   request<void>(`/api/projects/${id}`, { method: "DELETE" });
 

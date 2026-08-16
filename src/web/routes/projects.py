@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel
 
 from src.models.schemas import FootageIndex
@@ -28,6 +28,9 @@ logger = logging.getLogger(__name__)
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 OUTPUT_DIR = REPO_ROOT / "output"
+UPLOADS_DIR = OUTPUT_DIR / "uploads"
+VIDEO_SUFFIXES = {".mov", ".mp4", ".m4v", ".mkv"}
+MAX_UPLOAD_BYTES = 2 * 1024 * 1024 * 1024
 
 router = APIRouter(tags=["projects"])
 
@@ -47,6 +50,8 @@ class Project:
     total_duration: float = 0.0
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     error: str | None = None
+    opening_path: str | None = None
+    closing_path: str | None = None
 
     def summary(self) -> dict:
         return {
@@ -59,6 +64,8 @@ class Project:
             "total_duration": self.total_duration,
             "created_at": self.created_at.isoformat(),
             "error": self.error,
+            "opening_path": self.opening_path,
+            "closing_path": self.closing_path,
         }
 
 
@@ -145,6 +152,26 @@ class CreateProjectResponse(BaseModel):
     status: str
 
 
+async def _save_upload(upload: UploadFile, destination: Path) -> str:
+    """Save one validated upload without trusting the client filename."""
+    suffix = Path(upload.filename or "").suffix.lower()
+    if suffix not in VIDEO_SUFFIXES:
+        raise HTTPException(status_code=422, detail=f"Unsupported video type: {suffix or 'unknown'}")
+    destination = destination.with_suffix(suffix)
+    total = 0
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        with destination.open("wb") as target:
+            while chunk := await upload.read(1024 * 1024):
+                total += len(chunk)
+                if total > MAX_UPLOAD_BYTES:
+                    raise HTTPException(status_code=413, detail="Uploaded video exceeds the 2 GB limit")
+                target.write(chunk)
+    finally:
+        await upload.close()
+    return str(destination)
+
+
 # ---------------------------------------------------------------------------
 # Endpoints
 # ---------------------------------------------------------------------------
@@ -161,6 +188,41 @@ async def create_project(body: CreateProjectRequest) -> CreateProjectResponse:
     # Fire-and-forget preprocessing task.
     asyncio.create_task(_run_preprocessing(project))
 
+    return CreateProjectResponse(id=project.id, name=project.name, status=project.status)
+
+
+@router.post("/api/projects/upload", response_model=CreateProjectResponse, status_code=202)
+async def upload_project(
+    name: str = Form(...),
+    raw_video: UploadFile = File(...),
+    opening: UploadFile | None = File(default=None),
+    closing: UploadFile | None = File(default=None),
+) -> CreateProjectResponse:
+    """Create a project from raw video and optional intro/outro assets."""
+    project_id = str(uuid.uuid4())
+    project_dir = UPLOADS_DIR / project_id
+    footage_dir = project_dir / "footage"
+    try:
+        await _save_upload(raw_video, footage_dir / "raw")
+        opening_path = await _save_upload(opening, project_dir / "opening" / "opening") if opening is not None else None
+        closing_path = await _save_upload(closing, project_dir / "closing" / "closing") if closing is not None else None
+    except Exception:
+        import shutil
+        shutil.rmtree(project_dir, ignore_errors=True)
+        raise
+
+    store = get_store()
+    project = Project(
+        id=project_id,
+        name=name.strip() or "Novo vídeo",
+        footage_dir=str(footage_dir),
+        footage_index_path=str(OUTPUT_DIR / "projects" / project_id / "footage_index.json"),
+        status="preprocessing",
+        opening_path=opening_path,
+        closing_path=closing_path,
+    )
+    store._projects[project_id] = project
+    asyncio.create_task(_run_preprocessing(project))
     return CreateProjectResponse(id=project.id, name=project.name, status=project.status)
 
 

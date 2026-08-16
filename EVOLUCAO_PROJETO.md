@@ -215,7 +215,10 @@ Observação: o primeiro comando executado com `pytest` global falhou por ausên
 - [x] Validar build do frontend com Node/pnpm e executar o Studio localmente.
 - [x] Adicionar barra de progresso do processamento.
 - [x] Tratar quota de IA sem retries longos quando a cota é zero.
-- [ ] Substituir seleção de pasta por upload direto de vídeo bruto, intro e finalização.
+- [x] Criar endpoint de upload direto para vídeo bruto, intro e finalização.
+- [x] Conectar seleção de arquivos do Studio ao endpoint de upload.
+- [x] Adicionar preview/nome dos arquivos selecionados no formulário.
+- [ ] Validar upload manual com vídeo real no ambiente do usuário.
 
 Suíte completa validada:
 
@@ -331,6 +334,9 @@ A primeira implementação deve criar os novos modelos e testes, preservando o c
 - Barra visual de progresso adicionada ao editor com etapas de análise, planejamento, cortes, renderização e revisão.
 - Erros de quota Gemini agora interrompem retries inúteis e recebem mensagem amigável no frontend.
 - Suíte Python após UX/progresso: 106 testes aprovados.
+- Upload direto implementado para vídeo bruto, intro e finalização.
+- Testes de upload: 3 aprovados; suíte completa: 109 testes aprovados.
+- Build frontend validado com `pnpm run build`.
 - Corrigido parcialmente o erro do ADK/Gemini ao processar `EditPlan` com configuração aninhada.
 - Director alterado para parsing manual do JSON, sem `output_schema` e sem `set_model_response` automático.
 - Suíte Python após correção: 104 testes aprovados.

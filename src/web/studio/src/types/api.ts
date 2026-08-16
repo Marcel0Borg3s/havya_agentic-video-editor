@@ -14,6 +14,8 @@ export interface Project {
   total_duration: number;
   created_at: string;
   error: string | null;
+  opening_path?: string | null;
+  closing_path?: string | null;
 }
 
 // --- Jobs ---
