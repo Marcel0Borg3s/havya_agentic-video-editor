@@ -91,7 +91,7 @@ cp .env.example .env
 # Edit .env and add your Google AI API key
 ```
 
-The default model for all Gemini-powered stages is `gemini-3.6-flash`,
+The default model for all Gemini-powered stages is `gemini-2.5-flash`,
 which is cheaper and generally faster for the personal-use MVP. Models can
 be overridden independently in `.env`:
 

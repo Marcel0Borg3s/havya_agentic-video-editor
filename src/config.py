@@ -5,10 +5,10 @@ from __future__ import annotations
 import os
 
 
-DEFAULT_GEMINI_MODEL = "gemini-3.6-flash"
+DEFAULT_GEMINI_MODEL = "gemini-2.5-flash"
 
 # Fallback model used when the primary model is unavailable (503/429).
-FALLBACK_GEMINI_MODEL = os.getenv("GEMINI_FALLBACK_MODEL", "gemini-2.5-flash")
+FALLBACK_GEMINI_MODEL = os.getenv("GEMINI_FALLBACK_MODEL", "gemini-2.0-flash")
 
 
 def env_model(name: str, *, default: str = DEFAULT_GEMINI_MODEL) -> str:
