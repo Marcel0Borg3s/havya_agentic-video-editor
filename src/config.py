@@ -4,15 +4,25 @@ from __future__ import annotations
 
 import os
 
+# Import OpenRouter adapter to register with ADK registry.
+# noinspection PyUnresolvedReferences
+import src.models.openrouter_llm  # noqa: F401
 
-DEFAULT_GEMINI_MODEL = "gemini-3.6-flash"
+# Set to "openrouter" to use OpenRouter free models, or "gemini" for Google.
+AI_PROVIDER = os.getenv("AI_PROVIDER", "gemini").lower()
 
-# Fallback model used when the primary model is unavailable (503/429).
-FALLBACK_GEMINI_MODEL = os.getenv("GEMINI_FALLBACK_MODEL", "gemini-2.5-preview")
+if AI_PROVIDER == "openrouter":
+    DEFAULT_GEMINI_MODEL = "openrouter/" + os.getenv(
+        "OPENROUTER_MODEL", "meta-llama/llama-4-scout"
+    )
+    FALLBACK_GEMINI_MODEL = os.getenv("GEMINI_FALLBACK_MODEL", "")
+else:
+    DEFAULT_GEMINI_MODEL = "gemini-3.6-flash"
+    FALLBACK_GEMINI_MODEL = os.getenv("GEMINI_FALLBACK_MODEL", "gemini-2.5-flash")
 
 
 def env_model(name: str, *, default: str = DEFAULT_GEMINI_MODEL) -> str:
-    """Return a configured Gemini model, ignoring blank environment values."""
+    """Return a configured model, ignoring blank environment values."""
 
     value = os.getenv(name, "").strip()
     return value or default
