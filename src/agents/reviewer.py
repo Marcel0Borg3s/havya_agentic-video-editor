@@ -64,6 +64,7 @@ happen inside :func:`run_reviewer`.
 from __future__ import annotations
 
 import asyncio
+import logging
 from pathlib import Path
 
 from google.adk.agents import Agent
@@ -73,6 +74,8 @@ from google.genai import types as genai_types
 from src.config import REVIEWER_MODEL
 from src.models.schemas import CreativeBrief, ReviewScore
 from src.tools.analyze import _ALLOWED_REVIEW_VIDEO_PATH, review_output
+
+logger = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------- #
 # Constants
@@ -380,8 +383,25 @@ def run_reviewer(
             )
         return score
 
+    import time
+
     _token = _ALLOWED_REVIEW_VIDEO_PATH.set(canonical_video_path)
-    try:
-        return asyncio.run(_go())
-    finally:
-        _ALLOWED_REVIEW_VIDEO_PATH.reset(_token)
+    last_exc: Exception | None = None
+    for attempt in range(3):
+        try:
+            return asyncio.run(_go())
+        except Exception as exc:
+            msg = str(exc).lower()
+            if any(code in msg for code in ("503", "429", "unavailable", "resource_exhausted")):
+                last_exc = exc
+                delay = 5.0 * (2 ** attempt)
+                logger.warning(
+                    "Reviewer attempt %d/3 hit transient error; retrying in %.0fs: %s",
+                    attempt + 1, delay, exc,
+                )
+                time.sleep(delay)
+            else:
+                raise
+        finally:
+            _ALLOWED_REVIEW_VIDEO_PATH.reset(_token)
+    raise last_exc  # type: ignore[misc]

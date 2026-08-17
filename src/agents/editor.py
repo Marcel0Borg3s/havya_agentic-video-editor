@@ -935,7 +935,27 @@ def run_editor(
             )
         return final_text.strip()
 
-    agent_response = asyncio.run(_go())
+    import time
+
+    last_exc: Exception | None = None
+    for attempt in range(3):
+        try:
+            agent_response = asyncio.run(_go())
+            break
+        except Exception as exc:
+            msg = str(exc).lower()
+            if any(code in msg for code in ("503", "429", "unavailable", "resource_exhausted")):
+                last_exc = exc
+                delay = 5.0 * (2 ** attempt)
+                logger.warning(
+                    "Editor attempt %d/3 hit transient error; retrying in %.0fs: %s",
+                    attempt + 1, delay, exc,
+                )
+                time.sleep(delay)
+            else:
+                raise
+    else:
+        raise last_exc  # type: ignore[misc]
 
     # The agent is instructed to prefix any tool-failure message with
     # "ERROR: ". Reject such responses instead of relying on the existence

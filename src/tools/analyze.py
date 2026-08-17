@@ -25,6 +25,7 @@ import os
 import re
 import time
 from pathlib import Path
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -294,32 +295,16 @@ def analyze_footage(video_path: str, brief: str) -> list[dict]:
     """
     from google import genai
     from google.genai import types
+    from src.gemini_retry import gemini_retry
 
     path = Path(video_path)
     if not path.exists():
         raise FileNotFoundError(f"video not found: {video_path}")
 
     api_key = _require_api_key()
-    client = genai.Client(api_key=api_key)
 
     mime_type = _mime_type_for(video_path)
     size = path.stat().st_size
-
-    if size > _INLINE_MAX_BYTES:
-        uploaded = client.files.upload(
-            file=str(path),
-            config=types.UploadFileConfig(mime_type=mime_type),
-        )
-        uploaded = _wait_for_file_active(client, uploaded)
-        video_part = types.Part.from_uri(
-            file_uri=uploaded.uri,
-            mime_type=mime_type,
-        )
-    else:
-        video_part = types.Part.from_bytes(
-            data=path.read_bytes(),
-            mime_type=mime_type,
-        )
 
     prompt = (
         "You are a senior video editor analyzing raw footage for an ad campaign.\n"
@@ -333,14 +318,35 @@ def analyze_footage(video_path: str, brief: str) -> list[dict]:
         "key_quote (empty string if there is no speech). Return a JSON array."
     )
 
-    response = client.models.generate_content(
-        model=_GEMINI_MODEL,
-        contents=[video_part, prompt],
-        config=types.GenerateContentConfig(
-            response_mime_type="application/json",
-            response_schema=list[_SceneAnalysis],
-        ),
-    )
+    def _call_gemini() -> Any:
+        client = genai.Client(api_key=api_key)
+
+        if size > _INLINE_MAX_BYTES:
+            uploaded = client.files.upload(
+                file=str(path),
+                config=types.UploadFileConfig(mime_type=mime_type),
+            )
+            uploaded = _wait_for_file_active(client, uploaded)
+            video_part = types.Part.from_uri(
+                file_uri=uploaded.uri,
+                mime_type=mime_type,
+            )
+        else:
+            video_part = types.Part.from_bytes(
+                data=path.read_bytes(),
+                mime_type=mime_type,
+            )
+
+        return client.models.generate_content(
+            model=_GEMINI_MODEL,
+            contents=[video_part, prompt],
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                response_schema=list[_SceneAnalysis],
+            ),
+        )
+
+    response = gemini_retry(_call_gemini, primary_model=_GEMINI_MODEL)
 
     parsed = getattr(response, "parsed", None)
     if parsed is None:

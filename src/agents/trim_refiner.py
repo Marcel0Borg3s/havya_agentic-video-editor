@@ -165,27 +165,12 @@ def _send_probe_to_gemini(
     """
     from google import genai
     from google.genai import types
+    from src.gemini_retry import gemini_retry
 
     api_key = _require_api_key()
-    client = genai.Client(api_key=api_key)
-
     path = Path(clip_path)
     mime_type = _mime_type_for(clip_path)
     size = path.stat().st_size
-
-    if size > _INLINE_MAX_BYTES:
-        uploaded = client.files.upload(
-            file=str(path),
-            config=types.UploadFileConfig(mime_type=mime_type),
-        )
-        uploaded = _wait_for_file_active(client, uploaded)
-        video_part = types.Part.from_uri(
-            file_uri=uploaded.uri, mime_type=mime_type,
-        )
-    else:
-        video_part = types.Part.from_bytes(
-            data=path.read_bytes(), mime_type=mime_type,
-        )
 
     if point_type == "IN":
         task = (
@@ -213,14 +198,33 @@ def _send_probe_to_gemini(
         "Return ONLY the JSON object matching the schema — no commentary."
     )
 
-    response = client.models.generate_content(
-        model=_GEMINI_MODEL,
-        contents=[video_part, prompt],
-        config=types.GenerateContentConfig(
-            response_mime_type="application/json",
-            response_schema=TrimRefinement,
-        ),
-    )
+    def _call_gemini() -> Any:
+        client = genai.Client(api_key=api_key)
+
+        if size > _INLINE_MAX_BYTES:
+            uploaded = client.files.upload(
+                file=str(path),
+                config=types.UploadFileConfig(mime_type=mime_type),
+            )
+            uploaded = _wait_for_file_active(client, uploaded)
+            video_part = types.Part.from_uri(
+                file_uri=uploaded.uri, mime_type=mime_type,
+            )
+        else:
+            video_part = types.Part.from_bytes(
+                data=path.read_bytes(), mime_type=mime_type,
+            )
+
+        return client.models.generate_content(
+            model=_GEMINI_MODEL,
+            contents=[video_part, prompt],
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                response_schema=TrimRefinement,
+            ),
+        )
+
+    response = gemini_retry(_call_gemini, primary_model=_GEMINI_MODEL)
 
     parsed = getattr(response, "parsed", None)
     if not isinstance(parsed, TrimRefinement):

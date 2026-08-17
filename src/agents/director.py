@@ -70,6 +70,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import time
 from pathlib import Path
 from typing import Any
 
@@ -571,4 +572,17 @@ def run_director(
                 "Director attempt %d/3 produced no final text; retrying",
                 attempt + 1,
             )
+        except Exception as exc:
+            # Retry on transient Gemini errors (503, 429, etc.)
+            msg = str(exc).lower()
+            if any(code in msg for code in ("503", "429", "unavailable", "resource_exhausted")):
+                last_exc = exc
+                delay = 5.0 * (2 ** attempt)
+                logger.warning(
+                    "Director attempt %d/3 hit transient error; retrying in %.0fs: %s",
+                    attempt + 1, delay, exc,
+                )
+                time.sleep(delay)
+            else:
+                raise
     raise last_exc  # type: ignore[misc]
