@@ -38,7 +38,15 @@ def _repair_json(text: str) -> dict:
             cleaned = cleaned.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
 
     # Find the FIRST opening brace — skip any inlined tool calls.
-    idx = cleaned.find("{")
+    # Try to find the JSON object that starts with known keys.
+    idx = -1
+    for keyword in ['"product"', '"entries"', '"brief"']:
+        pos = cleaned.find(f"{{{keyword}")
+        if pos >= 0:
+            idx = pos
+            break
+    if idx < 0:
+        idx = cleaned.find("{")
     if idx >= 0:
         cleaned = cleaned[idx:]
 
