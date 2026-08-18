@@ -14,12 +14,17 @@ logger = logging.getLogger(__name__)
 def _repair_json(text: str) -> dict:
     """Repair common LLM JSON issues and parse progressively."""
     cleaned = text.strip()
-    if cleaned.startswith("```"):
-        cleaned = cleaned.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
-    if not cleaned.startswith("{"):
-        idx = cleaned.find("{")
-        if idx >= 0:
-            cleaned = cleaned[idx:]
+    if "```" in cleaned:
+        parts = cleaned.split("```")
+        if len(parts) >= 3:
+            cleaned = parts[1].strip()
+            if cleaned.startswith(("json\n", "json\r\n")):
+                cleaned = cleaned.split("\n", 1)[-1].strip()
+        elif cleaned.startswith("```"):
+            cleaned = cleaned.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+    idx = cleaned.find("{")
+    if idx >= 0:
+        cleaned = cleaned[idx:]
     for end in range(len(cleaned), 0, -1):
         if cleaned[end - 1] != "}":
             continue

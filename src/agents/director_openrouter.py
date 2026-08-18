@@ -18,25 +18,41 @@ logger = logging.getLogger(__name__)
 
 
 def _repair_json(text: str) -> dict:
-    """Repair common LLM JSON issues and parse progressively."""
+    """Repair common LLM JSON issues and parse progressively.
+
+    Handles: markdown fences, inlined tool calls before JSON,
+    trailing text after JSON, missing braces.
+    """
     cleaned = text.strip()
+
     # Remove markdown fences.
-    if cleaned.startswith("```"):
-        cleaned = cleaned.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
-    # Find opening brace.
-    if not cleaned.startswith("{"):
-        idx = cleaned.find("{")
-        if idx >= 0:
-            cleaned = cleaned[idx:]
+    if "```" in cleaned:
+        # Find the content between the first pair of fences.
+        parts = cleaned.split("```")
+        if len(parts) >= 3:
+            cleaned = parts[1].strip()
+            # Remove optional language tag.
+            if cleaned.startswith(("json\n", "json\r\n")):
+                cleaned = cleaned.split("\n", 1)[-1].strip()
+        elif cleaned.startswith("```"):
+            cleaned = cleaned.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+
+    # Find the FIRST opening brace — skip any inlined tool calls.
+    idx = cleaned.find("{")
+    if idx >= 0:
+        cleaned = cleaned[idx:]
+
     # Progressive parse: try each closing brace from right to left.
     for end in range(len(cleaned), 0, -1):
         if cleaned[end - 1] != "}":
             continue
+        candidate = cleaned[:end]
         try:
-            return json.loads(cleaned[:end])
+            return json.loads(candidate)
         except json.JSONDecodeError:
             continue
-    # Last resort.
+
+    # Last resort: try the whole cleaned string.
     return json.loads(cleaned)
 
 
