@@ -4,6 +4,11 @@ from __future__ import annotations
 
 import os
 
+from dotenv import load_dotenv
+
+# Load .env file from project root.
+load_dotenv()
+
 # Import OpenRouter adapter to register with ADK registry.
 # noinspection PyUnresolvedReferences
 import src.models.openrouter_llm  # noqa: F401
@@ -12,8 +17,10 @@ import src.models.openrouter_llm  # noqa: F401
 AI_PROVIDER = os.getenv("AI_PROVIDER", "gemini").lower()
 
 if AI_PROVIDER == "openrouter":
-    DEFAULT_GEMINI_MODEL = "openrouter/" + os.getenv(
-        "OPENROUTER_MODEL", "meta-llama/llama-4-scout"
+    _raw_model = os.getenv("OPENROUTER_MODEL", "meta-llama/llama-4-scout")
+    # Ensure the model has the openrouter/ prefix for ADK registry.
+    DEFAULT_GEMINI_MODEL = (
+        _raw_model if _raw_model.startswith("openrouter/") else f"openrouter/{_raw_model}"
     )
     FALLBACK_GEMINI_MODEL = os.getenv("GEMINI_FALLBACK_MODEL", "")
 else:
