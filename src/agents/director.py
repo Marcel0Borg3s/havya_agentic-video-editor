@@ -566,7 +566,8 @@ def run_director(
                 "that the model returned a non-empty structured response."
             )
         # Repair common LLM JSON issues: missing opening brace,
-        # trailing commas, markdown fences, etc.
+        # trailing commas, markdown fences, extra text after JSON, etc.
+        import json as _json
         cleaned = final_text.strip()
         if cleaned.startswith("```"):
             cleaned = cleaned.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
@@ -574,11 +575,23 @@ def run_director(
             idx = cleaned.find("{")
             if idx >= 0:
                 cleaned = cleaned[idx:]
-        if not cleaned.endswith("}"):
-            idx = cleaned.rfind("}")
-            if idx >= 0:
-                cleaned = cleaned[:idx + 1]
-        parsed = DirectorOutput.model_validate_json(cleaned)
+        # Find the correct closing brace by trying to parse progressively.
+        # The model often appends extra text after the valid JSON.
+        best = None
+        for end in range(len(cleaned), 0, -1):
+            if cleaned[end - 1] != "}":
+                continue
+            candidate = cleaned[:end]
+            try:
+                best = _json.loads(candidate)
+                cleaned = candidate
+                break
+            except _json.JSONDecodeError:
+                continue
+        if best is None:
+            # Last resort: try the whole string as-is.
+            best = _json.loads(cleaned)
+        parsed = DirectorOutput.model_validate(best)
         return EditPlan(
             brief=brief,
             entries=parsed.entries,
