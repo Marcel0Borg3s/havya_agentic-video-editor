@@ -67,6 +67,7 @@ from src.agents.director import (
 from src.agents.editor import run_editor
 from src.agents.reviewer import run_reviewer
 from src.agents.trim_refiner import refine_plan
+from src.config import AI_PROVIDER
 from src.models.schemas import CreativeBrief, EditPlan, EditingProfile, ReviewScore
 from src.pipeline.profiles import load_editing_profile
 
@@ -729,9 +730,13 @@ def run_pipeline(
             # _run_director_with_feedback so we do not re-plan twice in
             # the same pass.
             if result.edit_plan is None:
-                result.edit_plan = _with_transient_retry(
-                    run_director, brief, footage_index_path
-                )
+                if AI_PROVIDER == "openrouter":
+                    from src.agents.director_openrouter import run_director_openrouter
+                    result.edit_plan = run_director_openrouter(brief, footage_index_path)
+                else:
+                    result.edit_plan = _with_transient_retry(
+                        run_director, brief, footage_index_path
+                    )
                 if resolved_profile is not None:
                     result.edit_plan = result.edit_plan.model_copy(
                         update={"profile": resolved_profile}
@@ -776,9 +781,12 @@ def run_pipeline(
                     "pipeline step 'trim_refiner' reached before any "
                     "director step produced an EditPlan"
                 )
-            result.edit_plan = _with_transient_retry(
-                refine_plan, result.edit_plan, footage_index_path
-            )
+            if AI_PROVIDER == "openrouter":
+                _log("[pipeline] trim_refiner skipped in OpenRouter mode")
+            else:
+                result.edit_plan = _with_transient_retry(
+                    refine_plan, result.edit_plan, footage_index_path
+                )
             if resolved_profile is not None:
                 result.edit_plan = result.edit_plan.model_copy(
                     update={"profile": resolved_profile}
@@ -797,9 +805,15 @@ def run_pipeline(
                     "pipeline step 'editor' reached before any director "
                     "step produced an EditPlan"
                 )
-            result.final_video_path = _with_transient_retry(
-                run_editor, result.edit_plan, footage_index_path
-            )
+            if AI_PROVIDER == "openrouter":
+                from src.agents.editor_openrouter import run_editor_openrouter
+                result.final_video_path = run_editor_openrouter(
+                    result.edit_plan, footage_index_path
+                )
+            else:
+                result.final_video_path = _with_transient_retry(
+                    run_editor, result.edit_plan, footage_index_path
+                )
             # Save versioned copy so retries don't overwrite the original
             _save_version(result.final_video_path, 0)
             _log_step_end(
@@ -815,9 +829,13 @@ def run_pipeline(
                     "pipeline step 'reviewer' reached before any editor "
                     "step produced a rendered video"
                 )
-            result.review = _with_transient_retry(
-                run_reviewer, brief, result.final_video_path
-            )
+            if AI_PROVIDER == "openrouter":
+                from src.agents.reviewer_openrouter import run_reviewer_openrouter
+                result.review = run_reviewer_openrouter(brief, result.final_video_path)
+            else:
+                result.review = _with_transient_retry(
+                    run_reviewer, brief, result.final_video_path
+                )
             _log(
                 f"[pipeline] initial reviewer score: "
                 f"{_summarize_reviewer(result.review)}"

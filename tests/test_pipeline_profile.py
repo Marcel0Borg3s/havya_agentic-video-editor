@@ -47,6 +47,7 @@ def test_run_pipeline_attaches_profile_to_director_plan(
         "name: test-profile\nshorts:\n  count: 2\n", encoding="utf-8"
     )
 
+    monkeypatch.setattr(runner, "AI_PROVIDER", "gemini")
     monkeypatch.setattr(runner, "run_director", lambda brief, index: _plan())
 
     result = runner.run_pipeline(
@@ -82,6 +83,7 @@ def test_run_pipeline_rejects_invalid_profile_before_running_agents(
         called = True
         return _plan()
 
+    monkeypatch.setattr(runner, "AI_PROVIDER", "gemini")
     monkeypatch.setattr(runner, "run_director", fake_director)
 
     try:
