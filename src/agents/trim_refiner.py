@@ -166,6 +166,7 @@ def _send_probe_to_gemini(
     from google import genai
     from google.genai import types
     from src.gemini_retry import gemini_retry
+    from src.ai_provider import AI_PROVIDER
 
     api_key = _require_api_key()
     path = Path(clip_path)
@@ -197,6 +198,21 @@ def _send_probe_to_gemini(
         f"{task}\n\n"
         "Return ONLY the JSON object matching the schema — no commentary."
     )
+
+    if AI_PROVIDER == "openrouter":
+        from src.ai_provider import call_openrouter
+        import json as _json
+        result = call_openrouter(
+            prompt, video_path=clip_path, response_schema=TrimRefinement,
+        )
+        parsed = TrimRefinement.model_validate_json(result["text"])
+        refined_source_ts = probe_start_in_source + parsed.refined_timestamp
+        _log(
+            f"[trim_refiner] {point_type} point: "
+            f"original={original_trim:.2f}s -> refined={refined_source_ts:.2f}s "
+            f"(confidence={parsed.confidence:.2f})"
+        )
+        return refined_source_ts
 
     def _call_gemini() -> Any:
         client = genai.Client(api_key=api_key)

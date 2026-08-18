@@ -296,12 +296,11 @@ def analyze_footage(video_path: str, brief: str) -> list[dict]:
     from google import genai
     from google.genai import types
     from src.gemini_retry import gemini_retry
+    from src.ai_provider import AI_PROVIDER
 
     path = Path(video_path)
     if not path.exists():
         raise FileNotFoundError(f"video not found: {video_path}")
-
-    api_key = _require_api_key()
 
     mime_type = _mime_type_for(video_path)
     size = path.stat().st_size
@@ -317,6 +316,19 @@ def analyze_footage(video_path: str, brief: str) -> list[dict]:
         "rating (1=off-brief, 5=ideal), and the most notable spoken line as "
         "key_quote (empty string if there is no speech). Return a JSON array."
     )
+
+    if AI_PROVIDER == "openrouter":
+        from src.ai_provider import call_openrouter
+        result = call_openrouter(
+            prompt, video_path=video_path,
+            response_schema=list[_SceneAnalysis],
+        )
+        import json as _json
+        parsed = _json.loads(result["text"])
+        scenes = [item for item in parsed]
+        return [s if isinstance(s, dict) else s.__dict__ for s in scenes]
+
+    api_key = _require_api_key()
 
     def _call_gemini() -> Any:
         client = genai.Client(api_key=api_key)
@@ -483,6 +495,7 @@ def review_output(video_path: str, brief: str) -> ReviewScore:
     """
     from google import genai
     from google.genai import types
+    from src.ai_provider import AI_PROVIDER
 
     # Prompt-injection guard: if ``run_reviewer`` (or another trusted caller)
     # has bound a canonical video path for this call, reject any mismatch
@@ -503,28 +516,6 @@ def review_output(video_path: str, brief: str) -> ReviewScore:
     path = Path(video_path)
     if not path.exists():
         raise FileNotFoundError(f"video not found: {video_path}")
-
-    api_key = _require_api_key()
-    client = genai.Client(api_key=api_key)
-
-    mime_type = _mime_type_for(video_path)
-    size = path.stat().st_size
-
-    if size > _INLINE_MAX_BYTES:
-        uploaded = client.files.upload(
-            file=str(path),
-            config=types.UploadFileConfig(mime_type=mime_type),
-        )
-        uploaded = _wait_for_file_active(client, uploaded)
-        video_part = types.Part.from_uri(
-            file_uri=uploaded.uri,
-            mime_type=mime_type,
-        )
-    else:
-        video_part = types.Part.from_bytes(
-            data=path.read_bytes(),
-            mime_type=mime_type,
-        )
 
     prompt = (
         "You are a senior creative director reviewing a finished ad against "
@@ -553,6 +544,36 @@ def review_output(video_path: str, brief: str) -> ReviewScore:
         "Return ONLY the JSON object matching the ReviewScore schema — no "
         "preamble, no commentary, no markdown fences."
     )
+
+    if AI_PROVIDER == "openrouter":
+        from src.ai_provider import call_openrouter
+        result = call_openrouter(
+            prompt, video_path=video_path, response_schema=ReviewScore,
+        )
+        parsed = ReviewScore.model_validate_json(result["text"])
+        return _validate_review_score(parsed)
+
+    api_key = _require_api_key()
+    client = genai.Client(api_key=api_key)
+
+    mime_type = _mime_type_for(video_path)
+    size = path.stat().st_size
+
+    if size > _INLINE_MAX_BYTES:
+        uploaded = client.files.upload(
+            file=str(path),
+            config=types.UploadFileConfig(mime_type=mime_type),
+        )
+        uploaded = _wait_for_file_active(client, uploaded)
+        video_part = types.Part.from_uri(
+            file_uri=uploaded.uri,
+            mime_type=mime_type,
+        )
+    else:
+        video_part = types.Part.from_bytes(
+            data=path.read_bytes(),
+            mime_type=mime_type,
+        )
 
     response = client.models.generate_content(
         model=_GEMINI_MODEL,
