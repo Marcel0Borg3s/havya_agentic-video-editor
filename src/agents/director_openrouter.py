@@ -180,10 +180,21 @@ def run_director_openrouter(
             continue
 
     if not entries:
-        raise RuntimeError(
-            "Director returned no valid EditPlanEntry objects. "
-            f"Raw response: {result['text'][:500]}"
+        # Last resort: generate a simple plan from available shots.
+        logger.warning(
+            "[director-openrouter] No valid entries from LLM, "
+            "generating fallback plan from shots."
         )
+        duration = brief.duration_seconds
+        per_shot = duration / min(len(index.shots), 5)
+        entries = []
+        for i, shot in enumerate(index.shots[:5]):
+            entries.append(EditPlanEntry(
+                shot_id=f"{shot.source_file}#{shot.start_time}",
+                start_trim=shot.start_time,
+                end_trim=min(shot.end_time, shot.start_time + per_shot),
+                position=i,
+            ))
 
     # Validate total_duration.
     total_duration = float(parsed.get("total_duration", 0.0))
