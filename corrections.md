@@ -269,8 +269,12 @@ ave edit --footage-dir ./footage --brief '{"product":"test","audience":"general"
 
 - **Llama 4 Scout pode nao seguir o schema JSON**: O repair JSON ja trata isso.
   Se persistir, adicionar um prompt mais explicito com exemplo de JSON.
+- **Entries retornadas como strings em vez de dicts**: Tratado no
+  `director_openrouter.py` com isinstance checks e skip com warning.
 - **Qualidade do EditPlan pode ser menor**: Aceitavel para MVP. O usuario pode
   ajustar manualmente na timeline.
 - **Vision pode nao funcionar bem com frames**: Se o modelo nao suportar imagens,
   pular a analise visual e usar apenas metadados do footage index.
 - **Modelo pode ser lento**: Timeout de 120s por chamada. Se necessario, aumentar.
+- **Entries vazias apos filtro**: Se o modelo retorna nada valido, RuntimeError
+  com os primeiros 500 chars da resposta bruta para debug.

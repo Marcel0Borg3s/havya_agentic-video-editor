@@ -127,10 +127,37 @@ def run_director_openrouter(
 
     parsed = _repair_json(result["text"])
 
-    # Validate entries.
+    # Validate entries — handle cases where the model returns strings
+    # or malformed entries instead of proper dicts.
+    raw_entries = parsed.get("entries", [])
     entries: list[EditPlanEntry] = []
-    for entry_data in parsed.get("entries", []):
-        entries.append(EditPlanEntry(**entry_data))
+    for i, entry_data in enumerate(raw_entries):
+        if isinstance(entry_data, str):
+            logger.warning(
+                "[director-openrouter] entry %d is a string, skipping: %s",
+                i, entry_data[:80],
+            )
+            continue
+        if not isinstance(entry_data, dict):
+            logger.warning(
+                "[director-openrouter] entry %d is not a dict, skipping: %s",
+                i, type(entry_data).__name__,
+            )
+            continue
+        try:
+            entries.append(EditPlanEntry(**entry_data))
+        except Exception as exc:
+            logger.warning(
+                "[director-openrouter] entry %d invalid: %s",
+                i, exc,
+            )
+            continue
+
+    if not entries:
+        raise RuntimeError(
+            "Director returned no valid EditPlanEntry objects. "
+            f"Raw response: {result['text'][:500]}"
+        )
 
     # Validate total_duration.
     total_duration = float(parsed.get("total_duration", 0.0))
