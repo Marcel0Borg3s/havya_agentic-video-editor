@@ -1,0 +1,23 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e3]:
+    - generic [ref=f1e4]:
+      - img "Havya" [ref=f1e5]
+      - heading "Havya Studio" [level=1] [ref=f1e6]
+    - generic [ref=f1e7]:
+      - generic [ref=f1e13]:
+        - heading "Transforme seu vídeo em conteúdo pronto" [level=2] [ref=f1e14]
+        - paragraph [ref=f1e15]: Envie um vídeo bruto e, opcionalmente, uma abertura e uma finalização. O Havya analisa o material, monta o vídeo completo, aplica legendas e prepara Shorts para o YouTube.
+        - button "Criar novo vídeo" [ref=f1e16]
+      - generic [ref=f1e18]:
+        - generic [ref=f1e19]: Vídeo completo
+        - generic [ref=f1e22]: Cortes automáticos
+        - generic [ref=f1e29]: Shorts para YouTube
+    - generic [ref=f1e33]:
+      - generic [ref=f1e34]:
+        - heading "Seus vídeos" [level=2] [ref=f1e35]
+        - paragraph [ref=f1e36]: Projetos prontos para gerar ou revisar.
+      - button "Novo vídeo" [ref=f1e37]
+    - generic [ref=f1e39]:
+      - paragraph [ref=f1e42]: Ainda não há vídeos. Comece enviando seu vídeo bruto.
+      - button "Criar primeiro vídeo" [ref=f1e43]
+  - button "Open Next.js Dev Tools" [ref=f1e50] [cursor=pointer]

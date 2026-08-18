@@ -1,0 +1,30 @@
+[      98ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[     118ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[  193481ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[  194646ms] [LOG] [Fast Refresh] done in 1265ms @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[  524185ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[  524204ms] [LOG] [Fast Refresh] done in 55ms @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[ 3738957ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[23535955ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[28318949ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[61218954ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[109582947ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[109730718ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[109730734ms] [LOG] [Fast Refresh] done in 117ms @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[110298628ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=mARtCvIO4bcEMcURLiqoA' failed:  @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_client_0lchnrm._.js:13299
+[110299643ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[110371872ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=mARtCvIO4bcEMcURLiqoA' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_client_0lchnrm._.js:13299
+[110372873ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=mARtCvIO4bcEMcURLiqoA' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_client_0lchnrm._.js:13299
+[110373875ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=mARtCvIO4bcEMcURLiqoA' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_client_0lchnrm._.js:13299
+[110374876ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=mARtCvIO4bcEMcURLiqoA' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_client_0lchnrm._.js:13299
+[110375878ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=mARtCvIO4bcEMcURLiqoA' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_client_0lchnrm._.js:13299
+[110380879ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=mARtCvIO4bcEMcURLiqoA' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_client_0lchnrm._.js:13299
+[110385885ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[110386287ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[110386310ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[110541589ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[110541874ms] [LOG] [Fast Refresh] done in 354ms @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[116192958ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[172052958ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[191408959ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[195548972ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431

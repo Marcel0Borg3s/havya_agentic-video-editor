@@ -1,0 +1,47 @@
+- generic [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e66] [cursor=pointer]
+  - alert [ref=e60]
+  - generic [ref=e71]:
+    - generic [ref=e72]:
+      - img "Havya" [ref=e73]
+      - heading "Havya Studio" [level=1] [ref=e74]
+    - generic [ref=e75]:
+      - generic [ref=e81]:
+        - heading "Transforme seu vídeo em conteúdo pronto" [level=2] [ref=e82]
+        - paragraph [ref=e83]: Envie um vídeo bruto e, opcionalmente, uma abertura e uma finalização. O Havya analisa o material, monta o vídeo completo, aplica legendas e prepara Shorts para o YouTube.
+        - button "Criar novo vídeo" [active] [ref=e84]
+      - generic [ref=e86]:
+        - generic [ref=e87]: Vídeo completo
+        - generic [ref=e90]: Cortes automáticos
+        - generic [ref=e97]: Shorts para YouTube
+    - generic [ref=e101]:
+      - generic [ref=e102]:
+        - heading "Seus vídeos" [level=2] [ref=e103]
+        - paragraph [ref=e104]: Projetos prontos para gerar ou revisar.
+      - button "Novo vídeo" [ref=e105]
+    - generic [ref=e108] [cursor=pointer]:
+      - generic [ref=e109]:
+        - generic [ref=e110]: Teste porta 8000
+        - paragraph [ref=e115]: /home/mb/projects/HAVYA/agentic-video-editor/output/uploads/f9da91c4-dfa4-4a0a-9e22-3ee19748a707/footage
+      - generic [ref=e116]: 1 shots
+      - button [ref=e118]
+    - dialog [ref=e123]:
+      - heading "Criar novo vídeo" [level=3] [ref=e124]
+      - paragraph [ref=e125]: Envie um vídeo bruto ou selecione uma pasta local. Abertura e finalização são opcionais.
+      - generic [ref=e126]: Nome do vídeo/projeto
+      - 'textbox "Ex.: Vídeo institucional" [ref=e127]'
+      - generic [ref=e128] [cursor=pointer]:
+        - text: Enviar vídeo bruto
+        - generic [ref=e129]: Obrigatório se não selecionar uma pasta · MP4, MOV, M4V ou MKV
+        - button "Enviar vídeo bruto Obrigatório se não selecionar uma pasta · MP4, MOV, M4V ou MKV" [ref=e130]
+      - generic [ref=e131]:
+        - generic [ref=e132] [cursor=pointer]:
+          - text: Intro (opcional)
+          - button "Intro (opcional)" [ref=e133]
+        - generic [ref=e134] [cursor=pointer]:
+          - text: Finalização (opcional)
+          - button "Finalização (opcional)" [ref=e135]
+      - button "Ou selecionar pasta com vídeos..." [ref=e136]
+      - generic [ref=e140]:
+        - button "Cancelar" [ref=e141]
+        - button "Criar vídeo" [disabled] [ref=e142]

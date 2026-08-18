@@ -96,6 +96,9 @@ def _mime_type_for(path: str) -> str:
 
 
 def _require_api_key() -> str:
+    from src.ai_provider import AI_PROVIDER
+    if AI_PROVIDER == "openrouter":
+        return os.environ.get("OPENROUTER_API_KEY", "")
     api_key = os.environ.get("GOOGLE_API_KEY")
     if not api_key:
         raise RuntimeError("GOOGLE_API_KEY environment variable is not set.")

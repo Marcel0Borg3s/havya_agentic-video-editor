@@ -120,7 +120,10 @@ def _mime_type_for(video_path: str) -> str:
 
 
 def _require_api_key() -> str:
-    """Read ``GOOGLE_API_KEY`` from the environment or raise a clear error."""
+    """Read the appropriate API key from the environment."""
+    from src.ai_provider import AI_PROVIDER
+    if AI_PROVIDER == "openrouter":
+        return os.environ.get("OPENROUTER_API_KEY", "")
     api_key = os.environ.get("GOOGLE_API_KEY")
     if not api_key:
         raise RuntimeError(

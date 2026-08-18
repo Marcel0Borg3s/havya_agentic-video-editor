@@ -1,0 +1,10 @@
+[     101ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[     119ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[   32725ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=qm_m36KycXb9Z0v1_EVtQ' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_client_0lchnrm._.js:13299
+[   33890ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[   36507ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[   36525ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[  206445ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[  206967ms] [LOG] [Fast Refresh] done in 623ms @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[  452395ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431
+[  452422ms] [LOG] [Fast Refresh] done in 42ms @ http://localhost:3000/_next/static/chunks/0jqu_next_dist_0q._32g._.js:2431

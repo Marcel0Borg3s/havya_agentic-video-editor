@@ -89,10 +89,20 @@ export const uploadProject = async (name: string, rawVideo: File, opening?: File
   // Large multipart bodies exceed Next.js' 10 MB rewrite/proxy limit.
   // Send uploads directly to FastAPI instead of through the Next proxy.
   const apiOrigin = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-  return request<{ id: string; name: string; status: string }>(`${apiOrigin}/api/projects/upload`, {
+  const res = await fetch(`${apiOrigin}/api/projects/upload`, {
     method: "POST",
     body: form,
-  }, 10 * 60 * 1000);
+    signal: AbortSignal.timeout(10 * 60 * 1000),
+  });
+  if (!res.ok) {
+    let detail = `HTTP ${res.status}`;
+    try {
+      const body = await res.json();
+      if (body?.detail) detail = typeof body.detail === "string" ? body.detail : JSON.stringify(body.detail);
+    } catch { /* non-JSON */ }
+    throw new Error(detail);
+  }
+  return res.json() as Promise<{ id: string; name: string; status: string }>;
 };
 
 export const deleteProject = (id: string) =>
