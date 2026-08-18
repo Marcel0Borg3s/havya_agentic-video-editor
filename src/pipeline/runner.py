@@ -857,24 +857,44 @@ def run_pipeline(
                     f"{result.retries_used}/{retry_if.max_retries}"
                 )
                 combined_feedback = "\n\n".join(result.feedback_history)
-                revised_plan = _with_transient_retry(
-                    _run_director_with_feedback,
-                    brief,
-                    footage_index_path,
-                    feedback=combined_feedback,
-                )
+                if AI_PROVIDER == "openrouter":
+                    # In OpenRouter mode, just re-run the director without
+                    # feedback (the OpenRouter director doesn't support
+                    # ADK-based feedback injection).
+                    from src.agents.director_openrouter import run_director_openrouter
+                    revised_plan = run_director_openrouter(brief, footage_index_path)
+                else:
+                    revised_plan = _with_transient_retry(
+                        _run_director_with_feedback,
+                        brief,
+                        footage_index_path,
+                        feedback=combined_feedback,
+                    )
                 _log(_summarize_edit_plan(revised_plan))
-                result.edit_plan = _with_transient_retry(
-                    refine_plan, revised_plan, footage_index_path
-                )
-                result.final_video_path = _with_transient_retry(
-                    run_editor, result.edit_plan, footage_index_path
-                )
+                if AI_PROVIDER != "openrouter":
+                    result.edit_plan = _with_transient_retry(
+                        refine_plan, revised_plan, footage_index_path
+                    )
+                else:
+                    result.edit_plan = revised_plan
+                if AI_PROVIDER == "openrouter":
+                    from src.agents.editor_openrouter import run_editor_openrouter
+                    result.final_video_path = run_editor_openrouter(
+                        result.edit_plan, footage_index_path
+                    )
+                else:
+                    result.final_video_path = _with_transient_retry(
+                        run_editor, result.edit_plan, footage_index_path
+                    )
                 # Save versioned copy of retry render
                 _save_version(result.final_video_path, result.retries_used)
-                result.review = _with_transient_retry(
-                    run_reviewer, brief, result.final_video_path
-                )
+                if AI_PROVIDER == "openrouter":
+                    from src.agents.reviewer_openrouter import run_reviewer_openrouter
+                    result.review = run_reviewer_openrouter(brief, result.final_video_path)
+                else:
+                    result.review = _with_transient_retry(
+                        run_reviewer, brief, result.final_video_path
+                    )
                 _log(
                     f"[pipeline] retry {result.retries_used} reviewer "
                     f"score: {_summarize_reviewer(result.review)}"
