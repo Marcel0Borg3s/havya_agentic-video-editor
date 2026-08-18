@@ -103,53 +103,55 @@ def run_director_openrouter(
     shots_text = _shots_to_text(index.shots)
 
     system_prompt = (
-        "You are the Director agent for an AI video editor. Your job is to "
-        "turn a creative brief and a list of video shots into a structured "
-        "EditPlan that a downstream Editor will render.\n\n"
-        "RULES:\n"
-        "- You have NO tools. Work with the shots provided below.\n"
-        "- Select 5-10 shots and order them to match the creative brief.\n"
-        "- A-Roll shots (on-camera talent) carry narrative.\n"
-        "- B-Roll shots (product, texture, environment) are visual cutaways.\n"
-        "- Alternate energy levels. Start with the highest-energy shot (hook).\n"
-        "- B-Roll duration does NOT count toward total_duration.\n"
-        "- Only A-Roll shots count toward total_duration.\n"
-        "- Target duration is in the brief. Be within ±10%.\n"
-        "- shot_id format: \"source_file#start_time\" (use exact values from shots).\n"
-        "- start_trim >= shot.start_time, end_trim <= shot.end_time.\n"
-        "- Return ONLY valid JSON matching the DirectorOutput schema.\n"
-        "- Do NOT include markdown fences, commentary, or anything else.\n"
-        "- Just the raw JSON object.\n"
+        "You are a video editing assistant. You MUST respond with ONLY a "
+        "raw JSON object. No explanations, no reasoning, no markdown. "
+        "Just the JSON.\n"
     )
 
     user_prompt = (
-        "## Creative Brief\n"
-        f"{brief.model_dump_json(indent=2)}\n\n"
-        "## Available Shots\n"
-        f"{shots_text}\n\n"
-        "## Output Schema\n"
-        "Return a JSON object with exactly these fields:\n"
-        "- entries: array of objects, each with:\n"
-        "  - shot_id: string \"source_file#start_time\"\n"
-        "  - start_trim: float (seconds, relative to source file)\n"
-        "  - end_trim: float (seconds, relative to source file)\n"
-        "  - position: int (ordering, 0-based)\n"
-        "  - text_overlay: string or null\n"
-        "  - transition: string or null\n"
-        "- music_path: null\n"
-        "- total_duration: float (sum of A-Roll entry durations only)\n\n"
-        "Produce the EditPlan JSON now:"
+        "Create an EditPlan as a JSON object.\n\n"
+        "Brief: " + brief.model_dump_json() + "\n\n"
+        "Shots:\n" + shots_text + "\n\n"
+        "Return ONLY this JSON structure (nothing else):\n"
+        '{"entries": [{"shot_id": "source_file#start_time", '
+        '"start_trim": 0.0, "end_trim": 10.0, "position": 0, '
+        '"text_overlay": null, "transition": null}], '
+        '"music_path": null, "total_duration": 30.0}\n\n'
+        "JSON:"
     )
 
-    logger.info("[director-openrouter] Calling %s ...", DEFAULT_GEMINI_MODEL)
-    result = call_openrouter(
-        user_prompt,
-        system=system_prompt,
-        response_schema=None,  # Let the model produce raw JSON.
-    )
-    logger.info("[director-openrouter] Response received (%d chars)", len(result["text"]))
+    max_retries = 3
+    parsed: dict = {}
+    for attempt in range(max_retries):
+        logger.info("[director-openrouter] Calling %s (attempt %d)...", DEFAULT_GEMINI_MODEL, attempt + 1)
+        result = call_openrouter(
+            user_prompt,
+            system=system_prompt,
+            response_schema=None,
+            temperature=0.1,
+        )
+        logger.info("[director-openrouter] Response: %d chars", len(result["text"]))
 
-    parsed = _repair_json(result["text"])
+        try:
+            parsed = _repair_json(result["text"])
+            if "entries" in parsed:
+                break
+            logger.warning("[director-openrouter] No 'entries' key in response, retrying...")
+        except (json.JSONDecodeError, ValueError) as exc:
+            logger.warning("[director-openrouter] JSON parse failed: %s, retrying...", exc)
+            if attempt < max_retries - 1:
+                user_prompt = (
+                    "Your previous response was not valid JSON. "
+                    "You MUST respond with ONLY a raw JSON object.\n\n"
+                    + user_prompt
+                )
+                continue
+            raise RuntimeError(
+                f"Director failed to produce valid JSON after {max_retries} attempts. "
+                f"Last response: {result['text'][:500]}"
+            )
+
+    # parsed is already set from the successful attempt above.
 
     # Validate entries — handle cases where the model returns strings
     # or malformed entries instead of proper dicts.
