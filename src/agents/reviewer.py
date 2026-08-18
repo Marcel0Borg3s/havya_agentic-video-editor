@@ -367,7 +367,19 @@ def run_reviewer(
                 "that the rendered video exists and that the model "
                 "returned a non-empty structured response."
             )
-        score = ReviewScore.model_validate_json(final_text)
+        # Repair common LLM JSON issues.
+        cleaned = final_text.strip()
+        if cleaned.startswith("```"):
+            cleaned = cleaned.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+        if not cleaned.startswith("{"):
+            idx = cleaned.find("{")
+            if idx >= 0:
+                cleaned = cleaned[idx:]
+        if not cleaned.endswith("}"):
+            idx = cleaned.rfind("}")
+            if idx >= 0:
+                cleaned = cleaned[:idx + 1]
+        score = ReviewScore.model_validate_json(cleaned)
         # Defensive safety net: the prompt instructs the model to always
         # return concrete feedback (and mandatory actionable suggestions
         # when overall < 0.7). The ReviewScore schema only types feedback

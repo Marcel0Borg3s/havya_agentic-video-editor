@@ -549,7 +549,20 @@ def run_director(
                 "that the FootageIndex contains at least one shot and "
                 "that the model returned a non-empty structured response."
             )
-        parsed = DirectorOutput.model_validate_json(final_text)
+        # Repair common LLM JSON issues: missing opening brace,
+        # trailing commas, markdown fences, etc.
+        cleaned = final_text.strip()
+        if cleaned.startswith("```"):
+            cleaned = cleaned.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+        if not cleaned.startswith("{"):
+            idx = cleaned.find("{")
+            if idx >= 0:
+                cleaned = cleaned[idx:]
+        if not cleaned.endswith("}"):
+            idx = cleaned.rfind("}")
+            if idx >= 0:
+                cleaned = cleaned[:idx + 1]
+        parsed = DirectorOutput.model_validate_json(cleaned)
         return EditPlan(
             brief=brief,
             entries=parsed.entries,
