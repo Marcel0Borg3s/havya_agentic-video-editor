@@ -535,12 +535,28 @@ def run_director(
             ):
                 # Concatenate any non-thought text parts so we capture the
                 # model's full structured response even if it is split.
-                text = "".join(
-                    part.text
-                    for part in event.content.parts
-                    if getattr(part, "text", None)
-                    and not getattr(part, "thought", False)
-                )
+                # Skip parts that are tool calls (function_call) or look
+                # like tool call JSON from models that inline them as text.
+                text = ""
+                for part in event.content.parts:
+                    if getattr(part, "thought", False):
+                        continue
+                    if getattr(part, "function_call", None):
+                        continue
+                    part_text = getattr(part, "text", None)
+                    if not part_text:
+                        continue
+                    # Skip text that looks like an inlined tool call.
+                    try:
+                        import json as _json
+                        obj = _json.loads(part_text.strip())
+                        if isinstance(obj, dict) and (
+                            "search_moments" in obj or "analyze_footage" in obj
+                        ):
+                            continue
+                    except (ValueError, TypeError):
+                        pass
+                    text += part_text
                 if text.strip():
                     final_text = text
         if not final_text:

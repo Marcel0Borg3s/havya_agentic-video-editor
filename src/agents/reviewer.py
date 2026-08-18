@@ -353,12 +353,26 @@ def run_reviewer(
             ):
                 # Concatenate any non-thought text parts so we capture the
                 # model's full structured response even if it is split.
-                text = "".join(
-                    part.text
-                    for part in event.content.parts
-                    if getattr(part, "text", None)
-                    and not getattr(part, "thought", False)
-                )
+                # Skip tool calls and inlined tool call JSON.
+                text = ""
+                for part in event.content.parts:
+                    if getattr(part, "thought", False):
+                        continue
+                    if getattr(part, "function_call", None):
+                        continue
+                    part_text = getattr(part, "text", None)
+                    if not part_text:
+                        continue
+                    try:
+                        import json as _json
+                        obj = _json.loads(part_text.strip())
+                        if isinstance(obj, dict) and (
+                            "review_output" in obj
+                        ):
+                            continue
+                    except (ValueError, TypeError):
+                        pass
+                    text += part_text
                 if text.strip():
                     final_text = text
         if not final_text:
