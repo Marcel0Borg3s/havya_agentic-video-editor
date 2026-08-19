@@ -15,6 +15,7 @@ from typing import Any
 import httpx
 
 from src.config import AI_PROVIDER
+from src.ai_config import AI_API_KEY, AI_BASE_URL, AI_MODEL_NAME
 
 
 def _extract_frame(video_path: str, output: str = "/tmp/frame.jpg") -> str:
@@ -78,11 +79,11 @@ def call_openrouter(
 
     If video_path is provided, extracts frames and sends as base64 images.
     """
-    api_key = os.environ.get("OPENROUTER_API_KEY", "")
+    api_key = AI_API_KEY
     if not api_key:
-        raise RuntimeError("OPENROUTER_API_KEY not set")
+        raise RuntimeError("AI_API_KEY (or OPENROUTER_API_KEY) not set")
 
-    model = os.environ.get("OPENROUTER_MODEL", "meta-llama/llama-4-scout")
+    model = AI_MODEL_NAME
 
     messages: list[dict] = []
     if system:
@@ -149,7 +150,7 @@ def call_openrouter(
     }
 
     resp = httpx.post(
-        "https://openrouter.ai/api/v1/chat/completions",
+        f"{AI_BASE_URL}/chat/completions",
         headers=headers,
         json=payload,
         timeout=120,

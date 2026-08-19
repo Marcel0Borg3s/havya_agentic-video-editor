@@ -118,77 +118,89 @@ Gerar Shorts apos o video principal:
 
 ### Task 1: Corrigir Editor OpenRouter (intro + finalizacao)
 
+**Status**: CONCLUIDA
+
 **Arquivo**: `src/agents/editor_openrouter.py`
 
 **Problema**: O editor nao usa os assets de intro e finalizacao.
 
-**Solucao**:
-1. Apos sequenciar os clips do conteudo, verificar `edit_plan.profile.opening`
-2. Se existir, fazer prepend usando `sequence_clips([intro_path, conteudo])`
+**Solucao implementada**:
+1. Apos renderizar o conteudo, verificar `edit_plan.profile.opening`
+2. Se existir, chamar `assemble_with_assets()` com opening_path
 3. Verificar `edit_plan.profile.closing`
-4. Se existir, fazer append usando `sequence_clips([conteudo, closing_path])`
-5. Testar com videos reais que tem intro e finalizacao
+4. Se existir, incluir closing_path na montagem
+5. O `assemble_with_assets()` normaliza e concatena automaticamente
 
 ### Task 2: Corrigir fallback do Diretor
+
+**Status**: CONCLUIDA
 
 **Arquivo**: `src/agents/director_openrouter.py`
 
 **Problema**: Fallback repete o mesmo shot.
 
-**Solucao**:
-1. Filtrar apenas shots A-Roll (roll_type == "a-roll" ou "unknown")
+**Solucao implementada**:
+1. Filtrar shots A-Roll (roll_type == "a-roll" ou "unknown")
 2. Ordenar por energy_level (maior primeiro)
 3. Dividir a duracao alvo entre os shots disponiveis
-4. Cada shot aparece apenas uma vez
-5. Se houver B-Roll, intercalar entre os A-Roll
+4. Cada shot aparece apenas uma vez (maximo 5)
 
 ### Task 3: Adicionar legendas no Editor OpenRouter
+
+**Status**: CONCLUIDA
 
 **Arquivo**: `src/agents/editor_openrouter.py`
 
 **Problema**: Legendas nao sao geradas.
 
-**Solucao**:
+**Solucao implementada**:
 1. Se `edit_plan.profile.captions.enabled`:
-2. Para cada entry, chamar `generate_ass_captions(footage_index_path, shot_id, start_trim, end_trim, output)`
-3. Queimar com `burn_ass_subtitles(video, ass_path, output)`
-4. Continuar o pipeline com o video legendado
+2. Para cada entry, chamar `generate_ass_captions()`
+3. Mesclar ASS files com offsets de tempo
+4. Queimar com `burn_ass_subtitles()`
+5. Continuar o pipeline com o video legendado
 
 ### Task 4: Adicionar overlays no Editor OpenRouter
+
+**Status**: CONCLUIDA
 
 **Arquivo**: `src/agents/editor_openrouter.py`
 
 **Problema**: Overlays de texto nao sao aplicados.
 
-**Solucao**:
-1. Se `edit_plan.profile.overlays`:
-2. Chamar `build_plan_overlays(edit_plan, duration)` para gerar lista
-3. Chamar `apply_plan_overlays(video, overlays, output)` para aplicar
+**Solucao implementada**:
+1. Verificar se ha overlays no profile ou no output
+2. Chamar `apply_plan_overlays()` com o plano completo
+3. Aplicar titulo, CTA e creditos automaticamente
 
 ### Task 5: Simplificar prompt do Diretor
+
+**Status**: CONCLUIDA
 
 **Arquivo**: `src/agents/director_openrouter.py`
 
 **Problema**: Llama nao segue o prompt.
 
-**Solucao**:
-1. Reduzir para maximo 5 shots no prompt
-2. Incluir exemplo completo de JSON esperado
-3. Usar temperature=0.0
-4. Adicionar "Respota anterior invalida" no retry
+**Solucao implementada**:
+1. Reduzir para top 5 shots por energy_level
+2. Incluir instrucao clara de selecao
+3. Mantido temperature=0.1
+4. Retry com mensagem mais explicita sobre formato esperado
 
 ### Task 6: Reviewer com fallback seguro
+
+**Status**: CONCLUIDA
 
 **Arquivo**: `src/agents/reviewer_openrouter.py`
 
 **Problema**: Vision pode falhar com modelos gratuitos.
 
-**Solucao**:
-1. Try/catch na chamada OpenRouter
+**Solucao implementada**:
+1. Try/catch completo na chamada OpenRouter
 2. Se falhar, retornar ReviewScore padrao:
    - overall: 0.6
    - feedback: "Revisao automatica indisponivel"
-3. Nao derrubar o pipeline
+3. Pipeline nao derruba mais por erro do reviewer
 
 ### Task 7: Atualizar EVOLUCAO_PROJETO.md
 

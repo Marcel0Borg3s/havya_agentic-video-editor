@@ -31,16 +31,16 @@ from google.adk.models.llm_response import LlmResponse
 from google.adk.models.registry import LLMRegistry
 from google.genai import types
 
-logger = logging.getLogger(__name__)
+from src.ai_config import AI_API_KEY, AI_BASE_URL, AI_MODEL_NAME
 
-OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
+logger = logging.getLogger(__name__)
 
 
 class OpenRouterLlm(BaseLlm):
     """LLM implementation that proxies to OpenRouter's OpenAI-compatible API."""
 
     api_key: str = ""
-    base_url: str = OPENROUTER_BASE_URL
+    base_url: str = ""
 
     @classmethod
     def supported_models(cls) -> list[str]:
@@ -49,14 +49,17 @@ class OpenRouterLlm(BaseLlm):
     async def generate_content_async(
         self, llm_request: LlmRequest, stream: bool = False
     ) -> AsyncGenerator[LlmResponse, None]:
-        api_key = self.api_key or os.environ.get("OPENROUTER_API_KEY", "")
+        api_key = self.api_key or AI_API_KEY
         if not api_key:
             raise RuntimeError(
-                "OPENROUTER_API_KEY environment variable is not set."
+                "AI_API_KEY (or OPENROUTER_API_KEY) environment variable is not set."
             )
 
         # Strip the "openrouter/" prefix to get the real model name.
         model_name = re.sub(r"^openrouter/", "", self.model)
+
+        # Use configured base URL if not set on instance.
+        base_url = self.base_url or AI_BASE_URL
 
         # Convert ADK Contents → OpenAI messages format.
         messages = self._convert_contents(llm_request)
@@ -86,7 +89,7 @@ class OpenRouterLlm(BaseLlm):
 
         async with httpx.AsyncClient(timeout=120) as client:
             resp = await client.post(
-                f"{self.base_url}/chat/completions",
+                f"{base_url}/chat/completions",
                 headers=headers,
                 json=payload,
             )

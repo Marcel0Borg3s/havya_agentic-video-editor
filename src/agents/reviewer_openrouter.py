@@ -42,6 +42,7 @@ def run_reviewer_openrouter(
     """Run the Reviewer via OpenRouter without ADK tool calling.
 
     Sends video frames to the vision model and asks it to grade the cut.
+    Returns a default score if the LLM call fails.
     """
     from src.ai_provider import call_openrouter
 
@@ -75,38 +76,53 @@ def run_reviewer_openrouter(
         "Grade the video now:"
     )
 
-    logger.info("[reviewer-openrouter] Calling model for video review...")
-    result = call_openrouter(
-        user_prompt,
-        system=system_prompt,
-        video_path=video_path,
-    )
-    logger.info("[reviewer-openrouter] Response received (%d chars)", len(result["text"]))
+    try:
+        logger.info("[reviewer-openrouter] Calling model for video review...")
+        result = call_openrouter(
+            user_prompt,
+            system=system_prompt,
+            video_path=video_path,
+        )
+        logger.info("[reviewer-openrouter] Response received (%d chars)", len(result["text"]))
 
-    parsed = _repair_json(result["text"])
+        parsed = _repair_json(result["text"])
 
-    score = ReviewScore(
-        adherence=float(parsed["adherence"]),
-        pacing=float(parsed["pacing"]),
-        visual_quality=float(parsed["visual_quality"]),
-        watchability=float(parsed["watchability"]),
-        overall=float(parsed["overall"]),
-        feedback=parsed.get("feedback", "No feedback provided."),
-    )
+        score = ReviewScore(
+            adherence=float(parsed["adherence"]),
+            pacing=float(parsed["pacing"]),
+            visual_quality=float(parsed["visual_quality"]),
+            watchability=float(parsed["watchability"]),
+            overall=float(parsed["overall"]),
+            feedback=parsed.get("feedback", "No feedback provided."),
+        )
 
-    # Validate ranges.
-    for field_name in ["adherence", "pacing", "visual_quality", "watchability", "overall"]:
-        value = getattr(score, field_name)
-        if not (0.0 <= value <= 1.0):
-            raise ValueError(
-                f"reviewer-openrouter: {field_name}={value} out of [0.0, 1.0]"
-            )
+        # Validate ranges.
+        for field_name in ["adherence", "pacing", "visual_quality", "watchability", "overall"]:
+            value = getattr(score, field_name)
+            if not (0.0 <= value <= 1.0):
+                raise ValueError(
+                    f"reviewer-openrouter: {field_name}={value} out of [0.0, 1.0]"
+                )
 
-    if not score.feedback.strip():
-        raise RuntimeError("Reviewer returned empty feedback.")
+        if not score.feedback.strip():
+            raise RuntimeError("Reviewer returned empty feedback.")
 
-    logger.info(
-        "[reviewer-openrouter] Score: overall=%.2f adherence=%.2f pacing=%.2f",
-        score.overall, score.adherence, score.pacing,
-    )
-    return score
+        logger.info(
+            "[reviewer-openrouter] Score: overall=%.2f adherence=%.2f pacing=%.2f",
+            score.overall, score.adherence, score.pacing,
+        )
+        return score
+
+    except Exception as exc:
+        logger.warning(
+            "[reviewer-openrouter] Review failed, returning default score: %s",
+            exc,
+        )
+        return ReviewScore(
+            adherence=0.6,
+            pacing=0.6,
+            visual_quality=0.6,
+            watchability=0.6,
+            overall=0.6,
+            feedback="Revisão automática indisponível. O modelo não conseguiu analisar o vídeo.",
+        )

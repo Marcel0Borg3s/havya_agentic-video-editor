@@ -4,10 +4,7 @@ from __future__ import annotations
 
 import os
 
-from dotenv import load_dotenv
-
-# Load .env file from project root.
-load_dotenv()
+from src.ai_config import AI_API_KEY, AI_BASE_URL, AI_MODEL_NAME, AI_TEMPERATURE, AI_MAX_TOKENS
 
 # Import OpenRouter adapter to register with ADK registry.
 # noinspection PyUnresolvedReferences
@@ -17,10 +14,9 @@ import src.models.openrouter_llm  # noqa: F401
 AI_PROVIDER = os.getenv("AI_PROVIDER", "gemini").lower()
 
 if AI_PROVIDER == "openrouter":
-    _raw_model = os.getenv("OPENROUTER_MODEL", "meta-llama/llama-4-scout")
     # Ensure the model has the openrouter/ prefix for ADK registry.
     DEFAULT_GEMINI_MODEL = (
-        _raw_model if _raw_model.startswith("openrouter/") else f"openrouter/{_raw_model}"
+        AI_MODEL_NAME if AI_MODEL_NAME.startswith("openrouter/") else f"openrouter/{AI_MODEL_NAME}"
     )
     FALLBACK_GEMINI_MODEL = os.getenv("GEMINI_FALLBACK_MODEL", "")
 else:
@@ -30,7 +26,6 @@ else:
 
 def env_model(name: str, *, default: str = DEFAULT_GEMINI_MODEL) -> str:
     """Return a configured model, ignoring blank environment values."""
-
     value = os.getenv(name, "").strip()
     return value or default
 

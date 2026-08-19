@@ -224,12 +224,30 @@ Suíte completa validada:
 
 ```text
 uv run pytest -q
-104 passed, 0 failed
+109 passed, 0 failed
 ```
 
-- [ ] Implementar cortes e transições básicas.
-- [ ] Gerar um único MP4 final.
+- [x] Implementar cortes e transições básicas.
+- [x] Gerar um único MP4 final.
 - [ ] Criar testes com vídeos sintéticos.
+
+### Fase 3.1 — Correções do Editor OpenRouter
+
+- [x] Task 2: Corrigir fallback do Diretor (filtrar A-Roll, ordenar por energia, sem repetição).
+- [x] Task 1: Adicionar intro + finalização no Editor OpenRouter.
+- [x] Task 5: Melhorar prompt do Diretor (top 5 shots, instrução clara, retry melhorado).
+- [x] Task 3: Adicionar legendas no Editor OpenRouter (geração ASS + queima via FFmpeg).
+- [x] Task 4: Adicionar overlays no Editor OpenRouter (título, CTA, créditos).
+- [x] Task 6: Reviewer com fallback seguro (retorna score padrão se falhar).
+- [x] Configuração de IA atualizada para OpenCode (AI_API_KEY, AI_BASE_URL, AI_MODEL).
+- [x] Modelo GPT-5.6-Luna testado e funcionando.
+
+Suíte completa validada:
+
+```text
+uv run pytest -q
+109 passed, 0 failed
+```
 
 ### Fase 4 — Análise editorial
 
@@ -296,6 +314,19 @@ tests/
 A primeira implementação deve criar os novos modelos e testes, preservando o comportamento atual. O renderizador e a interface só deverão ser atualizados depois que os contratos forem validados.
 
 ## Registro de alterações
+
+### 2026-08-19
+
+- Configuração de IA atualizada para OpenCode: AI_API_KEY, AI_BASE_URL, AI_MODEL.
+- Criado módulo `src/ai_config.py` para evitar imports circulares.
+- Modelo GPT-5.6-Luna testado e funcionando via API OpenCode.
+- Task 2 concluída: fallback do Diretor agora filtra A-Roll, ordena por energia, sem repetição.
+- Task 1 concluída: Editor OpenRouter agora incorpora intro e finalização.
+- Task 5 concluída: prompt do Diretor simplificado com top 5 shots.
+- Task 3 concluída: legendas ASS geradas e queimadas no Editor OpenRouter.
+- Task 4 concluída: overlays (título, CTA, créditos) aplicados no Editor OpenRouter.
+- Task 6 concluída: Reviewer com fallback seguro (retorna score padrão se falhar).
+- Suíte completa: 109 testes aprovados.
 
 ### 2026-08-15
 

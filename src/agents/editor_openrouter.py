@@ -13,6 +13,31 @@ from src.models.schemas import EditPlan, FootageIndex, Shot
 logger = logging.getLogger(__name__)
 
 
+def _merge_ass_files(
+    ass_files: list[str],
+    entries: list,
+    output: str,
+) -> str:
+    """Merge multiple ASS files with time offsets for sequential clips."""
+    from pysubs2 import SSAFile
+
+    merged = SSAFile()
+    time_offset = 0.0
+
+    for ass_path, entry in zip(ass_files, entries):
+        clip_duration = entry.end_trim - entry.start_trim
+        subs = SSAFile.load(ass_path)
+        for event in subs.events:
+            new_event = event.copy()
+            new_event.start += int(time_offset * 1000)
+            new_event.end += int(time_offset * 1000)
+            merged.events.append(new_event)
+        time_offset += clip_duration
+
+    merged.save(output)
+    return output
+
+
 def _resolve_shot(footage_index: FootageIndex, shot_id: str) -> Shot:
     if "#" not in shot_id:
         raise ValueError(f"Invalid shot_id format: {shot_id!r}")
@@ -69,9 +94,112 @@ def run_editor_openrouter(
     sequence_clips(clip_paths, sequenced)
 
     # Step 3: Re-encode for delivery.
-    logger.info("[editor-openrouter] Rendering final -> %s", final_output)
+    rendered = str(working_dir / "rendered.mp4")
+    logger.info("[editor-openrouter] Rendering -> %s", rendered)
     from src.tools.render import render_final
-    render_final(sequenced, str(final_output))
+    render_final(sequenced, rendered)
+
+    # Step 4: Assemble with opening/closing assets if configured.
+    from src.tools.assets import assemble_with_assets
+    opening_path = None
+    closing_path = None
+    if edit_plan.profile is not None:
+        if edit_plan.profile.opening is not None:
+            opening_path = edit_plan.profile.opening.path
+            logger.info("[editor-openrouter] Opening asset: %s", opening_path)
+        if edit_plan.profile.closing is not None:
+            closing_path = edit_plan.profile.closing.path
+            logger.info("[editor-openrouter] Closing asset: %s", closing_path)
+
+    assembled = str(working_dir / "assembled.mp4")
+    if opening_path or closing_path:
+        logger.info("[editor-openrouter] Assembling with assets...")
+        assemble_with_assets(
+            content_video=rendered,
+            output=assembled,
+            opening_path=opening_path,
+            closing_path=closing_path,
+            working_dir=str(working_dir / "assets"),
+        )
+        final_source = assembled
+    else:
+        final_source = rendered
+
+    # Step 5: Burn captions if enabled in profile.
+    captions_enabled = (
+        edit_plan.profile is not None
+        and edit_plan.profile.captions.enabled
+    )
+    if captions_enabled:
+        logger.info("[editor-openrouter] Generating captions...")
+        from src.tools.captions import (
+            generate_ass_captions,
+            burn_ass_subtitles,
+        )
+
+        # Generate ASS for each entry and merge into one file.
+        ass_files: list[str] = []
+        time_offset = 0.0
+        for entry in sorted_entries:
+            shot = _resolve_shot(index, entry.shot_id)
+            clip_duration = entry.end_trim - entry.start_trim
+            ass_out = str(working_dir / f"captions_{entry.position:03d}.ass")
+            try:
+                generate_ass_captions(
+                    footage_index_path=footage_index_path,
+                    shot_id=entry.shot_id,
+                    clip_start=entry.start_trim,
+                    clip_end=entry.end_trim,
+                    output=ass_out,
+                )
+                ass_files.append(ass_out)
+                logger.info(
+                    "[editor-openrouter] Captions for entry %d: %s",
+                    entry.position, ass_out,
+                )
+            except Exception as exc:
+                logger.warning(
+                    "[editor-openrouter] Captions failed for entry %d: %s",
+                    entry.position, exc,
+                )
+
+        # Merge all ASS files with time offsets.
+        if ass_files:
+            merged_ass = str(working_dir / "captions_merged.ass")
+            _merge_ass_files(ass_files, sorted_entries, merged_ass)
+
+            # Burn captions into video.
+            captioned = str(working_dir / "captioned.mp4")
+            burn_ass_subtitles(final_source, merged_ass, captioned)
+            final_source = captioned
+            logger.info("[editor-openrouter] Captions burned into video.")
+
+    # Step 6: Apply overlays (title, CTA, credits) if configured.
+    has_overlays = (
+        edit_plan.profile is not None
+        and edit_plan.profile.overlays
+    ) or (
+        edit_plan.output.title
+        or edit_plan.output.channel_name
+        or edit_plan.output.credits
+    )
+    if has_overlays:
+        logger.info("[editor-openrouter] Applying overlays...")
+        from src.tools.overlays import apply_plan_overlays
+
+        overlaid = str(working_dir / "overlaid.mp4")
+        apply_plan_overlays(
+            video=final_source,
+            plan=edit_plan,
+            output=overlaid,
+            working_dir=str(working_dir / "overlays"),
+        )
+        final_source = overlaid
+        logger.info("[editor-openrouter] Overlays applied.")
+
+    # Step 7: Final render to output dir.
+    logger.info("[editor-openrouter] Final render -> %s", final_output)
+    render_final(final_source, str(final_output))
 
     if not final_output.exists():
         raise RuntimeError(

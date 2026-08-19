@@ -31,3 +31,6 @@ src/web/studio/node_modules/
 *~
 .DS_Store
 .file-locks.json
+
+# Playwright
+.playwright-mcp/

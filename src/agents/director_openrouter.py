@@ -100,18 +100,22 @@ def run_director_openrouter(
         Path(footage_index_path).read_text("utf-8")
     )
 
-    shots_text = _shots_to_text(index.shots)
+    # Sort by energy_level descending and take top 5 for the prompt.
+    top_shots = sorted(index.shots, key=lambda s: s.energy_level, reverse=True)[:5]
+    shots_text = _shots_to_text(top_shots)
 
     system_prompt = (
-        "You are a video editing assistant. You MUST respond with ONLY a "
-        "raw JSON object. No explanations, no reasoning, no markdown. "
-        "Just the JSON.\n"
+        "You are a video editing assistant. "
+        "You MUST respond with ONLY a raw JSON object. "
+        "No explanations, no reasoning, no markdown. Just the JSON."
     )
 
     user_prompt = (
         "Create an EditPlan as a JSON object.\n\n"
         "Brief: " + brief.model_dump_json() + "\n\n"
-        "Shots:\n" + shots_text + "\n\n"
+        "Available shots (top 5 by energy):\n" + shots_text + "\n\n"
+        "Select the best shots and arrange them to create a compelling "
+        f"video of approximately {brief.duration_seconds} seconds.\n\n"
         "Return ONLY this JSON structure (nothing else):\n"
         '{"entries": [{"shot_id": "source_file#start_time", '
         '"start_trim": 0.0, "end_trim": 10.0, "position": 0, '
@@ -141,8 +145,9 @@ def run_director_openrouter(
             logger.warning("[director-openrouter] JSON parse failed: %s, retrying...", exc)
             if attempt < max_retries - 1:
                 user_prompt = (
-                    "Your previous response was not valid JSON. "
-                    "You MUST respond with ONLY a raw JSON object.\n\n"
+                    "Your previous response was NOT valid JSON. "
+                    "You MUST respond with ONLY a raw JSON object matching "
+                    "the EditPlan schema. No explanations, no markdown.\n\n"
                     + user_prompt
                 )
                 continue
@@ -180,15 +185,29 @@ def run_director_openrouter(
             continue
 
     if not entries:
-        # Last resort: generate a simple plan from available shots.
+        # Last resort: generate a smart plan from available shots.
         logger.warning(
             "[director-openrouter] No valid entries from LLM, "
             "generating fallback plan from shots."
         )
         duration = brief.duration_seconds
-        per_shot = duration / min(len(index.shots), 5)
+
+        # Prefer A-Roll shots, fallback to unknown, skip pure B-Roll.
+        a_roll = [
+            s for s in index.shots
+            if s.roll_type in ("a-roll", "unknown")
+        ]
+        candidates = a_roll if a_roll else index.shots
+
+        # Sort by energy_level descending so best shots come first.
+        candidates.sort(key=lambda s: s.energy_level, reverse=True)
+
+        # Take up to 5 unique shots, no repeats.
+        selected = candidates[: min(len(candidates), 5)]
+
+        per_shot = duration / max(len(selected), 1)
         entries = []
-        for i, shot in enumerate(index.shots[:5]):
+        for i, shot in enumerate(selected):
             entries.append(EditPlanEntry(
                 shot_id=f"{shot.source_file}#{shot.start_time}",
                 start_trim=shot.start_time,
