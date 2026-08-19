@@ -718,6 +718,16 @@ def run_pipeline(
         f"{len(manifest.steps)} step(s) from {pipeline_path}"
     )
 
+    # Log profile info
+    if resolved_profile is not None:
+        _log(f"[pipeline] Profile: {resolved_profile.name}")
+        _log(f"[pipeline] Profile opening: {resolved_profile.opening}")
+        _log(f"[pipeline] Profile closing: {resolved_profile.closing}")
+        _log(f"[pipeline] Profile captions enabled: {resolved_profile.captions.enabled}")
+        _log(f"[pipeline] Profile overlays: {len(resolved_profile.overlays)}")
+    else:
+        _log("[pipeline] WARNING: No profile resolved!")
+
     result = PipelineResult()
 
     for step_index, step in enumerate(manifest.steps):
@@ -737,10 +747,18 @@ def run_pipeline(
                     result.edit_plan = _with_transient_retry(
                         run_director, brief, footage_index_path
                     )
+                # Attach profile to edit_plan
                 if resolved_profile is not None:
+                    _log(f"[pipeline] Attaching profile '{resolved_profile.name}' to edit_plan")
+                    _log(f"[pipeline] Profile opening: {resolved_profile.opening}")
+                    _log(f"[pipeline] Profile closing: {resolved_profile.closing}")
+                    _log(f"[pipeline] Profile captions: {resolved_profile.captions.enabled}")
+                    _log(f"[pipeline] Profile overlays: {len(resolved_profile.overlays)}")
                     result.edit_plan = result.edit_plan.model_copy(
                         update={"profile": resolved_profile}
                     )
+                else:
+                    _log("[pipeline] WARNING: No profile to attach!")
             if step.gate == "human_approval":
                 if human_approval:
                     approved = _prompt_human_approval(result.edit_plan)

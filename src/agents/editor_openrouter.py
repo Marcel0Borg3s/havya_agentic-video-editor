@@ -75,6 +75,16 @@ def run_editor_openrouter(
 
     logger.info("[editor-openrouter] Processing %d entries...", len(edit_plan.entries))
 
+    # Debug: log profile status
+    if edit_plan.profile is not None:
+        logger.info("[editor-openrouter] Profile loaded: %s", edit_plan.profile.name)
+        logger.info("[editor-openrouter] Opening: %s", edit_plan.profile.opening)
+        logger.info("[editor-openrouter] Closing: %s", edit_plan.profile.closing)
+        logger.info("[editor-openrouter] Captions enabled: %s", edit_plan.profile.captions.enabled)
+        logger.info("[editor-openrouter] Overlays count: %d", len(edit_plan.profile.overlays))
+    else:
+        logger.warning("[editor-openrouter] NO PROFILE LOSED!")
+
     # Step 1: Clip each entry.
     clip_paths: list[str] = []
     sorted_entries = sorted(edit_plan.entries, key=lambda e: e.position)
