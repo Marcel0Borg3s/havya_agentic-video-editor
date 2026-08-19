@@ -7,7 +7,7 @@ import { useTimelineStore } from "@/stores/timelineStore";
 import { useProjectStore } from "@/stores/projectStore";
 import * as api from "@/lib/api";
 import type { PipelineEntry, StyleEntry } from "@/types/api";
-import { X, Loader2, ChevronDown, ChevronRight } from "lucide-react";
+import { X, Loader2, ChevronDown, ChevronRight, Film, Type, MessageSquare, Video } from "lucide-react";
 
 interface RunPipelineDialogProps {
   projectId: string;
@@ -24,7 +24,8 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
   const [styles, setStyles] = useState<StyleEntry[]>([]);
   const [pipelinePath, setPipelinePath] = useState("");
   const [profilePath, setProfilePath] = useState("");
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showAssets, setShowAssets] = useState(false);
+  const [showOverlays, setShowOverlays] = useState(true);
   const [product, setProduct] = useState("");
   const [audience, setAudience] = useState("");
   const [tone, setTone] = useState("energetic");
@@ -49,13 +50,13 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
     const pipelineRequest = api.getPipelines().then((p) => {
       setPipelines(p);
       if (p.length > 0 && !pipelinePath) setPipelinePath(p[0].path);
-    }).catch(() => setError("Não foi possível carregar os pipelines."));
+    }).catch(() => setError("Nao foi possivel carregar os pipelines."));
     const styleRequest = api.getStyles().then((s) => {
       setStyles(s);
       if (s.length > 0 && !profilePath) {
         setProfilePath(s.find((x) => x.name === "youtube-default")?.path ?? s[0].path);
       }
-    }).catch(() => setError("Não foi possível carregar os perfis."));
+    }).catch(() => setError("Nao foi possivel carregar os perfis."));
     Promise.allSettled([pipelineRequest, styleRequest]).finally(() => setLoadingOptions(false));
   }, [open, pipelinePath, profilePath]);
 
@@ -137,9 +138,9 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="w-full max-w-sm bg-surface border border-border rounded-lg shadow-xl">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-          <div><h2 className="text-sm font-semibold">Gerar vídeo</h2><p className="text-[10px] text-muted">O Havya monta o vídeo completo e prepara Shorts.</p></div>
+      <div className="w-full max-w-md bg-surface border border-border rounded-lg shadow-xl max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border sticky top-0 bg-surface">
+          <div><h2 className="text-sm font-semibold">Gerar video</h2><p className="text-[10px] text-muted">Configure o video completo e Shorts.</p></div>
           <button
             onClick={() => setOpen(false)}
             className="p-1 rounded hover:bg-surface-hover text-muted"
@@ -148,129 +149,247 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
           </button>
         </div>
 
-        <div className="p-4 space-y-3 text-xs">
+        <div className="p-4 space-y-4 text-xs">
           <div className="rounded-lg border border-accent/30 bg-accent/5 p-3">
-            <p className="font-medium text-foreground">Vídeo bruto</p>
+            <p className="font-medium text-foreground">Video bruto</p>
             <p className="text-muted mt-1">{project?.name ?? "Projeto atual"} · {project?.shot_count ?? 0} cenas analisadas</p>
           </div>
 
-          <p className="text-muted">Configure apenas o que precisar. Título, créditos e legendas são opcionais.</p>
-
-          {/* Perfil de geração */}
-          {pipelines.length > 1 && (
-            <label className="block">
-              <span className="text-muted font-medium">Pipeline</span>
-              <select
-                value={pipelinePath}
-                onChange={(e) => setPipelinePath(e.target.value)}
-                className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground focus:outline-none focus:border-accent"
-              >
-                {pipelines.map((p) => (
-                  <option key={p.path} value={p.path}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
-
-          {styles.length > 0 && (
-            <label className="block">
-              <span className="text-muted font-medium">Perfil de geração</span>
-              <select
-                value={profilePath}
-                onChange={(e) => setProfilePath(e.target.value)}
-                className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground focus:outline-none focus:border-accent"
-              >
-                {styles.map((style) => (
-                  <option key={style.path} value={style.path}>
-                    {style.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
-
-          {/* Opções adicionais */}
-          <button
-            onClick={() => setShowAdvanced(!showAdvanced)}
-            className="flex items-center gap-1 text-muted hover:text-foreground transition-colors"
-          >
-            {showAdvanced ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-            <span className="text-[11px]">Mais opções</span>
-          </button>
-
-          {showAdvanced && (
-            <div className="space-y-3 pl-1 border-l-2 border-border ml-1">
-              <label className="block pl-2">
-                <span className="text-muted font-medium">Product</span>
-                <input
-                  value={product}
-                  onChange={(e) => setProduct(e.target.value)}
-                  placeholder={project?.name || "Auto-detected from project"}
+          {/* Pipeline & Profile */}
+          <div className="space-y-2">
+            {pipelines.length > 1 && (
+              <label className="block">
+                <span className="text-muted font-medium">Pipeline</span>
+                <select
+                  value={pipelinePath}
+                  onChange={(e) => setPipelinePath(e.target.value)}
                   className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground focus:outline-none focus:border-accent"
-                />
+                >
+                  {pipelines.map((p) => (
+                    <option key={p.path} value={p.path}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
               </label>
+            )}
 
-              <label className="block pl-2">
-                <span className="text-muted font-medium">Audience</span>
-                <input
-                  value={audience}
-                  onChange={(e) => setAudience(e.target.value)}
-                  placeholder="General"
+            {styles.length > 0 && (
+              <label className="block">
+                <span className="text-muted font-medium">Perfil de edicao</span>
+                <select
+                  value={profilePath}
+                  onChange={(e) => setProfilePath(e.target.value)}
                   className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground focus:outline-none focus:border-accent"
-                />
+                >
+                  {styles.map((style) => (
+                    <option key={style.path} value={style.path}>
+                      {style.name}
+                    </option>
+                  ))}
+                </select>
               </label>
+            )}
+          </div>
 
-              <div className="flex gap-3 pl-2">
-                <label className="flex-1 block">
-                  <span className="text-muted font-medium">Tone</span>
-                  <select
-                    value={tone}
-                    onChange={(e) => setTone(e.target.value)}
-                    className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground focus:outline-none focus:border-accent"
-                  >
-                    <option value="energetic">Energetic</option>
-                    <option value="calm">Calm</option>
-                    <option value="professional">Professional</option>
-                    <option value="playful">Playful</option>
-                    <option value="dramatic">Dramatic</option>
-                  </select>
-                </label>
+          {/* Titulo e Creditos - sempre visivel */}
+          <div className="rounded-lg border border-border p-3 space-y-2">
+            <div className="flex items-center gap-2 text-muted font-medium">
+              <Type className="w-3 h-3" />
+              <span>Texto no video</span>
+            </div>
+            <label className="block">
+              <span className="text-muted">Titulo (opcional)</span>
+              <input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Ex: Meu Video Incrivel"
+                className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground focus:outline-none focus:border-accent"
+              />
+            </label>
+            <label className="block">
+              <span className="text-muted">Nome do canal (opcional)</span>
+              <input
+                value={channelName}
+                onChange={(e) => setChannelName(e.target.value)}
+                placeholder="Ex: Meu Canal"
+                className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground focus:outline-none focus:border-accent"
+              />
+            </label>
+            <label className="block">
+              <span className="text-muted">Creditos (opcional)</span>
+              <input
+                value={credits}
+                onChange={(e) => setCredits(e.target.value)}
+                placeholder="Ex: Producao: Havya Studio"
+                className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground focus:outline-none focus:border-accent"
+              />
+            </label>
+          </div>
 
-                <label className="flex-1 block">
-                  <span className="text-muted font-medium">Duration (s)</span>
+          {/* Legendas - sempre visivel */}
+          <div className="rounded-lg border border-border p-3">
+            <label className="flex items-center gap-2">
+              <MessageSquare className="w-3 h-3 text-muted" />
+              <input
+                type="checkbox"
+                checked={captionsEnabled}
+                onChange={(e) => setCaptionsEnabled(e.target.checked)}
+                className="rounded"
+              />
+              <span className="text-muted font-medium">Legendas automaticas</span>
+            </label>
+            <p className="text-muted text-[10px] mt-1 ml-5">
+              Gera legendas a partir da transcricao do audio
+            </p>
+          </div>
+
+          {/* Assets (Intro/Finalizacao) - colapsavel */}
+          <div className="rounded-lg border border-border">
+            <button
+              onClick={() => setShowAssets(!showAssets)}
+              className="flex items-center gap-2 w-full p-3 text-left text-muted hover:text-foreground transition-colors"
+            >
+              <Film className="w-3 h-3" />
+              <span className="font-medium text-xs">Intro e Finalizacao</span>
+              <span className="text-[10px] ml-auto">(opcional)</span>
+              {showAssets ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+            </button>
+            {showAssets && (
+              <div className="px-3 pb-3 space-y-2 border-t border-border pt-2">
+                <label className="block">
+                  <span className="text-muted">Caminho do video de abertura</span>
                   <input
-                    type="number"
-                    min={5}
-                    max={300}
-                    value={duration}
-                    onChange={(e) => setDuration(parseInt(e.target.value) || 30)}
-                    className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground focus:outline-none focus:border-accent"
+                    value={openingPath}
+                    onChange={(e) => setOpeningPath(e.target.value)}
+                    placeholder="/caminho/para/intro.mp4"
+                    className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground"
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-muted">Caminho do video de fechamento</span>
+                  <input
+                    value={closingPath}
+                    onChange={(e) => setClosingPath(e.target.value)}
+                    placeholder="/caminho/para/final.mp4"
+                    className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground"
                   />
                 </label>
               </div>
+            )}
+          </div>
 
-              <label className="block pl-2"><span className="text-muted font-medium">Opening path (optional)</span><input value={openingPath} onChange={(e) => setOpeningPath(e.target.value)} placeholder="/path/to/opening.mp4" className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground" /></label>
-              <label className="block pl-2"><span className="text-muted font-medium">Closing path (optional)</span><input value={closingPath} onChange={(e) => setClosingPath(e.target.value)} placeholder="/path/to/closing.mp4" className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground" /></label>
-              <label className="block pl-2"><span className="text-muted font-medium">Título (opcional)</span><input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Título exibido no vídeo" className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground" /></label>
-              <label className="block pl-2"><span className="text-muted font-medium">Canal (opcional)</span><input value={channelName} onChange={(e) => setChannelName(e.target.value)} placeholder="Nome do canal" className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground" /></label>
-              <label className="block pl-2"><span className="text-muted font-medium">Créditos (opcional)</span><input value={credits} onChange={(e) => setCredits(e.target.value)} placeholder="Texto dos créditos" className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground" /></label>
-              <label className="flex items-center gap-2 pl-2"><input type="checkbox" checked={captionsEnabled} onChange={(e) => setCaptionsEnabled(e.target.checked)} /> Adicionar legendas automáticas</label>
-              <label className="flex items-center gap-2 pl-2"><input type="checkbox" checked={shortsEnabled} onChange={(e) => setShortsEnabled(e.target.checked)} /> Criar Shorts</label>
-              {shortsEnabled && <div className="flex gap-3 pl-2"><label className="flex-1">Shorts count<input type="number" min={1} max={20} value={shortsCount} onChange={(e) => setShortsCount(Number(e.target.value) || 1)} className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground" /></label><label className="flex-1">Short duration<input type="number" min={5} max={180} value={shortsDuration} onChange={(e) => setShortsDuration(Number(e.target.value) || 60)} className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground" /></label></div>}
-            </div>
-          )}
+          {/* Shorts - sempre visivel */}
+          <div className="rounded-lg border border-border p-3 space-y-2">
+            <label className="flex items-center gap-2">
+              <Video className="w-3 h-3 text-muted" />
+              <input
+                type="checkbox"
+                checked={shortsEnabled}
+                onChange={(e) => setShortsEnabled(e.target.checked)}
+                className="rounded"
+              />
+              <span className="text-muted font-medium">Gerar Shorts</span>
+            </label>
+            {shortsEnabled && (
+              <div className="flex gap-3 ml-5 mt-2">
+                <label className="flex-1">
+                  <span className="text-muted text-[10px]">Quantidade</span>
+                  <input
+                    type="number"
+                    min={1}
+                    max={20}
+                    value={shortsCount}
+                    onChange={(e) => setShortsCount(Number(e.target.value) || 1)}
+                    className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground"
+                  />
+                </label>
+                <label className="flex-1">
+                  <span className="text-muted text-[10px]">Duracao max (s)</span>
+                  <input
+                    type="number"
+                    min={5}
+                    max={180}
+                    value={shortsDuration}
+                    onChange={(e) => setShortsDuration(Number(e.target.value) || 60)}
+                    className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground"
+                  />
+                </label>
+              </div>
+            )}
+          </div>
+
+          {/* Opcoes avancadas - colapsavel */}
+          <div className="rounded-lg border border-border">
+            <button
+              onClick={() => setShowOverlays(!showOverlays)}
+              className="flex items-center gap-2 w-full p-3 text-left text-muted hover:text-foreground transition-colors"
+            >
+              <span className="font-medium text-xs">Configuracao avancada</span>
+              {showOverlays ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+            </button>
+            {showOverlays && (
+              <div className="px-3 pb-3 space-y-2 border-t border-border pt-2">
+                <div className="flex gap-3">
+                  <label className="flex-1 block">
+                    <span className="text-muted">Product</span>
+                    <input
+                      value={product}
+                      onChange={(e) => setProduct(e.target.value)}
+                      placeholder={project?.name || "Auto-detect"}
+                      className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground"
+                    />
+                  </label>
+                  <label className="flex-1 block">
+                    <span className="text-muted">Audience</span>
+                    <input
+                      value={audience}
+                      onChange={(e) => setAudience(e.target.value)}
+                      placeholder="General"
+                      className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground"
+                    />
+                  </label>
+                </div>
+                <div className="flex gap-3">
+                  <label className="flex-1 block">
+                    <span className="text-muted">Tom</span>
+                    <select
+                      value={tone}
+                      onChange={(e) => setTone(e.target.value)}
+                      className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground"
+                    >
+                      <option value="energetic">Energetico</option>
+                      <option value="calm">Calmo</option>
+                      <option value="professional">Profissional</option>
+                      <option value="playful">Descontraido</option>
+                      <option value="dramatic">Dramatico</option>
+                    </select>
+                  </label>
+                  <label className="flex-1 block">
+                    <span className="text-muted">Duracao alvo (s)</span>
+                    <input
+                      type="number"
+                      min={5}
+                      max={300}
+                      value={duration}
+                      onChange={(e) => setDuration(parseInt(e.target.value) || 30)}
+                      className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground"
+                    />
+                  </label>
+                </div>
+              </div>
+            )}
+          </div>
 
           {error && (
             <p className="text-destructive text-[10px]">{error}</p>
           )}
           {project?.status !== "ready" && (
-            <p className="text-amber-400 text-[10px]">Aguarde o processamento do vídeo terminar antes de gerar.</p>
+            <p className="text-amber-400 text-[10px]">Aguarde o processamento do video terminar antes de gerar.</p>
           )}
         </div>
 
-        <div className="flex justify-end gap-2 px-4 py-3 border-t border-border">
+        <div className="flex justify-end gap-2 px-4 py-3 border-t border-border sticky bottom-0 bg-surface">
           <button
             onClick={() => setOpen(false)}
             className="px-3 py-1.5 rounded border border-border text-xs hover:bg-surface-hover transition-colors"
@@ -283,7 +402,7 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
             className="flex items-center gap-1.5 px-4 py-1.5 rounded bg-accent hover:bg-accent-hover text-black text-xs font-medium disabled:opacity-50 transition-colors"
           >
             {submitting && <Loader2 className="w-3 h-3 animate-spin" />}
-            Gerar vídeo
+            Gerar video
           </button>
         </div>
       </div>
