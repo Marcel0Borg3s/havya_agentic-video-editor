@@ -18,27 +18,20 @@ logger = logging.getLogger(__name__)
 
 
 def _repair_json(text: str) -> dict:
-    """Repair common LLM JSON issues and parse progressively.
-
-    Handles: markdown fences, inlined tool calls before JSON,
-    trailing text after JSON, missing braces.
-    """
+    """Repair common LLM JSON issues and parse progressively."""
     cleaned = text.strip()
 
     # Remove markdown fences.
     if "```" in cleaned:
-        # Find the content between the first pair of fences.
         parts = cleaned.split("```")
         if len(parts) >= 3:
             cleaned = parts[1].strip()
-            # Remove optional language tag.
             if cleaned.startswith(("json\n", "json\r\n")):
                 cleaned = cleaned.split("\n", 1)[-1].strip()
         elif cleaned.startswith("```"):
             cleaned = cleaned.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
 
-    # Find the FIRST opening brace — skip any inlined tool calls.
-    # Try to find the JSON object that starts with known keys.
+    # Find the FIRST opening brace.
     idx = -1
     for keyword in ['"product"', '"entries"', '"brief"']:
         pos = cleaned.find(f"{{{keyword}")
@@ -60,24 +53,157 @@ def _repair_json(text: str) -> dict:
         except json.JSONDecodeError:
             continue
 
-    # Last resort: try the whole cleaned string.
     return json.loads(cleaned)
 
 
 def _shots_to_text(shots: list) -> str:
-    """Format shots for the prompt."""
+    """Format shots for the prompt with explicit time ranges."""
     lines: list[str] = []
     for i, shot in enumerate(shots):
-        transcript_preview = (shot.transcript[:120] if shot.transcript else "")
+        transcript_preview = (shot.transcript[:150] if shot.transcript else "")
         lines.append(
-            f"Shot {i}: source_file=\"{shot.source_file}\", "
-            f"start_time={shot.start_time}, end_time={shot.end_time}, "
-            f"description=\"{shot.description}\", "
-            f"energy={shot.energy_level}, "
-            f"transcript=\"{transcript_preview}\", "
-            f"roll_type={shot.roll_type}"
+            f"Shot {i}:\n"
+            f'  source_file: "{shot.source_file}"\n'
+            f"  start_time: {shot.start_time}\n"
+            f"  end_time: {shot.end_time}\n"
+            f'  description: "{shot.description}"\n'
+            f"  energy: {shot.energy_level}\n"
+            f'  transcript: "{transcript_preview}"\n'
+            f"  roll_type: {shot.roll_type}"
         )
     return "\n".join(lines)
+
+
+def _validate_and_fix_entries(
+    raw_entries: list[dict],
+    index: FootageIndex,
+    target_duration: float,
+) -> list[EditPlanEntry]:
+    """Validate LLM entries and fix incorrect trim values.
+
+    The LLM often returns start_trim=0.0 and end_trim=small_value
+    instead of the actual shot timestamps. This function detects
+    and corrects those mistakes.
+    """
+    entries: list[EditPlanEntry] = []
+
+    for i, entry_data in enumerate(raw_entries):
+        if not isinstance(entry_data, dict):
+            logger.warning(
+                "[director-openrouter] entry %d is not a dict, skipping", i
+            )
+            continue
+
+        try:
+            shot_id = entry_data.get("shot_id", "")
+            if "#" not in shot_id:
+                logger.warning(
+                    "[director-openrouter] entry %d has invalid shot_id: %s",
+                    i, shot_id,
+                )
+                continue
+
+            # Find the matching shot in the index.
+            source_file = shot_id.rsplit("#", 1)[0]
+            try:
+                declared_start = float(shot_id.rsplit("#", 1)[1])
+            except (ValueError, IndexError):
+                logger.warning(
+                    "[director-openrouter] entry %d has non-numeric start_time in shot_id",
+                    i,
+                )
+                continue
+
+            # Find the actual shot.
+            matched_shot = None
+            for shot in index.shots:
+                if (
+                    shot.source_file == source_file
+                    and abs(shot.start_time - declared_start) < 0.1
+                ):
+                    matched_shot = shot
+                    break
+
+            if matched_shot is None:
+                logger.warning(
+                    "[director-openrouter] entry %d shot_id not found in index: %s",
+                    i, shot_id,
+                )
+                continue
+
+            # Get declared trims.
+            start_trim = float(entry_data.get("start_trim", matched_shot.start_time))
+            end_trim = float(entry_data.get("end_trim", matched_shot.end_time))
+
+            # FIX: If trims are clearly wrong (e.g., start_trim near 0
+            # but shot starts at 100s), use the shot's actual range.
+            shot_duration = matched_shot.end_time - matched_shot.start_time
+            trim_span = end_trim - start_trim
+
+            if (
+                start_trim < matched_shot.start_time - 1.0
+                or end_trim > matched_shot.end_time + 1.0
+                or trim_span < 0.5
+                or trim_span > shot_duration + 1.0
+            ):
+                logger.warning(
+                    "[director-openrouter] entry %d has invalid trims [%.1f, %.1f] "
+                    "for shot [% .1f, %.1f], clamping to shot range",
+                    i, start_trim, end_trim,
+                    matched_shot.start_time, matched_shot.end_time,
+                )
+                start_trim = matched_shot.start_time
+                end_trim = matched_shot.end_time
+
+            entries.append(EditPlanEntry(
+                shot_id=shot_id,
+                start_trim=start_trim,
+                end_trim=end_trim,
+                position=entry_data.get("position", i),
+                text_overlay=entry_data.get("text_overlay"),
+                transition=entry_data.get("transition"),
+            ))
+
+        except Exception as exc:
+            logger.warning(
+                "[director-openrouter] entry %d failed validation: %s", i, exc
+            )
+            continue
+
+    return entries
+
+
+def _generate_fallback_plan(
+    brief: CreativeBrief,
+    index: FootageIndex,
+) -> list[EditPlanEntry]:
+    """Generate a fallback plan when LLM fails or returns bad entries."""
+    duration = brief.duration_seconds
+
+    # Prefer A-Roll shots, fallback to unknown, skip pure B-Roll.
+    a_roll = [
+        s for s in index.shots
+        if s.roll_type in ("a-roll", "unknown")
+    ]
+    candidates = a_roll if a_roll else index.shots
+
+    # Sort by energy_level descending so best shots come first.
+    candidates.sort(key=lambda s: s.energy_level, reverse=True)
+
+    # Take up to 5 unique shots, no repeats.
+    selected = candidates[: min(len(candidates), 5)]
+
+    per_shot = duration / max(len(selected), 1)
+    entries = []
+    for i, shot in enumerate(selected):
+        entries.append(EditPlanEntry(
+            shot_id=f"{shot.source_file}#{shot.start_time}",
+            start_trim=shot.start_time,
+            end_trim=min(shot.end_time, shot.start_time + per_shot),
+            position=i,
+        ))
+
+    return entries
 
 
 def run_director_openrouter(
@@ -112,37 +238,64 @@ def run_director_openrouter(
 
     user_prompt = (
         "Create an EditPlan as a JSON object.\n\n"
-        "Brief: " + brief.model_dump_json() + "\n\n"
-        "Available shots (top 5 by energy):\n" + shots_text + "\n\n"
-        "Select the best shots and arrange them to create a compelling "
-        f"video of approximately {brief.duration_seconds} seconds.\n\n"
-        "Return ONLY this JSON structure (nothing else):\n"
+        "## Brief\n"
+        + brief.model_dump_json() + "\n\n"
+        "## Available shots\n"
+        + shots_text + "\n\n"
+        "## CRITICAL RULES FOR TRIM VALUES\n"
+        "Each shot has start_time and end_time in SECONDS from the "
+        "beginning of the source video.\n"
+        "- start_trim MUST be >= shot's start_time\n"
+        "- end_trim MUST be <= shot's end_time\n"
+        "- end_trim MUST be > start_trim\n"
+        "- Do NOT use 0.0 as start_trim unless the shot actually starts at 0.0\n"
+        "- Do NOT use relative offsets. Use the ABSOLUTE timestamps from the shot.\n\n"
+        f"## Target duration: {brief.duration_seconds} seconds\n\n"
+        "## Example (WRONG - do NOT do this):\n"
+        '{"entries": [{"shot_id": "video.mp4#102.5", "start_trim": 0.0, '
+        '"end_trim": 10.0, "position": 0}]} '
+        "// WRONG: start_trim should be ~102.5, not 0.0\n\n"
+        "## Example (CORRECT):\n"
+        '{"entries": [{"shot_id": "video.mp4#102.5", "start_trim": 102.5, '
+        '"end_trim": 115.0, "position": 0}]} '
+        "// CORRECT: uses actual shot timestamps\n\n"
+        "Return ONLY this JSON structure:\n"
         '{"entries": [{"shot_id": "source_file#start_time", '
-        '"start_trim": 0.0, "end_trim": 10.0, "position": 0, '
+        '"start_trim": <ACTUAL_SHOT_START_TIME>, '
+        '"end_trim": <ACTUAL_SHOT_END_TIME>, "position": 0, '
         '"text_overlay": null, "transition": null}], '
-        '"music_path": null, "total_duration": 30.0}\n\n'
+        '"music_path": null, "total_duration": <TARGET_SECONDS>}\n\n'
         "JSON:"
     )
 
     max_retries = 3
     parsed: dict = {}
     for attempt in range(max_retries):
-        logger.info("[director-openrouter] Calling %s (attempt %d)...", DEFAULT_GEMINI_MODEL, attempt + 1)
+        logger.info(
+            "[director-openrouter] Calling %s (attempt %d)...",
+            DEFAULT_GEMINI_MODEL, attempt + 1,
+        )
         result = call_openrouter(
             user_prompt,
             system=system_prompt,
             response_schema=None,
             temperature=0.1,
         )
-        logger.info("[director-openrouter] Response: %d chars", len(result["text"]))
+        logger.info(
+            "[director-openrouter] Response: %d chars", len(result["text"])
+        )
 
         try:
             parsed = _repair_json(result["text"])
             if "entries" in parsed:
                 break
-            logger.warning("[director-openrouter] No 'entries' key in response, retrying...")
+            logger.warning(
+                "[director-openrouter] No 'entries' key in response, retrying..."
+            )
         except (json.JSONDecodeError, ValueError) as exc:
-            logger.warning("[director-openrouter] JSON parse failed: %s, retrying...", exc)
+            logger.warning(
+                "[director-openrouter] JSON parse failed: %s, retrying...", exc
+            )
             if attempt < max_retries - 1:
                 user_prompt = (
                     "Your previous response was NOT valid JSON. "
@@ -156,64 +309,17 @@ def run_director_openrouter(
                 f"Last response: {result['text'][:500]}"
             )
 
-    # parsed is already set from the successful attempt above.
-
-    # Validate entries — handle cases where the model returns strings
-    # or malformed entries instead of proper dicts.
+    # Validate and fix entries from LLM response.
     raw_entries = parsed.get("entries", [])
-    entries: list[EditPlanEntry] = []
-    for i, entry_data in enumerate(raw_entries):
-        if isinstance(entry_data, str):
-            logger.warning(
-                "[director-openrouter] entry %d is a string, skipping: %s",
-                i, entry_data[:80],
-            )
-            continue
-        if not isinstance(entry_data, dict):
-            logger.warning(
-                "[director-openrouter] entry %d is not a dict, skipping: %s",
-                i, type(entry_data).__name__,
-            )
-            continue
-        try:
-            entries.append(EditPlanEntry(**entry_data))
-        except Exception as exc:
-            logger.warning(
-                "[director-openrouter] entry %d invalid: %s",
-                i, exc,
-            )
-            continue
+    entries = _validate_and_fix_entries(raw_entries, index, brief.duration_seconds)
 
+    # If no valid entries, use fallback.
     if not entries:
-        # Last resort: generate a smart plan from available shots.
         logger.warning(
             "[director-openrouter] No valid entries from LLM, "
             "generating fallback plan from shots."
         )
-        duration = brief.duration_seconds
-
-        # Prefer A-Roll shots, fallback to unknown, skip pure B-Roll.
-        a_roll = [
-            s for s in index.shots
-            if s.roll_type in ("a-roll", "unknown")
-        ]
-        candidates = a_roll if a_roll else index.shots
-
-        # Sort by energy_level descending so best shots come first.
-        candidates.sort(key=lambda s: s.energy_level, reverse=True)
-
-        # Take up to 5 unique shots, no repeats.
-        selected = candidates[: min(len(candidates), 5)]
-
-        per_shot = duration / max(len(selected), 1)
-        entries = []
-        for i, shot in enumerate(selected):
-            entries.append(EditPlanEntry(
-                shot_id=f"{shot.source_file}#{shot.start_time}",
-                start_trim=shot.start_time,
-                end_trim=min(shot.end_time, shot.start_time + per_shot),
-                position=i,
-            ))
+        entries = _generate_fallback_plan(brief, index)
 
     # Validate total_duration.
     total_duration = float(parsed.get("total_duration", 0.0))
@@ -227,7 +333,6 @@ def run_director_openrouter(
 
     logger.info(
         "[director-openrouter] Plan: %d entries, %.1fs total",
-        len(entries),
-        total_duration,
+        len(entries), total_duration,
     )
     return edit_plan
