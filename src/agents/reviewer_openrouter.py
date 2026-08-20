@@ -78,11 +78,30 @@ def run_reviewer_openrouter(
 
     try:
         logger.info("[reviewer-openrouter] Calling model for video review...")
-        result = call_openrouter(
-            user_prompt,
-            system=system_prompt,
-            video_path=video_path,
-        )
+        # Try without video frames first (text-only review).
+        # Some models don't support vision/base64 images.
+        try:
+            result = call_openrouter(
+                user_prompt,
+                system=system_prompt,
+                video_path=video_path,
+            )
+        except Exception as vision_exc:
+            logger.warning(
+                "[reviewer-openrouter] Vision review failed (%s), trying text-only...",
+                vision_exc,
+            )
+            # Fallback: text-only review without video frames.
+            text_only_prompt = (
+                user_prompt
+                + "\n\nNOTE: Video frames could not be loaded. "
+                "Provide a conservative review based on the brief alone."
+            )
+            result = call_openrouter(
+                text_only_prompt,
+                system=system_prompt,
+                video_path=None,
+            )
         logger.info("[reviewer-openrouter] Response received (%d chars)", len(result["text"]))
 
         parsed = _repair_json(result["text"])

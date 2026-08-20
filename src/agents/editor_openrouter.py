@@ -152,14 +152,23 @@ def run_editor_openrouter(
         time_offset = 0.0
         for entry in sorted_entries:
             shot = _resolve_shot(index, entry.shot_id)
-            clip_duration = entry.end_trim - entry.start_trim
+            # Use the ACTUAL shot time range for captions, not entry trims
+            # which may be wrong from the LLM.
+            clip_start = max(entry.start_trim, shot.start_time)
+            clip_end = min(entry.end_trim, shot.end_time)
+            if clip_end <= clip_start:
+                logger.warning(
+                    "[editor-openrouter] Skipping captions for entry %d: invalid range [%.1f, %.1f]",
+                    entry.position, clip_start, clip_end,
+                )
+                continue
             ass_out = str(working_dir / f"captions_{entry.position:03d}.ass")
             try:
                 generate_ass_captions(
                     footage_index_path=footage_index_path,
                     shot_id=entry.shot_id,
-                    clip_start=entry.start_trim,
-                    clip_end=entry.end_trim,
+                    clip_start=clip_start,
+                    clip_end=clip_end,
                     output=ass_out,
                 )
                 ass_files.append(ass_out)

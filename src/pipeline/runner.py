@@ -895,6 +895,11 @@ def run_pipeline(
                     )
                 else:
                     result.edit_plan = revised_plan
+                # Attach profile to revised plan (critical for retries!)
+                if resolved_profile is not None:
+                    result.edit_plan = result.edit_plan.model_copy(
+                        update={"profile": resolved_profile}
+                    )
                 if AI_PROVIDER == "openrouter":
                     from src.agents.editor_openrouter import run_editor_openrouter
                     result.final_video_path = run_editor_openrouter(
