@@ -30,6 +30,13 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
   const [audience, setAudience] = useState("");
   const [tone, setTone] = useState("energetic");
   const [duration, setDuration] = useState(30);
+
+  // Auto-detect duration from project when dialog opens.
+  useEffect(() => {
+    if (open && project?.total_duration && project.total_duration > 0) {
+      setDuration(Math.round(project.total_duration));
+    }
+  }, [open, project?.total_duration]);
   const [openingPath, setOpeningPath] = useState("");
   const [closingPath, setClosingPath] = useState("");
   const [title, setTitle] = useState("");
@@ -366,7 +373,7 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
                     </select>
                   </label>
                   <label className="flex-1 block">
-                    <span className="text-muted">Duracao alvo (s)</span>
+                    <span className="text-muted">Duracao alvo (s) — auto-detectada: {project?.total_duration ? `${Math.round(project.total_duration)}s` : 'N/A'}</span>
                     <input
                       type="number"
                       min={5}
