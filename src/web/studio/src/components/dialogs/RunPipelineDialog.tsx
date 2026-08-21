@@ -40,20 +40,23 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
   const [submitting, setSubmitting] = useState(false);
   const [loadingOptions, setLoadingOptions] = useState(false);
   const [error, setError] = useState("");
+  const [initialized, setInitialized] = useState(false);
 
-  // Auto-detect values from project when dialog opens.
+  // Auto-detect values from project when dialog opens (once only).
   useEffect(() => {
-    if (open && project) {
-      // Auto-detect duration from project.
+    if (open && project && !initialized) {
       if (project.total_duration && project.total_duration > 0) {
         setDuration(Math.round(project.total_duration));
       }
-      // Auto-fill product name from project.
-      if (project.name && !product) {
+      if (project.name) {
         setProduct(project.name);
       }
+      setInitialized(true);
     }
-  }, [open, project?.total_duration, project?.name]);
+    if (!open) {
+      setInitialized(false);
+    }
+  }, [open, project, initialized]);
 
   useEffect(() => {
     if (!open) return;
