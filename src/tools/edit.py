@@ -110,12 +110,12 @@ def cut_clip(source: str, start: float, end: float, output: str) -> str:
 
 
 def sequence_clips(clips: list[str], output: str) -> str:
-    """Concatenate ``clips`` in order using the FFmpeg concat demuxer.
+    """Concatenate ``clips`` in order using FFmpeg concat filter.
 
-    Writes a temporary ``concat.txt`` listing each input as ``file '<path>'``,
-    runs ``ffmpeg -f concat -safe 0 -i concat.txt -c copy``, and removes the
-    temp file in a ``finally`` block. All clips must share codec, resolution,
-    and timebase for stream copy to succeed.
+    Uses the concat filter (not demuxer) with re-encoding to ensure
+    proper audio/video sync across clips with different codecs,
+    resolutions, or timebases. This is slower than stream copy but
+    avoids desync issues.
 
     Args:
         clips: Ordered list of clip paths to concatenate.
@@ -135,47 +135,34 @@ def sequence_clips(clips: list[str], output: str) -> str:
         _require_file(clip, "Clip")
     _ensure_parent(output)
 
-    tmp = tempfile.NamedTemporaryFile(
-        mode="w",
-        suffix=".txt",
-        prefix="concat_",
-        delete=False,
-        encoding="utf-8",
-    )
-    concat_path = tmp.name
-    try:
-        for clip in clips:
-            resolved = str(Path(clip).resolve())
-            # Reject control characters that could break ffconcat line syntax
-            # (newlines could inject extra concat directives even with -safe 0).
-            if any(ch in resolved for ch in ("\n", "\r", "\x00")):
-                raise ValueError(
-                    f"clip path contains illegal control character: {clip!r}"
-                )
-            # Escape single quotes in paths per concat demuxer rules.
-            escaped = resolved.replace("'", r"'\''")
-            tmp.write(f"file '{escaped}'\n")
-        tmp.close()
+    # Build FFmpeg command with concat filter and re-encoding.
+    inputs = []
+    filter_inputs = []
+    for i, clip in enumerate(clips):
+        inputs.extend(["-i", clip])
+        filter_inputs.append(f"[{i}:v:0][{i}:a:0]")
 
-        cmd = [
-            "ffmpeg",
-            "-y",
-            "-f",
-            "concat",
-            "-safe",
-            "0",
-            "-i",
-            concat_path,
-            "-c",
-            "copy",
-            output,
-        ]
-        _run_ffmpeg(cmd)
-    finally:
-        try:
-            os.unlink(concat_path)
-        except OSError:
-            pass
+    # Concat filter: join all video and audio streams.
+    concat_str = "".join(filter_inputs)
+    filter_complex = f"{concat_str}concat=n={len(clips)}:v=1:a=1[outv][outa]"
+
+    cmd = [
+        "ffmpeg",
+        "-y",
+        *inputs,
+        "-filter_complex",
+        filter_complex,
+        "-map", "[outv]",
+        "-map", "[outa]",
+        "-c:v", "libx264",
+        "-preset", "fast",
+        "-crf", "23",
+        "-c:a", "aac",
+        "-b:a", "128k",
+        "-movflags", "+faststart",
+        output,
+    ]
+    _run_ffmpeg(cmd)
     return output
 
 

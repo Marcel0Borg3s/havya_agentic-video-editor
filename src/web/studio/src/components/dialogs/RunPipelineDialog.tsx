@@ -30,15 +30,6 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
   const [audience, setAudience] = useState("");
   const [tone, setTone] = useState("energetic");
   const [duration, setDuration] = useState(30);
-
-  // Auto-detect duration from project when dialog opens.
-  useEffect(() => {
-    if (open && project?.total_duration && project.total_duration > 0) {
-      setDuration(Math.round(project.total_duration));
-    }
-  }, [open, project?.total_duration]);
-  const [openingPath, setOpeningPath] = useState("");
-  const [closingPath, setClosingPath] = useState("");
   const [title, setTitle] = useState("");
   const [channelName, setChannelName] = useState("");
   const [credits, setCredits] = useState("");
@@ -49,6 +40,20 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
   const [submitting, setSubmitting] = useState(false);
   const [loadingOptions, setLoadingOptions] = useState(false);
   const [error, setError] = useState("");
+
+  // Auto-detect values from project when dialog opens.
+  useEffect(() => {
+    if (open && project) {
+      // Auto-detect duration from project.
+      if (project.total_duration && project.total_duration > 0) {
+        setDuration(Math.round(project.total_duration));
+      }
+      // Auto-fill product name from project.
+      if (project.name && !product) {
+        setProduct(project.name);
+      }
+    }
+  }, [open, project?.total_duration, project?.name]);
 
   useEffect(() => {
     if (!open) return;
@@ -81,6 +86,10 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
     setSubmitting(true);
     setError("");
     try {
+      // Use opening/closing paths from PROJECT (uploaded in initial screen).
+      const openingPath = project.opening_path || null;
+      const closingPath = project.closing_path || null;
+
       const jobId = await submitJob({
         brief: {
           product: product || project.name || "Product",
@@ -139,9 +148,13 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
     } finally {
       setSubmitting(false);
     }
-  }, [product, audience, tone, duration, pipelinePath, profilePath, openingPath, closingPath, title, channelName, credits, captionsEnabled, shortsEnabled, shortsCount, shortsDuration, project, submitJob, fetchEditPlan, setOpen]);
+  }, [product, audience, tone, duration, pipelinePath, profilePath, captionsEnabled, shortsEnabled, shortsCount, shortsDuration, project, submitJob, fetchEditPlan, setOpen]);
 
   if (!open) return null;
+
+  // Check if project has intro/closing uploaded.
+  const hasIntro = !!project?.opening_path;
+  const hasClosing = !!project?.closing_path;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
@@ -159,8 +172,31 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
         <div className="p-4 space-y-4 text-xs">
           <div className="rounded-lg border border-accent/30 bg-accent/5 p-3">
             <p className="font-medium text-foreground">Video bruto</p>
-            <p className="text-muted mt-1">{project?.name ?? "Projeto atual"} · {project?.shot_count ?? 0} cenas analisadas</p>
+            <p className="text-muted mt-1">{project?.name ?? "Projeto atual"} · {project?.shot_count ?? 0} cenas · {project?.total_duration ? `${Math.round(project.total_duration)}s` : "?"}</p>
           </div>
+
+          {/* Assets status - show what was uploaded */}
+          {(hasIntro || hasClosing) && (
+            <div className="rounded-lg border border-border p-3 space-y-1">
+              <div className="flex items-center gap-2 text-muted font-medium">
+                <Film className="w-3 h-3" />
+                <span>Assets do projeto</span>
+              </div>
+              {hasIntro && (
+                <p className="text-[10px] text-green-400 ml-5">
+                  ✓ Intro: {project!.opening_path!.split("/").pop()}
+                </p>
+              )}
+              {hasClosing && (
+                <p className="text-[10px] text-green-400 ml-5">
+                  ✓ Finalizacao: {project!.closing_path!.split("/").pop()}
+                </p>
+              )}
+              <p className="text-[10px] text-muted ml-5">
+                Enviados na criacao do projeto
+              </p>
+            </div>
+          )}
 
           {/* Pipeline & Profile */}
           <div className="space-y-2">
@@ -199,7 +235,7 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
             )}
           </div>
 
-          {/* Titulo e Creditos - sempre visivel */}
+          {/* Titulo e Creditos */}
           <div className="rounded-lg border border-border p-3 space-y-2">
             <div className="flex items-center gap-2 text-muted font-medium">
               <Type className="w-3 h-3" />
@@ -234,7 +270,7 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
             </label>
           </div>
 
-          {/* Legendas - sempre visivel */}
+          {/* Legendas */}
           <div className="rounded-lg border border-border p-3">
             <label className="flex items-center gap-2">
               <MessageSquare className="w-3 h-3 text-muted" />
@@ -251,42 +287,7 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
             </p>
           </div>
 
-          {/* Assets (Intro/Finalizacao) - colapsavel */}
-          <div className="rounded-lg border border-border">
-            <button
-              onClick={() => setShowAssets(!showAssets)}
-              className="flex items-center gap-2 w-full p-3 text-left text-muted hover:text-foreground transition-colors"
-            >
-              <Film className="w-3 h-3" />
-              <span className="font-medium text-xs">Intro e Finalizacao</span>
-              <span className="text-[10px] ml-auto">(opcional)</span>
-              {showAssets ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-            </button>
-            {showAssets && (
-              <div className="px-3 pb-3 space-y-2 border-t border-border pt-2">
-                <label className="block">
-                  <span className="text-muted">Caminho do video de abertura</span>
-                  <input
-                    value={openingPath}
-                    onChange={(e) => setOpeningPath(e.target.value)}
-                    placeholder="/caminho/para/intro.mp4"
-                    className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground"
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-muted">Caminho do video de fechamento</span>
-                  <input
-                    value={closingPath}
-                    onChange={(e) => setClosingPath(e.target.value)}
-                    placeholder="/caminho/para/final.mp4"
-                    className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground"
-                  />
-                </label>
-              </div>
-            )}
-          </div>
-
-          {/* Shorts - sempre visivel */}
+          {/* Shorts */}
           <div className="rounded-lg border border-border p-3 space-y-2">
             <label className="flex items-center gap-2">
               <Video className="w-3 h-3 text-muted" />
@@ -326,7 +327,7 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
             )}
           </div>
 
-          {/* Opcoes avancadas - colapsavel */}
+          {/* Configuracao avancada */}
           <div className="rounded-lg border border-border">
             <button
               onClick={() => setShowOverlays(!showOverlays)}
@@ -373,11 +374,11 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
                     </select>
                   </label>
                   <label className="flex-1 block">
-                    <span className="text-muted">Duracao alvo (s) — auto-detectada: {project?.total_duration ? `${Math.round(project.total_duration)}s` : 'N/A'}</span>
+                    <span className="text-muted">Duracao alvo (s) — auto: {project?.total_duration ? `${Math.round(project.total_duration)}s` : "N/A"}</span>
                     <input
                       type="number"
                       min={5}
-                      max={300}
+                      max={600}
                       value={duration}
                       onChange={(e) => setDuration(parseInt(e.target.value) || 30)}
                       className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-background text-foreground"

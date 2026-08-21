@@ -218,7 +218,13 @@ Observação: o primeiro comando executado com `pytest` global falhou por ausên
 - [x] Criar endpoint de upload direto para vídeo bruto, intro e finalização.
 - [x] Conectar seleção de arquivos do Studio ao endpoint de upload.
 - [x] Adicionar preview/nome dos arquivos selecionados no formulário.
-- [ ] Validar upload manual com vídeo real no ambiente do usuário.
+- [x] Validar upload manual com vídeo real no ambiente do usuário.
+- [x] Auto-detectar duração do vídeo no dialog de geração.
+- [x] Usar intro/finalização do upload inicial (sem duplicidade).
+- [x] Corrigir dessincronia audio/video na concatenação.
+- [x] Corrigir Director retornando trims incorretos (validação pós-LLM).
+- [x] Corrigir profile não anexado nos retries.
+- [x] Corrigir Reviewer sem vision (fallback text-only).
 
 Suíte completa validada:
 
@@ -241,6 +247,11 @@ uv run pytest -q
 - [x] Task 6: Reviewer com fallback seguro (retorna score padrão se falhar).
 - [x] Configuração de IA atualizada para OpenCode (AI_API_KEY, AI_BASE_URL, AI_MODEL).
 - [x] Modelo GPT-5.6-Luna testado e funcionando.
+- [x] Correção crítica: LLM retornava trims incorretos (validação pós-LLM).
+- [x] Correção: profile não anexado nos retries do pipeline.
+- [x] Correção: Reviewer falhava com 400 (fallback text-only).
+- [x] Correção: dessincronia audio/video (re-encode na concatenação).
+- [x] Frontend: duração auto-detectada, intro/finalização do upload inicial.
 
 Suíte completa validada:
 
@@ -326,6 +337,14 @@ A primeira implementação deve criar os novos modelos e testes, preservando o c
 - Task 3 concluída: legendas ASS geradas e queimadas no Editor OpenRouter.
 - Task 4 concluída: overlays (título, CTA, créditos) aplicados no Editor OpenRouter.
 - Task 6 concluída: Reviewer com fallback seguro (retorna score padrão se falhar).
+- Corrigido bug crítico: LLM retornava start_trim=0.0 em vez de timestamps reais.
+- Adicionada validação pós-LLM que corrige trims incorretos automaticamente.
+- Corrigido bug: profile não era anexado nos retries do pipeline.
+- Corrigido bug: Reviewer falhava com 400 Bad Request (modelo sem vision).
+- Corrigido bug: dessincronia audio/video na concatenação (re-encode ao invés de stream copy).
+- Frontend: duração auto-detectada do projeto (não mais fixa em 30s).
+- Frontend: intro/finalização usadas do upload inicial (sem pedir novamente).
+- Frontend: dialog de geração reorganizado com campos visíveis.
 - Suíte completa: 109 testes aprovados.
 
 ### 2026-08-15
