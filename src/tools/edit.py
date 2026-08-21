@@ -112,10 +112,8 @@ def cut_clip(source: str, start: float, end: float, output: str) -> str:
 def sequence_clips(clips: list[str], output: str) -> str:
     """Concatenate ``clips`` in order using FFmpeg concat filter.
 
-    Uses the concat filter (not demuxer) with re-encoding to ensure
-    proper audio/video sync across clips with different codecs,
-    resolutions, or timebases. This is slower than stream copy but
-    avoids desync issues.
+    Handles clips with or without audio streams by detecting each
+    input's streams and generating silent audio where needed.
 
     Args:
         clips: Ordered list of clip paths to concatenate.
@@ -135,25 +133,62 @@ def sequence_clips(clips: list[str], output: str) -> str:
         _require_file(clip, "Clip")
     _ensure_parent(output)
 
-    # Build FFmpeg command with concat filter and re-encoding.
-    inputs = []
-    filter_inputs = []
+    import json as _json
+    import subprocess as _sp
+
+    # Detect streams and durations for each input.
+    clip_info: list[dict] = []
+    for clip in clips:
+        probe = _sp.run(
+            ["ffprobe", "-v", "quiet", "-print_format", "json",
+             "-show_streams", "-show_entries", "format=duration", clip],
+            capture_output=True, text=True,
+        )
+        data = _json.loads(probe.stdout)
+        streams = data.get("streams", [])
+        duration = float(data.get("format", {}).get("duration", "1"))
+        has_audio = any(s.get("codec_type") == "audio" for s in streams)
+        clip_info.append({"has_audio": has_audio, "duration": duration})
+
+    # Build filter graph.
+    inputs: list[str] = []
+    filter_parts: list[str] = []
+    v_refs: list[str] = []
+    a_refs: list[str] = []
+
     for i, clip in enumerate(clips):
         inputs.extend(["-i", clip])
-        filter_inputs.append(f"[{i}:v:0][{i}:a:0]")
+        v_refs.append(f"[{i}:v:0]")
 
-    # Concat filter: join all video and audio streams.
-    concat_str = "".join(filter_inputs)
-    filter_complex = f"{concat_str}concat=n={len(clips)}:v=1:a=1[outv][outa]"
+        if clip_info[i]["has_audio"]:
+            a_refs.append(f"[{i}:a:0]")
+        else:
+            # Generate silent audio matching this clip's duration.
+            dur = clip_info[i]["duration"]
+            filter_parts.append(
+                f"aevalsrc=0:d={dur}:s=44100:c=mono[sil{i}]"
+            )
+            a_refs.append(f"[sil{i}]")
+
+    # Concat video.
+    n = len(clips)
+    filter_parts.append(
+        f"{''.join(v_refs)}concat=n={n}:v=1:a=0[vout]"
+    )
+
+    # Concat audio (all inputs now have audio — real or silent).
+    filter_parts.append(
+        f"{''.join(a_refs)}concat=n={n}:v=0:a=1[aout]"
+    )
+
+    filter_complex = ";".join(filter_parts)
 
     cmd = [
-        "ffmpeg",
-        "-y",
+        "ffmpeg", "-y",
         *inputs,
-        "-filter_complex",
-        filter_complex,
-        "-map", "[outv]",
-        "-map", "[outa]",
+        "-filter_complex", filter_complex,
+        "-map", "[vout]",
+        "-map", "[aout]",
         "-c:v", "libx264",
         "-preset", "fast",
         "-crf", "23",
