@@ -262,12 +262,15 @@ uv run pytest -q
 
 ### Fase 4 — Análise editorial
 
-- [ ] Detectar silêncio.
-- [ ] Detectar pausas longas.
-- [ ] Detectar hesitações.
-- [ ] Detectar repetições.
-- [ ] Detectar takes ruins.
-- [ ] Integrar dados ao Director e Trim Refiner.
+- [x] Detectar silêncio (inicio/fim de shot).
+- [x] Detectar pausas longas (> 0.8s entre palavras).
+- [x] Detectar hesitações (um, ah, eh, é, tipo, etc.).
+- [x] Detectar repetições (palavras consecutivas iguais).
+- [x] Calcular speech_ratio (razão fala/duração).
+- [x] Adicionar campos de analise ao modelo Shot.
+- [x] Integrar analise ao preprocess.py (executa automaticamente).
+- [x] Integrar dados ao Director (prompt inclui dados de analise).
+- [ ] Integrar dados ao Trim Refiner (fase posterior).
 
 ### Fase 5 — Abstração de IA
 
@@ -342,9 +345,15 @@ A primeira implementação deve criar os novos modelos e testes, preservando o c
 - Corrigido bug: profile não era anexado nos retries do pipeline.
 - Corrigido bug: Reviewer falhava com 400 Bad Request (modelo sem vision).
 - Corrigido bug: dessincronia audio/video na concatenação (re-encode ao invés de stream copy).
+- Corrigido bug: sequence_clips falhava com videos sem audio (gera silencio).
 - Frontend: duração auto-detectada do projeto (não mais fixa em 30s).
 - Frontend: intro/finalização usadas do upload inicial (sem pedir novamente).
 - Frontend: dialog de geração reorganizado com campos visíveis.
+- **Fase 4 concluída**: Análise editorial implementada.
+  - Criado `src/pipeline/analyze.py` com detecção de silêncio, pausas, hesitações, repetições.
+  - Adicionados campos de analise ao modelo Shot (silence_start/end, long_pauses, hesitation_count, repetition_count, speech_ratio).
+  - Analise integrada ao preprocess.py (executa automaticamente).
+  - Director recebe dados de analise no prompt para decisões mais inteligentes.
 - Suíte completa: 109 testes aprovados.
 
 ### 2026-08-15

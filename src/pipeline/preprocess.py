@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from src.models.schemas import FootageIndex, Shot, WordTimestamp
+from src.pipeline.analyze import analyze_shot
 
 if TYPE_CHECKING:
     from faster_whisper import WhisperModel
@@ -171,19 +172,26 @@ def _process_video(
     for shot_start, shot_end in shot_ranges:
         shot_words = _words_for_shot(words, shot_start, shot_end)
         transcript = _words_to_text(shot_words)
-        shots.append(
-            Shot(
-                source_file=str(video_path),
-                start_time=shot_start,
-                end_time=shot_end,
-                description="",
-                energy_level=0,
-                relevance_score=0.0,
-                transcript=transcript,
-                words=shot_words,
-                roll_type=roll_type,
-            )
+        shot = Shot(
+            source_file=str(video_path),
+            start_time=shot_start,
+            end_time=shot_end,
+            description="",
+            energy_level=0,
+            relevance_score=0.0,
+            transcript=transcript,
+            words=shot_words,
+            roll_type=roll_type,
         )
+        # Run editorial analysis.
+        analysis = analyze_shot(shot)
+        shot.silence_start = analysis.silence_start
+        shot.silence_end = analysis.silence_end
+        shot.long_pauses = analysis.long_pauses
+        shot.hesitation_count = len(analysis.hesitations)
+        shot.repetition_count = sum(r["count"] - 1 for r in analysis.repetitions)
+        shot.speech_ratio = analysis.speech_ratio
+        shots.append(shot)
     return shots
 
 

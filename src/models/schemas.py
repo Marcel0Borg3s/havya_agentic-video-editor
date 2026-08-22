@@ -129,6 +129,16 @@ class Shot(BaseModel):
             "preprocessing."
         ),
     )
+    # Editorial analysis fields (populated by analyze_shot).
+    silence_start: float = Field(default=0.0, description="Silence at start (s)")
+    silence_end: float = Field(default=0.0, description="Silence at end (s)")
+    long_pauses: list[tuple[float, float]] = Field(
+        default_factory=list,
+        description="Long pauses [(start, end), ...]",
+    )
+    hesitation_count: int = Field(default=0, description="Number of hesitations")
+    repetition_count: int = Field(default=0, description="Number of repeated words")
+    speech_ratio: float = Field(default=0.0, description="Speech time / shot duration")
 
 
 class FootageIndex(BaseModel):

@@ -57,10 +57,25 @@ def _repair_json(text: str) -> dict:
 
 
 def _shots_to_text(shots: list) -> str:
-    """Format shots for the prompt with explicit time ranges."""
+    """Format shots for the prompt with analysis data."""
     lines: list[str] = []
     for i, shot in enumerate(shots):
         transcript_preview = (shot.transcript[:150] if shot.transcript else "")
+        # Build analysis summary.
+        analysis_parts = []
+        if shot.silence_start > 0.5:
+            analysis_parts.append(f"silence_start={shot.silence_start:.1f}s")
+        if shot.silence_end > 0.5:
+            analysis_parts.append(f"silence_end={shot.silence_end:.1f}s")
+        if shot.long_pauses:
+            analysis_parts.append(f"long_pauses={len(shot.long_pauses)}")
+        if shot.hesitation_count > 0:
+            analysis_parts.append(f"hesitations={shot.hesitation_count}")
+        if shot.repetition_count > 0:
+            analysis_parts.append(f"repetitions={shot.repetition_count}")
+        analysis_parts.append(f"speech_ratio={shot.speech_ratio:.2f}")
+        analysis_str = ", ".join(analysis_parts)
+
         lines.append(
             f"Shot {i}:\n"
             f'  source_file: "{shot.source_file}"\n'
@@ -69,7 +84,8 @@ def _shots_to_text(shots: list) -> str:
             f'  description: "{shot.description}"\n'
             f"  energy: {shot.energy_level}\n"
             f'  transcript: "{transcript_preview}"\n'
-            f"  roll_type: {shot.roll_type}"
+            f"  roll_type: {shot.roll_type}\n"
+            f"  analysis: {analysis_str}"
         )
     return "\n".join(lines)
 
@@ -250,6 +266,18 @@ def run_director_openrouter(
         "- end_trim MUST be > start_trim\n"
         "- Do NOT use 0.0 as start_trim unless the shot actually starts at 0.0\n"
         "- Do NOT use relative offsets. Use the ABSOLUTE timestamps from the shot.\n\n"
+        "## EDITORIAL ANALYSIS\n"
+        "Each shot includes analysis data:\n"
+        "- silence_start/silence_end: seconds of silence at shot boundaries\n"
+        "- long_pauses: count of pauses > 0.8s between words\n"
+        "- hesitations: count of filler words (um, uh, é, tipo, etc.)\n"
+        "- repetitions: count of repeated words\n"
+        "- speech_ratio: fraction of shot duration with speech (0.0-1.0)\n\n"
+        "Use this to improve edit quality:\n"
+        "- Trim silence from start/end of shots\n"
+        "- Remove or reduce sections with many hesitations\n"
+        "- Avoid shots with low speech_ratio (< 0.3)\n"
+        "- Prefer shots with fewer repetitions\n\n"
         f"## Target duration: {brief.duration_seconds} seconds\n\n"
         "## Example (WRONG - do NOT do this):\n"
         '{"entries": [{"shot_id": "video.mp4#102.5", "start_trim": 0.0, '
