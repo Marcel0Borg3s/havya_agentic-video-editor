@@ -270,14 +270,18 @@ def sequence_clips_with_crossfade(
         n = len(clips)
         filter_parts: list[str] = []
 
-        # Build xfade chain for video.
-        prev_label = "[0:v]"
+        # Normalize all video clips to 25fps for xfade compatibility.
+        for i in range(n):
+            filter_parts.append(f"[{i}:v]fps=25[nv{i}]")
+
+        # Build xfade chain for video (using normalized streams).
+        prev_label = "[nv0]"
         for i in range(1, n):
             offset = sum(durations[:i]) - (i * crossfade_duration)
             offset = max(0.0, offset)
             out_label = f"[vxfade{i}]"
             filter_parts.append(
-                f"{prev_label}[{i}:v]xfade=transition=fade"
+                f"{prev_label}[nv{i}]xfade=transition=fade"
                 f":duration={crossfade_duration}:offset={offset:.3f}{out_label}"
             )
             prev_label = out_label
