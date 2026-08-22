@@ -220,6 +220,11 @@ def run_editor_openrouter(
         or edit_plan.output.channel_name
         or edit_plan.output.credits
     )
+    logger.info("[editor-openrouter] has_overlays=%s, profile=%s, overlays=%s, output.title=%s",
+                has_overlays,
+                edit_plan.profile is not None,
+                len(edit_plan.profile.overlays) if edit_plan.profile else 0,
+                edit_plan.output.title)
     if has_overlays:
         logger.info("[editor-openrouter] Applying overlays...")
         from src.tools.overlays import apply_plan_overlays
