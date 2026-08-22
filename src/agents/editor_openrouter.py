@@ -17,12 +17,21 @@ def _merge_ass_files(
     ass_files: list[str],
     entries: list,
     output: str,
+    intro_duration: float = 0.0,
 ) -> str:
-    """Merge multiple ASS files with time offsets for sequential clips."""
+    """Merge multiple ASS files with time offsets for sequential clips.
+
+    Args:
+        ass_files: List of ASS file paths.
+        entries: List of EditPlanEntry objects.
+        output: Output ASS file path.
+        intro_duration: Duration of intro to add as initial offset.
+    """
     from pysubs2 import SSAFile
 
     merged = SSAFile()
-    time_offset = 0.0
+    # Start after intro duration.
+    time_offset = intro_duration
 
     for ass_path, entry in zip(ass_files, entries):
         clip_duration = entry.end_trim - entry.start_trim
@@ -113,10 +122,19 @@ def run_editor_openrouter(
     from src.tools.assets import assemble_with_assets
     opening_path = None
     closing_path = None
+    intro_duration = 0.0
     if edit_plan.profile is not None:
         if edit_plan.profile.opening is not None:
             opening_path = edit_plan.profile.opening.path
             logger.info("[editor-openrouter] Opening asset: %s", opening_path)
+            # Calculate intro duration.
+            from src.tools.overlays import get_video_duration
+            try:
+                intro_duration = get_video_duration(opening_path)
+                logger.info("[editor-openrouter] Intro duration: %.1fs", intro_duration)
+            except Exception as exc:
+                logger.warning("[editor-openrouter] Could not get intro duration: %s", exc)
+                intro_duration = 0.0
         if edit_plan.profile.closing is not None:
             closing_path = edit_plan.profile.closing.path
             logger.info("[editor-openrouter] Closing asset: %s", closing_path)
@@ -185,7 +203,7 @@ def run_editor_openrouter(
         # Merge all ASS files with time offsets.
         if ass_files:
             merged_ass = str(working_dir / "captions_merged.ass")
-            _merge_ass_files(ass_files, sorted_entries, merged_ass)
+            _merge_ass_files(ass_files, sorted_entries, merged_ass, intro_duration)
 
             # Burn captions into video.
             captioned = str(working_dir / "captioned.mp4")
