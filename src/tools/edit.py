@@ -301,10 +301,14 @@ def sequence_clips_with_crossfade(
 
         filter_complex = ";".join(filter_parts)
 
+        # Write filter to file (more reliable than passing directly).
+        filter_script = str(Path(output).parent / "filter_script.txt")
+        Path(filter_script).write_text(filter_complex)
+
         cmd = [
             "ffmpeg", "-y",
             *inputs,
-            "-filter_complex", filter_complex,
+            "-filter_complex_script", filter_script,
             "-map", "[vout]",
             "-map", "[aout]",
             "-c:v", "libx264",
@@ -316,6 +320,14 @@ def sequence_clips_with_crossfade(
             output,
         ]
         _run_ffmpeg(cmd)
+
+        # Cleanup filter script.
+        try:
+            import os
+            os.unlink(filter_script)
+        except OSError:
+            pass
+
         return output
 
     finally:
