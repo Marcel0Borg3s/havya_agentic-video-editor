@@ -272,14 +272,14 @@ uv run pytest -q
 - [x] Integrar dados ao Director (prompt inclui dados de analise).
 - [ ] Integrar dados ao Trim Refiner (fase posterior).
 
-### Fase 5 — Abstração de IA
+### Fase 5 — Abstração de IA (revisada)
 
-- [ ] Criar interface `AIProvider`.
-- [ ] Implementar Gemini.
-- [ ] Implementar provider OpenAI-compatible.
-- [ ] Implementar provider HTTP customizado.
-- [ ] Permitir IA desligada.
-- [ ] Adicionar provider fake para testes.
+- [x] Criar interface `AIProvider` simplificada (`ai_provider_base.py`).
+- [x] Implementar `OpenAICompatibleProvider` (OpenRouter/OpenCode).
+- [x] Implementar `NullProvider` para modo deterministico (AI_PROVIDER=none).
+- [x] Adicionar `MockProvider` para testes unitarios.
+- [x] Manter Gemini como fallback (ja existente).
+- [ ] Remover suporte a Gemini (futuro, quando nao for mais necessario).
 
 ### Fase 6 — Shorts
 
@@ -354,6 +354,11 @@ A primeira implementação deve criar os novos modelos e testes, preservando o c
   - Adicionados campos de analise ao modelo Shot (silence_start/end, long_pauses, hesitation_count, repetition_count, speech_ratio).
   - Analise integrada ao preprocess.py (executa automaticamente).
   - Director recebe dados de analise no prompt para decisões mais inteligentes.
+- **Fase 5 concluída**: Abstração de IA implementada.
+  - Criado `src/ai_provider_base.py` com interface AIProvider.
+  - Criado OpenAICompatibleProvider (OpenRouter/OpenCode).
+  - Criado NullProvider para modo deterministico (AI_PROVIDER=none).
+  - Criado MockProvider para testes unitarios.
 - Suíte completa: 109 testes aprovados.
 
 ### 2026-08-15

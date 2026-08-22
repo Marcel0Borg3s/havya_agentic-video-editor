@@ -16,6 +16,27 @@ import httpx
 
 from src.config import AI_PROVIDER
 from src.ai_config import AI_API_KEY, AI_BASE_URL, AI_MODEL_NAME
+from src.ai_provider_base import AIProvider
+
+
+class OpenAICompatibleProvider(AIProvider):
+    """Provider for OpenAI-compatible APIs (OpenRouter, OpenCode, etc.)."""
+
+    def chat(
+        self,
+        prompt: str,
+        *,
+        system: str = "",
+        temperature: float = 0.7,
+        max_tokens: int = 2000,
+    ) -> str:
+        result = call_openrouter(
+            prompt, system=system, temperature=temperature
+        )
+        return result["text"]
+
+    def is_available(self) -> bool:
+        return bool(AI_API_KEY)
 
 
 def _extract_frame(video_path: str, output: str = "/tmp/frame.jpg") -> str:
