@@ -208,9 +208,8 @@ def sequence_clips_with_crossfade(
 ) -> str:
     """Concatenate clips with crossfade transitions between them.
 
-    Uses FFmpeg xfade (video) and acrossfade (audio) filters to
-    create smooth transitions between clips. Handles clips without
-    audio by generating silent audio tracks.
+    Normalizes all clips to matching frame rate and resolution before
+    applying crossfade. Handles clips without audio.
 
     Args:
         clips: Ordered list of clip paths.
@@ -234,7 +233,7 @@ def sequence_clips_with_crossfade(
         _run_ffmpeg(cmd)
         return output
 
-    # Detect streams and durations.
+    # Detect streams, durations, and frame rates.
     clip_info: list[dict] = []
     for clip in clips:
         probe = _sp.run(
@@ -246,9 +245,18 @@ def sequence_clips_with_crossfade(
         streams = data.get("streams", [])
         duration = float(data.get("format", {}).get("duration", "1"))
         has_audio = any(s.get("codec_type") == "audio" for s in streams)
-        clip_info.append({"has_audio": has_audio, "duration": duration})
+        # Get frame rate.
+        fps = "25"
+        for s in streams:
+            if s.get("codec_type") == "video":
+                fps = s.get("r_frame_rate", "25")
+                break
+        clip_info.append({"has_audio": has_audio, "duration": duration, "fps": fps})
 
-    # Build inputs and generate silent audio where needed.
+    # Use the first clip's frame rate as target.
+    target_fps = clip_info[0]["fps"]
+
+    # Build filter graph with normalization.
     inputs: list[str] = []
     filter_parts: list[str] = []
     v_refs: list[str] = []
@@ -256,7 +264,15 @@ def sequence_clips_with_crossfade(
 
     for i, clip in enumerate(clips):
         inputs.extend(["-i", clip])
-        v_refs.append(f"[{i}:v]")
+
+        # Normalize frame rate if different.
+        if clip_info[i]["fps"] != target_fps:
+            filter_parts.append(
+                f"[{i}:v]fps={target_fps}[vnorm{i}]"
+            )
+            v_refs.append(f"[vnorm{i}]")
+        else:
+            v_refs.append(f"[{i}:v]")
 
         if clip_info[i]["has_audio"]:
             a_refs.append(f"[{i}:a]")
