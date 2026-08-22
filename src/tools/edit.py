@@ -201,6 +201,106 @@ def sequence_clips(clips: list[str], output: str) -> str:
     return output
 
 
+def sequence_clips_with_crossfade(
+    clips: list[str],
+    output: str,
+    crossfade_duration: float = 0.5,
+) -> str:
+    """Concatenate clips with crossfade transitions between them.
+
+    Uses FFmpeg xfade (video) and acrossfade (audio) filters to
+    create smooth transitions between clips.
+
+    Args:
+        clips: Ordered list of clip paths.
+        output: Destination path.
+        crossfade_duration: Duration of crossfade in seconds.
+
+    Returns:
+        The output path.
+    """
+    if not clips:
+        raise ValueError("clips list must not be empty")
+    for clip in clips:
+        _require_file(clip, "Clip")
+    _ensure_parent(output)
+
+    import json as _json
+    import subprocess as _sp
+
+    if len(clips) == 1:
+        # Single clip, just copy.
+        cmd = ["ffmpeg", "-y", "-i", clips[0], "-c", "copy", output]
+        _run_ffmpeg(cmd)
+        return output
+
+    # Detect streams and durations.
+    clip_info: list[dict] = []
+    for clip in clips:
+        probe = _sp.run(
+            ["ffprobe", "-v", "quiet", "-print_format", "json",
+             "-show_streams", "-show_entries", "format=duration", clip],
+            capture_output=True, text=True,
+        )
+        data = _json.loads(probe.stdout)
+        streams = data.get("streams", [])
+        duration = float(data.get("format", {}).get("duration", "1"))
+        has_audio = any(s.get("codec_type") == "audio" for s in streams)
+        clip_info.append({"has_audio": has_audio, "duration": duration})
+
+    # Build inputs.
+    inputs: list[str] = []
+    for clip in clips:
+        inputs.extend(["-i", clip])
+
+    n = len(clips)
+    filter_parts: list[str] = []
+
+    # Build xfade chain for video.
+    # Each xfade takes two inputs and produces one output.
+    # The offset is the cumulative duration minus crossfade.
+    prev_label = "[0:v]"
+    for i in range(1, n):
+        offset = sum(c["duration"] for c in clip_info[:i]) - (i * crossfade_duration)
+        offset = max(0.0, offset)
+        out_label = f"[vxfade{i}]"
+        filter_parts.append(
+            f"{prev_label}[{i}:v]xfade=transition=fade"
+            f":duration={crossfade_duration}:offset={offset:.3f}{out_label}"
+        )
+        prev_label = out_label
+    filter_parts.append(f"{prev_label}[vout]")
+
+    # Build acrossfade chain for audio.
+    prev_label = "[0:a]"
+    for i in range(1, n):
+        out_label = f"[axfade{i}]"
+        filter_parts.append(
+            f"{prev_label}[{i}:a]acrossfade=d={crossfade_duration}:c1=tri:c2=tri{out_label}"
+        )
+        prev_label = out_label
+    filter_parts.append(f"{prev_label}[aout]")
+
+    filter_complex = ";".join(filter_parts)
+
+    cmd = [
+        "ffmpeg", "-y",
+        *inputs,
+        "-filter_complex", filter_complex,
+        "-map", "[vout]",
+        "-map", "[aout]",
+        "-c:v", "libx264",
+        "-preset", "fast",
+        "-crf", "23",
+        "-c:a", "aac",
+        "-b:a", "128k",
+        "-movflags", "+faststart",
+        output,
+    ]
+    _run_ffmpeg(cmd)
+    return output
+
+
 def add_text_overlay(
     video: str,
     text: str,

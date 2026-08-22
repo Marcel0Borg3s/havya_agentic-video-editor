@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-
-from src.tools.edit import sequence_clips
+from src.tools.edit import sequence_clips, sequence_clips_with_crossfade
 from src.tools.render import render_final
 
 
@@ -23,13 +22,22 @@ def assemble_with_assets(
     closing_path: str | None = None,
     working_dir: str = "output/working/assets",
     resolution: str = "1080x1920",
+    crossfade_duration: float = 0.5,
 ) -> str:
     """Assemble optional opening/content/closing videos into one MP4.
 
     External assets are normalized before concatenation so resolution,
     pixel aspect ratio, codec, and audio encoding match the rendered content.
-    The content video is not normalized again because it has already passed
-    through the Editor's final render step.
+    Uses crossfade transitions between clips for smooth playback.
+
+    Args:
+        content_video: Path to the main edited content.
+        output: Destination path for the assembled video.
+        opening_path: Optional path to an opening/intro video.
+        closing_path: Optional path to a closing/outro video.
+        working_dir: Directory for intermediate normalized files.
+        resolution: Target resolution (default 1080x1920).
+        crossfade_duration: Duration of crossfade transitions in seconds.
     """
     if not Path(content_video).exists():
         raise FileNotFoundError(f"Content video not found: {content_video}")
@@ -52,12 +60,14 @@ def assemble_with_assets(
         normalize_asset(closing_path, str(closing_normalized), resolution)
         clips.append(str(closing_normalized))
 
-    return sequence_clips(clips, output)
+    # Use crossfade for smooth transitions between clips.
+    if len(clips) > 1 and crossfade_duration > 0:
+        return sequence_clips_with_crossfade(clips, output, crossfade_duration)
+    else:
+        return sequence_clips(clips, output)
 
 
 __all__ = ["assemble_with_assets", "normalize_asset"]
 
-
 if __name__ == "__main__":
     raise SystemExit("Use normalize_asset() or assemble_with_assets() from Python.")
-

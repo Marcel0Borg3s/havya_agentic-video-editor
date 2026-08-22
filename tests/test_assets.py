@@ -40,8 +40,15 @@ def test_assemble_normalizes_and_sequences_opening_and_closing(
         Path(output).write_bytes(b"assembled")
         return output
 
+    def fake_crossfade(clips: list[str], output: str, duration: float) -> str:
+        sequenced.append(clips)
+        Path(output).parent.mkdir(parents=True, exist_ok=True)
+        Path(output).write_bytes(b"assembled")
+        return output
+
     monkeypatch.setattr(assets, "normalize_asset", fake_normalize)
     monkeypatch.setattr(assets, "sequence_clips", fake_sequence)
+    monkeypatch.setattr(assets, "sequence_clips_with_crossfade", fake_crossfade)
 
     output = tmp_path / "assembled.mp4"
     result = assets.assemble_with_assets(
@@ -141,6 +148,11 @@ def test_closing_only_uses_two_clips(tmp_path: Path, monkeypatch) -> None:
         assets,
         "sequence_clips",
         lambda clips, output: captured.extend(clips) or output,
+    )
+    monkeypatch.setattr(
+        assets,
+        "sequence_clips_with_crossfade",
+        lambda clips, output, duration: captured.extend(clips) or output,
     )
     working_dir = tmp_path / "work"
     result = assets.assemble_with_assets(
