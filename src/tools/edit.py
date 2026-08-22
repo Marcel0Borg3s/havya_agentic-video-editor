@@ -208,8 +208,8 @@ def sequence_clips_with_crossfade(
 ) -> str:
     """Concatenate clips with crossfade transitions between them.
 
-    Normalizes all clips to matching frame rate and resolution before
-    applying crossfade. Handles clips without audio.
+    Uses separate silent audio inputs to avoid filter graph issues.
+    Normalizes frame rate across all clips.
 
     Args:
         clips: Ordered list of clip paths.
@@ -227,6 +227,7 @@ def sequence_clips_with_crossfade(
 
     import json as _json
     import subprocess as _sp
+    import tempfile
 
     if len(clips) == 1:
         cmd = ["ffmpeg", "-y", "-i", clips[0], "-c", "copy", output]
@@ -234,7 +235,7 @@ def sequence_clips_with_crossfade(
         return output
 
     # Detect durations.
-    clip_info: list[dict] = []
+    durations: list[float] = []
     for clip in clips:
         probe = _sp.run(
             ["ffprobe", "-v", "quiet", "-print_format", "json",
@@ -242,68 +243,85 @@ def sequence_clips_with_crossfade(
             capture_output=True, text=True,
         )
         data = _json.loads(probe.stdout)
-        duration = float(data.get("format", {}).get("duration", "1"))
-        clip_info.append({"duration": duration})
+        durations.append(float(data.get("format", {}).get("duration", "1")))
 
-    # Build inputs with silent audio for all clips (simpler, more reliable).
-    inputs: list[str] = []
-    filter_parts: list[str] = []
-    v_refs: list[str] = []
-    a_refs: list[str] = []
+    # Generate silent audio files for each clip.
+    silence_files: list[str] = []
+    for i, dur in enumerate(durations):
+        silence_path = str(Path(output).parent / f"silence_{i}.aac")
+        cmd = [
+            "ffmpeg", "-y", "-f", "lavfi",
+            "-i", f"anullsrc=r=44100:cl=mono",
+            "-t", str(dur),
+            "-c:a", "aac", "-b:a", "128k",
+            silence_path,
+        ]
+        _run_ffmpeg(cmd)
+        silence_files.append(silence_path)
 
-    for i, clip in enumerate(clips):
-        inputs.extend(["-i", clip])
-        v_refs.append(f"[{i}:v]")
-        # Generate silent audio for each clip.
-        dur = clip_info[i]["duration"]
-        filter_parts.append(
-            f"aevalsrc=0:d={dur}:s=44100:c=mono[sil{i}]"
-        )
-        a_refs.append(f"[sil{i}]")
+    try:
+        # Build inputs: video clips + silence files.
+        inputs: list[str] = []
+        for clip in clips:
+            inputs.extend(["-i", clip])
+        for sil in silence_files:
+            inputs.extend(["-i", sil])
 
-    n = len(clips)
+        n = len(clips)
+        filter_parts: list[str] = []
 
-    # Build xfade chain for video.
-    prev_label = v_refs[0]
-    for i in range(1, n):
-        offset = sum(c["duration"] for c in clip_info[:i]) - (i * crossfade_duration)
-        offset = max(0.0, offset)
-        out_label = f"[vxfade{i}]"
-        filter_parts.append(
-            f"{prev_label}{v_refs[i]}xfade=transition=fade"
-            f":duration={crossfade_duration}:offset={offset:.3f}{out_label}"
-        )
-        prev_label = out_label
-    filter_parts.append(f"{prev_label}[vout]")
+        # Build xfade chain for video.
+        prev_label = "[0:v]"
+        for i in range(1, n):
+            offset = sum(durations[:i]) - (i * crossfade_duration)
+            offset = max(0.0, offset)
+            out_label = f"[vxfade{i}]"
+            filter_parts.append(
+                f"{prev_label}[{i}:v]xfade=transition=fade"
+                f":duration={crossfade_duration}:offset={offset:.3f}{out_label}"
+            )
+            prev_label = out_label
+        filter_parts.append(f"{prev_label}[vout]")
 
-    # Build acrossfade chain for audio.
-    prev_label = a_refs[0]
-    for i in range(1, n):
-        out_label = f"[axfade{i}]"
-        filter_parts.append(
-            f"{prev_label}{a_refs[i]}acrossfade=d={crossfade_duration}:c1=tri:c2=tri{out_label}"
-        )
-        prev_label = out_label
-    filter_parts.append(f"{prev_label}[aout]")
+        # Build acrossfade chain for audio (using silence inputs).
+        # Silence files start at index n in the input list.
+        prev_label = f"[{n}:a]"
+        for i in range(1, n):
+            sil_idx = n + i
+            out_label = f"[axfade{i}]"
+            filter_parts.append(
+                f"{prev_label}[{sil_idx}:a]acrossfade=d={crossfade_duration}:c1=tri:c2=tri{out_label}"
+            )
+            prev_label = out_label
+        filter_parts.append(f"{prev_label}[aout]")
 
-    filter_complex = ";".join(filter_parts)
+        filter_complex = ";".join(filter_parts)
 
-    cmd = [
-        "ffmpeg", "-y",
-        *inputs,
-        "-filter_complex", filter_complex,
-        "-map", "[vout]",
-        "-map", "[aout]",
-        "-c:v", "libx264",
-        "-preset", "fast",
-        "-crf", "23",
-        "-c:a", "aac",
-        "-b:a", "128k",
-        "-movflags", "+faststart",
-        output,
-    ]
-    _run_ffmpeg(cmd)
-    return output
+        cmd = [
+            "ffmpeg", "-y",
+            *inputs,
+            "-filter_complex", filter_complex,
+            "-map", "[vout]",
+            "-map", "[aout]",
+            "-c:v", "libx264",
+            "-preset", "fast",
+            "-crf", "23",
+            "-c:a", "aac",
+            "-b:a", "128k",
+            "-movflags", "+faststart",
+            output,
+        ]
+        _run_ffmpeg(cmd)
+        return output
+
+    finally:
+        # Clean up silence files.
+        for sil in silence_files:
+            try:
+                import os
+                os.unlink(sil)
+            except OSError:
+                pass
 
 
 def add_text_overlay(
