@@ -209,7 +209,8 @@ def sequence_clips_with_crossfade(
     """Concatenate clips with crossfade transitions between them.
 
     Uses FFmpeg xfade (video) and acrossfade (audio) filters to
-    create smooth transitions between clips.
+    create smooth transitions between clips. Handles clips without
+    audio by generating silent audio tracks.
 
     Args:
         clips: Ordered list of clip paths.
@@ -229,7 +230,6 @@ def sequence_clips_with_crossfade(
     import subprocess as _sp
 
     if len(clips) == 1:
-        # Single clip, just copy.
         cmd = ["ffmpeg", "-y", "-i", clips[0], "-c", "copy", output]
         _run_ffmpeg(cmd)
         return output
@@ -248,35 +248,46 @@ def sequence_clips_with_crossfade(
         has_audio = any(s.get("codec_type") == "audio" for s in streams)
         clip_info.append({"has_audio": has_audio, "duration": duration})
 
-    # Build inputs.
+    # Build inputs and generate silent audio where needed.
     inputs: list[str] = []
-    for clip in clips:
+    filter_parts: list[str] = []
+    v_refs: list[str] = []
+    a_refs: list[str] = []
+
+    for i, clip in enumerate(clips):
         inputs.extend(["-i", clip])
+        v_refs.append(f"[{i}:v]")
+
+        if clip_info[i]["has_audio"]:
+            a_refs.append(f"[{i}:a]")
+        else:
+            dur = clip_info[i]["duration"]
+            filter_parts.append(
+                f"aevalsrc=0:d={dur}:s=44100:c=mono[sil{i}]"
+            )
+            a_refs.append(f"[sil{i}]")
 
     n = len(clips)
-    filter_parts: list[str] = []
 
     # Build xfade chain for video.
-    # Each xfade takes two inputs and produces one output.
-    # The offset is the cumulative duration minus crossfade.
-    prev_label = "[0:v]"
+    prev_label = v_refs[0]
     for i in range(1, n):
         offset = sum(c["duration"] for c in clip_info[:i]) - (i * crossfade_duration)
         offset = max(0.0, offset)
         out_label = f"[vxfade{i}]"
         filter_parts.append(
-            f"{prev_label}[{i}:v]xfade=transition=fade"
+            f"{prev_label}{v_refs[i]}xfade=transition=fade"
             f":duration={crossfade_duration}:offset={offset:.3f}{out_label}"
         )
         prev_label = out_label
     filter_parts.append(f"{prev_label}[vout]")
 
     # Build acrossfade chain for audio.
-    prev_label = "[0:a]"
+    prev_label = a_refs[0]
     for i in range(1, n):
         out_label = f"[axfade{i}]"
         filter_parts.append(
-            f"{prev_label}[{i}:a]acrossfade=d={crossfade_duration}:c1=tri:c2=tri{out_label}"
+            f"{prev_label}{a_refs[i]}acrossfade=d={crossfade_duration}:c1=tri:c2=tri{out_label}"
         )
         prev_label = out_label
     filter_parts.append(f"{prev_label}[aout]")
