@@ -233,30 +233,19 @@ def sequence_clips_with_crossfade(
         _run_ffmpeg(cmd)
         return output
 
-    # Detect streams, durations, and frame rates.
+    # Detect durations.
     clip_info: list[dict] = []
     for clip in clips:
         probe = _sp.run(
             ["ffprobe", "-v", "quiet", "-print_format", "json",
-             "-show_streams", "-show_entries", "format=duration", clip],
+             "-show_entries", "format=duration", clip],
             capture_output=True, text=True,
         )
         data = _json.loads(probe.stdout)
-        streams = data.get("streams", [])
         duration = float(data.get("format", {}).get("duration", "1"))
-        has_audio = any(s.get("codec_type") == "audio" for s in streams)
-        # Get frame rate.
-        fps = "25"
-        for s in streams:
-            if s.get("codec_type") == "video":
-                fps = s.get("r_frame_rate", "25")
-                break
-        clip_info.append({"has_audio": has_audio, "duration": duration, "fps": fps})
+        clip_info.append({"duration": duration})
 
-    # Use the first clip's frame rate as target.
-    target_fps = clip_info[0]["fps"]
-
-    # Build filter graph with normalization.
+    # Build inputs with silent audio for all clips (simpler, more reliable).
     inputs: list[str] = []
     filter_parts: list[str] = []
     v_refs: list[str] = []
@@ -264,24 +253,13 @@ def sequence_clips_with_crossfade(
 
     for i, clip in enumerate(clips):
         inputs.extend(["-i", clip])
-
-        # Normalize frame rate if different.
-        if clip_info[i]["fps"] != target_fps:
-            filter_parts.append(
-                f"[{i}:v]fps={target_fps}[vnorm{i}]"
-            )
-            v_refs.append(f"[vnorm{i}]")
-        else:
-            v_refs.append(f"[{i}:v]")
-
-        if clip_info[i]["has_audio"]:
-            a_refs.append(f"[{i}:a]")
-        else:
-            dur = clip_info[i]["duration"]
-            filter_parts.append(
-                f"aevalsrc=0:d={dur}:s=44100:c=mono[sil{i}]"
-            )
-            a_refs.append(f"[sil{i}]")
+        v_refs.append(f"[{i}:v]")
+        # Generate silent audio for each clip.
+        dur = clip_info[i]["duration"]
+        filter_parts.append(
+            f"aevalsrc=0:d={dur}:s=44100:c=mono[sil{i}]"
+        )
+        a_refs.append(f"[sil{i}]")
 
     n = len(clips)
 
