@@ -91,8 +91,10 @@ def run_editor_openrouter(
         logger.info("[editor-openrouter] Closing: %s", edit_plan.profile.closing)
         logger.info("[editor-openrouter] Captions enabled: %s", edit_plan.profile.captions.enabled)
         logger.info("[editor-openrouter] Overlays count: %d", len(edit_plan.profile.overlays))
+        for i, ov in enumerate(edit_plan.profile.overlays):
+            logger.info("[editor-openrouter]   Overlay %d: role=%s, text=%s", i, ov.role, ov.text)
     else:
-        logger.warning("[editor-openrouter] NO PROFILE LOSED!")
+        logger.warning("[editor-openrouter] NO PROFILE LOADED!")
 
     # Step 1: Clip each entry.
     clip_paths: list[str] = []
