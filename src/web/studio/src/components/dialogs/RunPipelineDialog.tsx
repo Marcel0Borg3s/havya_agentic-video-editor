@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useUiStore } from "@/stores/uiStore";
 import { useJobStore } from "@/stores/jobStore";
 import { useTimelineStore } from "@/stores/timelineStore";
@@ -40,23 +40,23 @@ export function RunPipelineDialog({ projectId }: RunPipelineDialogProps) {
   const [submitting, setSubmitting] = useState(false);
   const [loadingOptions, setLoadingOptions] = useState(false);
   const [error, setError] = useState("");
-  const [initialized, setInitialized] = useState(false);
+  const initializedRef = useRef(false);
 
   // Auto-detect values from project when dialog opens (once only).
   useEffect(() => {
-    if (open && project && !initialized) {
+    if (open && project && !initializedRef.current) {
       if (project.total_duration && project.total_duration > 0) {
         setDuration(Math.round(project.total_duration));
       }
       if (project.name) {
         setProduct(project.name);
       }
-      setInitialized(true);
+      initializedRef.current = true;
     }
     if (!open) {
-      setInitialized(false);
+      initializedRef.current = false;
     }
-  }, [open, project, initialized]);
+  }, [open, project]);
 
   useEffect(() => {
     if (!open) return;
