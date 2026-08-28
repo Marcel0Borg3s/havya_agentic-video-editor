@@ -251,4 +251,21 @@ def run_editor_openrouter(
         )
 
     logger.info("[editor-openrouter] Done: %s (%.1f MB)", final_output, final_output.stat().st_size / 1024 / 1024)
+
+    # Step 8: Generate Shorts if enabled.
+    shorts_generated: list[str] = []
+    if edit_plan.profile and edit_plan.profile.shorts.enabled:
+        logger.info("[editor-openrouter] Generating Shorts...")
+        from src.tools.shorts import generate_shorts
+        try:
+            shorts_generated = generate_shorts(
+                main_video=str(final_output),
+                edit_plan=edit_plan,
+                footage_index_path=footage_index_path,
+                output_dir=output_dir,
+            )
+            logger.info("[editor-openrouter] Generated %d Shorts", len(shorts_generated))
+        except Exception as exc:
+            logger.warning("[editor-openrouter] Shorts generation failed: %s", exc)
+
     return str(final_output)

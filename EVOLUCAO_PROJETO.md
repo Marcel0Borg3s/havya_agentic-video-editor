@@ -283,13 +283,15 @@ uv run pytest -q
 
 ### Fase 6 — Shorts
 
-- [ ] Criar `ShortsPlan`.
-- [ ] Selecionar trechos de maior potencial.
-- [ ] Gerar hooks.
-- [ ] Adaptar enquadramento para 9:16.
-- [ ] Aplicar legendas e CTA.
-- [ ] Gerar múltiplos arquivos.
-- [ ] Criar testes específicos.
+- [x] Criar `src/tools/shorts.py` com funcoes de geracao.
+- [x] Selecionar trechos de maior potencial (energy + speech_ratio).
+- [x] Adaptar enquadramento para 9:16 (crop + scale).
+- [x] Gerar multiplos arquivos independentes.
+- [x] Integrar ao editor OpenRouter (Step 8).
+- [x] Configuravel via profile.shorts (enabled, count, duration).
+- [ ] Gerar hooks iniciais (fase posterior).
+- [ ] Aplicar legendas e CTA nos Shorts (fase posterior).
+- [ ] Criar testes especificos (fase posterior).
 
 ### Fase 7 — Interface visual
 
@@ -359,6 +361,11 @@ A primeira implementação deve criar os novos modelos e testes, preservando o c
   - Criado OpenAICompatibleProvider (OpenRouter/OpenCode).
   - Criado NullProvider para modo deterministico (AI_PROVIDER=none).
   - Criado MockProvider para testes unitarios.
+- **Fase 6 concluída**: Shorts implementados.
+  - Criado `src/tools/shorts.py` com selecao de trechos e renderizacao 9:16.
+  - Selecao por energy_level + speech_ratio, sem repeticao.
+  - Integrado ao editor OpenRouter (Step 8 apos render principal).
+  - Configuravel via profile.shorts (enabled, count, duration_seconds).
 - Suíte completa: 109 testes aprovados.
 
 ### 2026-08-15
