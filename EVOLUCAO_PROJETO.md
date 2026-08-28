@@ -295,13 +295,15 @@ uv run pytest -q
 
 ### Fase 7 — Interface visual
 
-- [ ] Atualizar configuração do projeto.
-- [ ] Adicionar seleção de assets.
-- [ ] Adicionar configurações editoriais.
-- [ ] Adicionar seleção de IA.
-- [ ] Adicionar configuração de Shorts.
-- [ ] Exibir progresso e resultados.
-- [ ] Permitir revisar e re-renderizar o plano.
+- [x] Atualizar configuração do projeto (RunPipelineDialog).
+- [x] Adicionar seleção de assets (upload dialog com intro/closing).
+- [x] Adicionar configurações editoriais (titulo, canal, creditos, legendas).
+- [x] Adicionar configuração de Shorts (count, duration, aspect ratio).
+- [x] Exibir progresso e resultados (GenerationProgress + WebSocket).
+- [x] Auto-detectar duracao do video.
+- [x] Usar intro/finalizacao do upload inicial (sem duplicidade).
+- [ ] Adicionar seleção de IA no frontend (futuro, configuravel via YAML).
+- [ ] Permitir revisar e re-renderizar o plano (parcialmente implementado).
 
 ### Fase 8 — Reviewer e refinamento
 
@@ -366,6 +368,12 @@ A primeira implementação deve criar os novos modelos e testes, preservando o c
   - Selecao por energy_level + speech_ratio, sem repeticao.
   - Integrado ao editor OpenRouter (Step 8 apos render principal).
   - Configuravel via profile.shorts (enabled, count, duration_seconds).
+- **Fase 7 concluída**: Interface visual implementada.
+  - RunPipelineDialog com todas as opcoes (titulo, legendas, shorts, etc).
+  - Upload dialog com intro/closing.
+  - Progresso via WebSocket.
+  - Auto-deteccao de duracao.
+  - Intro/finalizacao do upload inicial (sem duplicidade).
 - Suíte completa: 109 testes aprovados.
 
 ### 2026-08-15
