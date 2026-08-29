@@ -41,52 +41,16 @@
       "source_location": "L225"
     },
     {
-      "id": "src_agents_director_openrouter_validate_and_fix_entries",
-      "label": "_validate_and_fix_entries()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "run_director_openrouter",
-      "file_type": "code",
-      "norm_label": "_validate_and_fix_entries()",
-      "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L93"
-    },
-    {
-      "id": "src_ai_provider_call_openrouter",
-      "label": "call_openrouter()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "call_openrouter",
-      "file_type": "code",
-      "norm_label": "call_openrouter()",
-      "source_file": "src/ai_provider.py",
-      "source_location": "L94"
-    },
-    {
       "id": "src_ai_provider_extract_frame",
       "label": "_extract_frame()",
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "call_openrouter",
+      "community_name": "ai_provider.py",
       "file_type": "code",
       "norm_label": "_extract_frame()",
       "source_file": "src/ai_provider.py",
       "source_location": "L45"
-    },
-    {
-      "id": "src_ai_provider_extract_frames_grid",
-      "label": "_extract_frames_grid()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "call_openrouter",
-      "file_type": "code",
-      "norm_label": "_extract_frames_grid()",
-      "source_file": "src/ai_provider.py",
-      "source_location": "L56"
     },
     {
       "id": "src_agents_director_openrouter_debug_log_prompt",
@@ -101,42 +65,6 @@
       "source_location": "L367"
     },
     {
-      "id": "src_agents_director_openrouter_repair_json",
-      "label": "_repair_json()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "director_openrouter.py",
-      "file_type": "code",
-      "norm_label": "_repair_json()",
-      "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L20"
-    },
-    {
-      "id": "src_agents_director_openrouter_shots_to_text",
-      "label": "_shots_to_text()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "director_openrouter.py",
-      "file_type": "code",
-      "norm_label": "_shots_to_text()",
-      "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L59"
-    },
-    {
-      "id": "src_ai_provider_openaicompatibleprovider_chat",
-      "label": ".chat()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "OpenAICompatibleProvider",
-      "file_type": "code",
-      "norm_label": ".chat()",
-      "source_file": "src/ai_provider.py",
-      "source_location": "L28"
-    },
-    {
       "id": "src_ai_provider_openaicompatibleprovider_is_available",
       "label": ".is_available()",
       "_callable": true,
@@ -149,6 +77,114 @@
       "source_location": "L41"
     },
     {
+      "id": "src_agents_editor_openrouter_merge_ass_files",
+      "label": "_merge_ass_files()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "run_editor_openrouter",
+      "file_type": "code",
+      "norm_label": "_merge_ass_files()",
+      "source_file": "src/agents/editor_openrouter.py",
+      "source_location": "L16"
+    },
+    {
+      "id": "src_agents_editor_openrouter_resolve_shot",
+      "label": "_resolve_shot()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "run_editor_openrouter",
+      "file_type": "code",
+      "norm_label": "_resolve_shot()",
+      "source_file": "src/agents/editor_openrouter.py",
+      "source_location": "L50"
+    },
+    {
+      "id": "src_agents_editor_openrouter_run_editor_openrouter",
+      "label": "run_editor_openrouter()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "run_editor_openrouter",
+      "file_type": "code",
+      "norm_label": "run_editor_openrouter()",
+      "source_file": "src/agents/editor_openrouter.py",
+      "source_location": "L61"
+    },
+    {
+      "id": "src_ai_provider_call_openrouter",
+      "label": "call_openrouter()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "call_openrouter",
+      "file_type": "code",
+      "norm_label": "call_openrouter()",
+      "source_file": "src/ai_provider.py",
+      "source_location": "L94"
+    },
+    {
+      "id": "src_ai_provider_openaicompatibleprovider_chat",
+      "label": ".chat()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "call_openrouter",
+      "file_type": "code",
+      "norm_label": ".chat()",
+      "source_file": "src/ai_provider.py",
+      "source_location": "L28"
+    },
+    {
+      "id": "src_agents_director_openrouter_validate_and_fix_entries",
+      "label": "_validate_and_fix_entries()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "_validate_and_fix_entries",
+      "file_type": "code",
+      "norm_label": "_validate_and_fix_entries()",
+      "source_file": "src/agents/director_openrouter.py",
+      "source_location": "L93"
+    },
+    {
+      "id": "src_agents_director_openrouter_repair_json",
+      "label": "_repair_json()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "_repair_json",
+      "file_type": "code",
+      "norm_label": "_repair_json()",
+      "source_file": "src/agents/director_openrouter.py",
+      "source_location": "L20"
+    },
+    {
+      "id": "src_agents_director_openrouter_shots_to_text",
+      "label": "_shots_to_text()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "_shots_to_text",
+      "file_type": "code",
+      "norm_label": "_shots_to_text()",
+      "source_file": "src/agents/director_openrouter.py",
+      "source_location": "L59"
+    },
+    {
+      "id": "src_ai_provider_extract_frames_grid",
+      "label": "_extract_frames_grid()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "_extract_frames_grid",
+      "file_type": "code",
+      "norm_label": "_extract_frames_grid()",
+      "source_file": "src/ai_provider.py",
+      "source_location": "L56"
+    },
+    {
       "id": "creativebrief",
       "label": "CreativeBrief",
       "_origin": "ast",
@@ -156,39 +192,6 @@
       "community_name": "run_director_openrouter",
       "file_type": "code",
       "norm_label": "creativebrief",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "editplan",
-      "label": "EditPlan",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "run_director_openrouter",
-      "file_type": "code",
-      "norm_label": "editplan",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "editplanentry",
-      "label": "EditPlanEntry",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "run_director_openrouter",
-      "file_type": "code",
-      "norm_label": "editplanentry",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "footageindex",
-      "label": "FootageIndex",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "run_director_openrouter",
-      "file_type": "code",
-      "norm_label": "footageindex",
       "source_file": "",
       "source_location": ""
     },
@@ -215,33 +218,11 @@
       "source_location": "L229"
     },
     {
-      "id": "src_agents_director_openrouter_rationale_98",
-      "label": "Validate LLM entries and fix incorrect trim values. The LLM often returns\u2026",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "run_director_openrouter",
-      "file_type": "rationale",
-      "norm_label": "validate llm entries and fix incorrect trim values. the llm often returns...",
-      "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L98"
-    },
-    {
-      "id": "any",
-      "label": "Any",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "call_openrouter",
-      "file_type": "code",
-      "norm_label": "any",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
       "id": "src_ai_provider",
       "label": "ai_provider.py",
       "_origin": "ast",
       "community": 1,
-      "community_name": "call_openrouter",
+      "community_name": "ai_provider.py",
       "file_type": "code",
       "norm_label": "ai_provider.py",
       "source_file": "src/ai_provider.py",
@@ -252,44 +233,22 @@
       "label": "Provider abstraction for AI calls. Routes to Gemini (native) or OpenRouter\u2026",
       "_origin": "ast",
       "community": 1,
-      "community_name": "call_openrouter",
+      "community_name": "ai_provider.py",
       "file_type": "rationale",
       "norm_label": "provider abstraction for ai calls. routes to gemini (native) or openrouter...",
       "source_file": "src/ai_provider.py",
       "source_location": "L1"
     },
     {
-      "id": "src_ai_provider_rationale_102",
-      "label": "Call OpenRouter's chat completions API. If video_path is provided, extracts\u2026",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "call_openrouter",
-      "file_type": "rationale",
-      "norm_label": "call openrouter's chat completions api. if video_path is provided, extracts...",
-      "source_file": "src/ai_provider.py",
-      "source_location": "L102"
-    },
-    {
       "id": "src_ai_provider_rationale_46",
       "label": "Extract a single frame from a video for vision model analysis.",
       "_origin": "ast",
       "community": 1,
-      "community_name": "call_openrouter",
+      "community_name": "ai_provider.py",
       "file_type": "rationale",
       "norm_label": "extract a single frame from a video for vision model analysis.",
       "source_file": "src/ai_provider.py",
       "source_location": "L46"
-    },
-    {
-      "id": "src_ai_provider_rationale_57",
-      "label": "Extract 6 evenly-spaced frames as a grid for analysis.",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "call_openrouter",
-      "file_type": "rationale",
-      "norm_label": "extract 6 evenly-spaced frames as a grid for analysis.",
-      "source_file": "src/ai_provider.py",
-      "source_location": "L57"
     },
     {
       "id": "src_agents_director_openrouter",
@@ -314,17 +273,6 @@
       "source_location": "L1"
     },
     {
-      "id": "src_agents_director_openrouter_rationale_21",
-      "label": "Repair common LLM JSON issues and parse progressively.",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "director_openrouter.py",
-      "file_type": "rationale",
-      "norm_label": "repair common llm json issues and parse progressively.",
-      "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L21"
-    },
-    {
       "id": "src_agents_director_openrouter_rationale_368",
       "label": "Log prompt details for debugging.",
       "_origin": "ast",
@@ -334,17 +282,6 @@
       "norm_label": "log prompt details for debugging.",
       "source_file": "src/agents/director_openrouter.py",
       "source_location": "L368"
-    },
-    {
-      "id": "src_agents_director_openrouter_rationale_60",
-      "label": "Format shots for the prompt with analysis data.",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "director_openrouter.py",
-      "file_type": "rationale",
-      "norm_label": "format shots for the prompt with analysis data.",
-      "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L60"
     },
     {
       "id": "aiprovider",
@@ -367,6 +304,160 @@
       "norm_label": "provider for openai-compatible apis (openrouter, opencode, etc.).",
       "source_file": "src/ai_provider.py",
       "source_location": "L26"
+    },
+    {
+      "id": "editplan",
+      "label": "EditPlan",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "run_editor_openrouter",
+      "file_type": "code",
+      "norm_label": "editplan",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "footageindex",
+      "label": "FootageIndex",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "run_editor_openrouter",
+      "file_type": "code",
+      "norm_label": "footageindex",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "shot",
+      "label": "Shot",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "run_editor_openrouter",
+      "file_type": "code",
+      "norm_label": "shot",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "src_agents_editor_openrouter",
+      "label": "editor_openrouter.py",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "run_editor_openrouter",
+      "file_type": "code",
+      "norm_label": "editor_openrouter.py",
+      "source_file": "src/agents/editor_openrouter.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_agents_editor_openrouter_rationale_1",
+      "label": "Editor using OpenRouter mode \u2014 deterministic FFmpeg execution. Executes FFmpeg\u2026",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "run_editor_openrouter",
+      "file_type": "rationale",
+      "norm_label": "editor using openrouter mode \u2014 deterministic ffmpeg execution. executes ffmpeg...",
+      "source_file": "src/agents/editor_openrouter.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_agents_editor_openrouter_rationale_22",
+      "label": "Merge multiple ASS files with time offsets for sequential clips. Args:\u2026",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "run_editor_openrouter",
+      "file_type": "rationale",
+      "norm_label": "merge multiple ass files with time offsets for sequential clips. args:...",
+      "source_file": "src/agents/editor_openrouter.py",
+      "source_location": "L22"
+    },
+    {
+      "id": "src_agents_editor_openrouter_rationale_66",
+      "label": "Execute the EditPlan using FFmpeg tools directly (no LLM).",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "run_editor_openrouter",
+      "file_type": "rationale",
+      "norm_label": "execute the editplan using ffmpeg tools directly (no llm).",
+      "source_file": "src/agents/editor_openrouter.py",
+      "source_location": "L66"
+    },
+    {
+      "id": "any",
+      "label": "Any",
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "call_openrouter",
+      "file_type": "code",
+      "norm_label": "any",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "src_ai_provider_rationale_102",
+      "label": "Call OpenRouter's chat completions API. If video_path is provided, extracts\u2026",
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "call_openrouter",
+      "file_type": "rationale",
+      "norm_label": "call openrouter's chat completions api. if video_path is provided, extracts...",
+      "source_file": "src/ai_provider.py",
+      "source_location": "L102"
+    },
+    {
+      "id": "editplanentry",
+      "label": "EditPlanEntry",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "_validate_and_fix_entries",
+      "file_type": "code",
+      "norm_label": "editplanentry",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "src_agents_director_openrouter_rationale_98",
+      "label": "Validate LLM entries and fix incorrect trim values. The LLM often returns\u2026",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "_validate_and_fix_entries",
+      "file_type": "rationale",
+      "norm_label": "validate llm entries and fix incorrect trim values. the llm often returns...",
+      "source_file": "src/agents/director_openrouter.py",
+      "source_location": "L98"
+    },
+    {
+      "id": "src_agents_director_openrouter_rationale_21",
+      "label": "Repair common LLM JSON issues and parse progressively.",
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "_repair_json",
+      "file_type": "rationale",
+      "norm_label": "repair common llm json issues and parse progressively.",
+      "source_file": "src/agents/director_openrouter.py",
+      "source_location": "L21"
+    },
+    {
+      "id": "src_agents_director_openrouter_rationale_60",
+      "label": "Format shots for the prompt with analysis data.",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "_shots_to_text",
+      "file_type": "rationale",
+      "norm_label": "format shots for the prompt with analysis data.",
+      "source_file": "src/agents/director_openrouter.py",
+      "source_location": "L60"
+    },
+    {
+      "id": "src_ai_provider_rationale_57",
+      "label": "Extract 6 evenly-spaced frames as a grid for analysis.",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "_extract_frames_grid",
+      "file_type": "rationale",
+      "norm_label": "extract 6 evenly-spaced frames as a grid for analysis.",
+      "source_file": "src/ai_provider.py",
+      "source_location": "L57"
     }
   ],
   "links": [
@@ -479,6 +570,30 @@
       "weight": 1.0
     },
     {
+      "source": "src_agents_editor_openrouter_run_editor_openrouter",
+      "target": "src_agents_editor_openrouter_resolve_shot",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/agents/editor_openrouter.py",
+      "source_location": "L103",
+      "weight": 1.0
+    },
+    {
+      "source": "src_agents_editor_openrouter_run_editor_openrouter",
+      "target": "src_agents_editor_openrouter_merge_ass_files",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/agents/editor_openrouter.py",
+      "source_location": "L225",
+      "weight": 1.0
+    },
+    {
       "source": "src_ai_provider_call_openrouter",
       "target": "src_ai_provider_extract_frames_grid",
       "relation": "calls",
@@ -575,6 +690,30 @@
       "weight": 1.0
     },
     {
+      "source": "src_agents_editor_openrouter_resolve_shot",
+      "target": "footageindex",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "parameter_type",
+      "source_file": "src/agents/editor_openrouter.py",
+      "source_location": "L50",
+      "weight": 1.0
+    },
+    {
+      "source": "src_agents_editor_openrouter_run_editor_openrouter",
+      "target": "editplan",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "parameter_type",
+      "source_file": "src/agents/editor_openrouter.py",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
       "source": "src_ai_provider_call_openrouter",
       "target": "any",
       "relation": "references",
@@ -584,6 +723,18 @@
       "context": "parameter_type",
       "source_file": "src/ai_provider.py",
       "source_location": "L94",
+      "weight": 1.0
+    },
+    {
+      "source": "src_agents_editor_openrouter_resolve_shot",
+      "target": "shot",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "return_type",
+      "source_file": "src/agents/editor_openrouter.py",
+      "source_location": "L50",
       "weight": 1.0
     },
     {
@@ -650,6 +801,39 @@
       "confidence_score": 1.0,
       "source_file": "src/agents/director_openrouter.py",
       "source_location": "L93",
+      "weight": 1.0
+    },
+    {
+      "source": "src_agents_editor_openrouter",
+      "target": "src_agents_editor_openrouter_merge_ass_files",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/agents/editor_openrouter.py",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "src_agents_editor_openrouter",
+      "target": "src_agents_editor_openrouter_resolve_shot",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/agents/editor_openrouter.py",
+      "source_location": "L50",
+      "weight": 1.0
+    },
+    {
+      "source": "src_agents_editor_openrouter",
+      "target": "src_agents_editor_openrouter_run_editor_openrouter",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/agents/editor_openrouter.py",
+      "source_location": "L61",
       "weight": 1.0
     },
     {
@@ -807,6 +991,39 @@
       "weight": 1.0
     },
     {
+      "source": "src_agents_editor_openrouter_rationale_1",
+      "target": "src_agents_editor_openrouter",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/agents/editor_openrouter.py",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_agents_editor_openrouter_rationale_22",
+      "target": "src_agents_editor_openrouter_merge_ass_files",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/agents/editor_openrouter.py",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "src_agents_editor_openrouter_rationale_66",
+      "target": "src_agents_editor_openrouter_run_editor_openrouter",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/agents/editor_openrouter.py",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
       "source": "src_ai_provider_rationale_1",
       "target": "src_ai_provider",
       "relation": "rationale_for",
@@ -863,5 +1080,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "0dd109210f631bffb6ed940775c881a92c3aee4f"
+  "built_at_commit": "9a66cf77b1f0dc09e73db69e2016ea47e629076e"
 }

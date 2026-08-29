@@ -66,17 +66,27 @@ def _detect_shots(
     scene_manager.detect_scenes(video, show_progress=False)
     scene_list = scene_manager.get_scene_list()
 
+    # Get actual video duration.
+    try:
+        duration = video.duration.get_seconds()
+    except Exception:
+        duration = 0.0
+
     if not scene_list:
-        try:
-            duration = video.duration.get_seconds()
-        except Exception:
-            duration = 0.0
         return [(0.0, float(duration))]
 
-    return [
+    shots = [
         (float(start.get_seconds()), float(end.get_seconds()))
         for start, end in scene_list
     ]
+
+    # Extend last shot to cover full video duration.
+    if shots and duration > 0:
+        last_start, last_end = shots[-1]
+        if last_end < duration - 0.5:  # More than 0.5s gap
+            shots[-1] = (last_start, float(duration))
+
+    return shots
 
 
 def _transcribe_words(

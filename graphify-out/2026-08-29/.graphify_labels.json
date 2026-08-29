@@ -1,6 +1,12 @@
 {
   "0": "run_director_openrouter",
-  "1": "call_openrouter",
+  "1": "ai_provider.py",
   "2": "director_openrouter.py",
-  "3": "OpenAICompatibleProvider"
+  "3": "OpenAICompatibleProvider",
+  "4": "run_editor_openrouter",
+  "5": "call_openrouter",
+  "6": "_validate_and_fix_entries",
+  "7": "_repair_json",
+  "8": "_shots_to_text",
+  "9": "_extract_frames_grid"
 }
