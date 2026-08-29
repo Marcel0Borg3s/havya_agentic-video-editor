@@ -299,10 +299,8 @@ def run_director_openrouter(
     max_retries = 3
     parsed: dict = {}
     for attempt in range(max_retries):
-        logger.info(
-            "[director-openrouter] Calling %s (attempt %d)...",
-            DEFAULT_GEMINI_MODEL, attempt + 1,
-        )
+        logger.info("[director-openrouter] Calling %s (attempt %d)...", DEFAULT_GEMINI_MODEL, attempt + 1)
+        _debug_log_prompt(system_prompt, user_prompt)
         result = call_openrouter(
             user_prompt,
             system=system_prompt,
@@ -364,3 +362,11 @@ def run_director_openrouter(
         len(entries), total_duration,
     )
     return edit_plan
+
+
+def _debug_log_prompt(system: str, user: str) -> None:
+    """Log prompt details for debugging."""
+    logger.info("[director-openrouter] System prompt: %d chars", len(system))
+    logger.info("[director-openrouter] User prompt: %d chars", len(user))
+    logger.info("[director-openrouter] Total prompt: %d chars (~%d tokens)",
+                len(system) + len(user), (len(system) + len(user)) // 4)

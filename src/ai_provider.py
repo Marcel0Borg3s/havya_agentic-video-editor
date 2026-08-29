@@ -175,6 +175,9 @@ def call_openrouter(
 
     import time
     for attempt in range(3):
+        logger.info("[ai-provider] Calling %s (attempt %d)...", AI_MODEL_NAME, attempt + 1)
+        logger.info("[ai-provider] Request size: %d chars (~%d tokens)",
+                    len(json.dumps(payload)), len(json.dumps(payload)) // 4)
         resp = httpx.post(
             f"{AI_BASE_URL}/chat/completions",
             headers=headers,
@@ -182,8 +185,9 @@ def call_openrouter(
             timeout=120,
         )
         if resp.status_code == 500:
+            logger.warning("[ai-provider] Server error 500 (attempt %d/3)", attempt + 1)
             if attempt < 2:
-                logger.warning("AI server error (500), retrying in %ds...", (attempt + 1) * 5)
+                logger.warning("[ai-provider] Retrying in %ds...", (attempt + 1) * 5)
                 time.sleep((attempt + 1) * 5)
                 continue
             raise RuntimeError(
@@ -191,6 +195,7 @@ def call_openrouter(
                 f"The model may be overloaded or the request too large."
             )
         resp.raise_for_status()
+        logger.info("[ai-provider] Success: %d", resp.status_code)
         break
     data = resp.json()
 
