@@ -115,10 +115,27 @@ def run_editor_openrouter(
     sequence_clips(clip_paths, sequenced)
 
     # Step 3: Re-encode for delivery.
+    # Detect source resolution to maintain quality.
+    import subprocess as _sp
+    probe = _sp.run(
+        ["ffprobe", "-v", "quiet", "-print_format", "json",
+         "-show_streams", "-select_streams", "v:0", sequenced],
+        capture_output=True, text=True,
+    )
+    import json as _json
+    streams = _json.loads(probe.stdout).get("streams", [{}])
+    if streams:
+        src_w = streams[0].get("width", 1920)
+        src_h = streams[0].get("height", 1080)
+    else:
+        src_w, src_h = 1920, 1080
+    resolution = f"{src_w}x{src_h}"
+    logger.info("[editor-openrouter] Source resolution: %s", resolution)
+
     rendered = str(working_dir / "rendered.mp4")
     logger.info("[editor-openrouter] Rendering -> %s", rendered)
     from src.tools.render import render_final
-    render_final(sequenced, rendered)
+    render_final(sequenced, rendered, resolution=resolution)
 
     # Step 4: Assemble with opening/closing assets if configured.
     from src.tools.assets import assemble_with_assets
@@ -243,7 +260,7 @@ def run_editor_openrouter(
 
     # Step 7: Final render to output dir.
     logger.info("[editor-openrouter] Final render -> %s", final_output)
-    render_final(final_source, str(final_output))
+    render_final(final_source, str(final_output), resolution=resolution)
 
     if not final_output.exists():
         raise RuntimeError(
