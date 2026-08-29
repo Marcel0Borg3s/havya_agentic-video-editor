@@ -18,6 +18,9 @@ from src.config import AI_PROVIDER
 from src.ai_config import AI_API_KEY, AI_BASE_URL, AI_MODEL_NAME
 from src.ai_provider_base import AIProvider
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class OpenAICompatibleProvider(AIProvider):
     """Provider for OpenAI-compatible APIs (OpenRouter, OpenCode, etc.)."""
@@ -170,13 +173,25 @@ def call_openrouter(
         "X-Title": "Havya Video Editor",
     }
 
-    resp = httpx.post(
-        f"{AI_BASE_URL}/chat/completions",
-        headers=headers,
-        json=payload,
-        timeout=120,
-    )
-    resp.raise_for_status()
+    import time
+    for attempt in range(3):
+        resp = httpx.post(
+            f"{AI_BASE_URL}/chat/completions",
+            headers=headers,
+            json=payload,
+            timeout=120,
+        )
+        if resp.status_code == 500:
+            if attempt < 2:
+                logger.warning("AI server error (500), retrying in %ds...", (attempt + 1) * 5)
+                time.sleep((attempt + 1) * 5)
+                continue
+            raise RuntimeError(
+                f"AI server error (500) after 3 attempts. "
+                f"The model may be overloaded or the request too large."
+            )
+        resp.raise_for_status()
+        break
     data = resp.json()
 
     content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
