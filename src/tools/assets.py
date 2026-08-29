@@ -21,7 +21,7 @@ def assemble_with_assets(
     opening_path: str | None = None,
     closing_path: str | None = None,
     working_dir: str = "output/working/assets",
-    resolution: str = "1080x1920",
+    resolution: str | None = None,
     crossfade_duration: float = 0.5,
 ) -> str:
     """Assemble optional opening/content/closing videos into one MP4.
@@ -36,13 +36,30 @@ def assemble_with_assets(
         opening_path: Optional path to an opening/intro video.
         closing_path: Optional path to a closing/outro video.
         working_dir: Directory for intermediate normalized files.
-        resolution: Target resolution (default 1080x1920).
+        resolution: Target resolution. If None, detects from content_video.
         crossfade_duration: Duration of crossfade transitions in seconds.
     """
     if not Path(content_video).exists():
         raise FileNotFoundError(f"Content video not found: {content_video}")
     if opening_path is None and closing_path is None:
         return content_video
+
+    # Auto-detect resolution from content video if not specified.
+    if resolution is None:
+        import subprocess as _sp
+        import json as _json
+        probe = _sp.run(
+            ["ffprobe", "-v", "quiet", "-print_format", "json",
+             "-show_streams", "-select_streams", "v:0", content_video],
+            capture_output=True, text=True,
+        )
+        streams = _json.loads(probe.stdout).get("streams", [{}])
+        if streams:
+            w = streams[0].get("width", 1920)
+            h = streams[0].get("height", 1080)
+        else:
+            w, h = 1920, 1080
+        resolution = f"{w}x{h}"
 
     work = Path(working_dir)
     work.mkdir(parents=True, exist_ok=True)
