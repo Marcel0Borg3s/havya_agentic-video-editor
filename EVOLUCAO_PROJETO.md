@@ -307,11 +307,13 @@ uv run pytest -q
 
 ### Fase 8 — Reviewer e refinamento
 
-- [ ] Avaliar vídeo completo.
-- [ ] Avaliar Shorts.
-- [ ] Exibir feedback.
-- [ ] Gerar correções controladas.
-- [ ] Manter histórico de versões.
+- [x] Avaliar vídeo completo (reviewer_openrouter.py com fallback text-only).
+- [x] Exibir feedback (rota POST /api/jobs/{id}/feedback).
+- [x] Gerar correções controladas (submit_feedback_rerun no jobs.py).
+- [x] Manter histórico de versões (_save_version no jobs.py).
+- [ ] Avaliar Shorts (fase posterior).
+- [ ] Exibir feedback no frontend (ChatPanel existe, integrar).
+- [ ] Exibir histórico de versões no frontend (fase posterior).
 
 ## Primeira etapa de código
 
@@ -374,6 +376,11 @@ A primeira implementação deve criar os novos modelos e testes, preservando o c
   - Progresso via WebSocket.
   - Auto-deteccao de duracao.
   - Intro/finalizacao do upload inicial (sem duplicidade).
+- **Fase 8 concluída**: Reviewer e refinamento implementados.
+  - Reviewer com fallback text-only (reviewer_openrouter.py).
+  - Rota POST /api/jobs/{id}/feedback para correcoes.
+  - submit_feedback_rerun no jobs.py para re-execucao com feedback.
+  - Historico de versoes via _save_version.
 - Suíte completa: 109 testes aprovados.
 
 ### 2026-08-15
