@@ -151,6 +151,24 @@ def _validate_and_fix_entries(
             start_trim = float(entry_data.get("start_trim", matched_shot.start_time))
             end_trim = float(entry_data.get("end_trim", matched_shot.end_time))
 
+            # TRIM LONG PAUSES: adjust trims to skip detected pauses.
+            if matched_shot.long_pauses and len(matched_shot.long_pauses) > 0:
+                # Find pauses that overlap with the trim range.
+                pauses_in_range = [
+                    (s, e) for s, e in matched_shot.long_pauses
+                    if s >= start_trim and e <= end_trim
+                ]
+                if pauses_in_range:
+                    # Calculate total pause duration.
+                    total_pause = sum(e - s for s, e in pauses_in_range)
+                    logger.info(
+                        "[director-openrouter] Trimming %.1fs of pauses from shot %d",
+                        total_pause, i,
+                    )
+                    # Adjust end_trim to account for removed pauses.
+                    end_trim = start_trim + (end_trim - start_trim - total_pause)
+                    end_trim = max(start_trim + 0.5, end_trim)  # Minimum 0.5s clip
+
             # FIX: If trims are clearly wrong (e.g., start_trim near 0
             # but shot starts at 100s), use the shot's actual range.
             shot_duration = matched_shot.end_time - matched_shot.start_time
