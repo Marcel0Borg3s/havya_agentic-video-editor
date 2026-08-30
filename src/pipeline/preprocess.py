@@ -60,17 +60,24 @@ def _detect_shots(
     """
     from scenedetect import ContentDetector, SceneManager, open_video
 
+    # Get actual video duration via FFprobe (more reliable than PySceneDetect).
+    import subprocess as _sp
+    import json as _json
+    probe = _sp.run(
+        ["ffprobe", "-v", "error", "-print_format", "json",
+         "-show_entries", "format=duration", str(video_path)],
+        capture_output=True, text=True,
+    )
+    try:
+        duration = float(_json.loads(probe.stdout).get("format", {}).get("duration", "0"))
+    except Exception:
+        duration = 0.0
+
     video = open_video(str(video_path))
     scene_manager = SceneManager()
     scene_manager.add_detector(ContentDetector(threshold=scene_threshold))
     scene_manager.detect_scenes(video, show_progress=False)
     scene_list = scene_manager.get_scene_list()
-
-    # Get actual video duration.
-    try:
-        duration = video.duration.get_seconds()
-    except Exception:
-        duration = 0.0
 
     if not scene_list:
         return [(0.0, float(duration))]

@@ -26,7 +26,7 @@
       "file_type": "code",
       "norm_label": "_debug_log_prompt()",
       "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L385"
+      "source_location": "L367"
     },
     {
       "id": "src_agents_director_openrouter_generate_fallback_plan",
@@ -38,7 +38,7 @@
       "file_type": "code",
       "norm_label": "_generate_fallback_plan()",
       "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L210"
+      "source_location": "L192"
     },
     {
       "id": "src_agents_director_openrouter_repair_json",
@@ -62,7 +62,7 @@
       "file_type": "code",
       "norm_label": "run_director_openrouter()",
       "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L243"
+      "source_location": "L225"
     },
     {
       "id": "src_agents_director_openrouter_shots_to_text",
@@ -361,6 +361,17 @@
       "source_location": "L1"
     },
     {
+      "id": "src_agents_director_openrouter_rationale_196",
+      "label": "Generate a fallback plan when LLM fails or returns bad entries.",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "run_director_openrouter",
+      "file_type": "rationale",
+      "norm_label": "generate a fallback plan when llm fails or returns bad entries.",
+      "source_file": "src/agents/director_openrouter.py",
+      "source_location": "L196"
+    },
+    {
       "id": "src_agents_director_openrouter_rationale_21",
       "label": "Repair common LLM JSON issues and parse progressively.",
       "_origin": "ast",
@@ -372,18 +383,7 @@
       "source_location": "L21"
     },
     {
-      "id": "src_agents_director_openrouter_rationale_214",
-      "label": "Generate a fallback plan when LLM fails or returns bad entries.",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "run_director_openrouter",
-      "file_type": "rationale",
-      "norm_label": "generate a fallback plan when llm fails or returns bad entries.",
-      "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L214"
-    },
-    {
-      "id": "src_agents_director_openrouter_rationale_247",
+      "id": "src_agents_director_openrouter_rationale_229",
       "label": "Run the Director via OpenRouter without ADK tool calling. Reads the\u2026",
       "_origin": "ast",
       "community": 0,
@@ -391,10 +391,10 @@
       "file_type": "rationale",
       "norm_label": "run the director via openrouter without adk tool calling. reads the...",
       "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L247"
+      "source_location": "L229"
     },
     {
-      "id": "src_agents_director_openrouter_rationale_386",
+      "id": "src_agents_director_openrouter_rationale_368",
       "label": "Log prompt details for debugging.",
       "_origin": "ast",
       "community": 0,
@@ -402,7 +402,7 @@
       "file_type": "rationale",
       "norm_label": "log prompt details for debugging.",
       "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L386"
+      "source_location": "L368"
     },
     {
       "id": "src_agents_director_openrouter_rationale_60",
@@ -800,7 +800,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L233",
+      "source_location": "L215",
       "weight": 1.0
     },
     {
@@ -812,7 +812,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L265",
+      "source_location": "L247",
       "weight": 1.0
     },
     {
@@ -824,7 +824,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L321",
+      "source_location": "L303",
+      "weight": 1.0
+    },
+    {
+      "source": "src_agents_director_openrouter_run_director_openrouter",
+      "target": "src_ai_provider_call_openrouter",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/agents/director_openrouter.py",
+      "source_location": "L304",
       "weight": 1.0
     },
     {
@@ -836,7 +848,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L333",
+      "source_location": "L315",
       "weight": 1.0
     },
     {
@@ -848,7 +860,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L358",
+      "source_location": "L340",
       "weight": 1.0
     },
     {
@@ -860,7 +872,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L366",
+      "source_location": "L348",
       "weight": 1.0
     },
     {
@@ -872,7 +884,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L371",
+      "source_location": "L353",
       "weight": 1.0
     },
     {
@@ -884,7 +896,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L192",
+      "source_location": "L174",
       "weight": 1.0
     },
     {
@@ -1140,6 +1152,18 @@
       "weight": 1.0
     },
     {
+      "source": "src_agents_director_openrouter",
+      "target": "src_ai_provider_call_openrouter",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/agents/director_openrouter.py",
+      "source_location": "L234",
+      "weight": 1.0
+    },
+    {
       "source": "src_agents_director_openrouter_generate_fallback_plan",
       "target": "creativebrief",
       "relation": "references",
@@ -1148,7 +1172,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L210",
+      "source_location": "L192",
       "weight": 1.0
     },
     {
@@ -1160,7 +1184,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L210",
+      "source_location": "L192",
       "weight": 1.0
     },
     {
@@ -1172,7 +1196,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L243",
+      "source_location": "L225",
       "weight": 1.0
     },
     {
@@ -1309,6 +1333,17 @@
     },
     {
       "source": "src_agents_director_openrouter",
+      "target": "src_agents_director_openrouter_generate_fallback_plan",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/agents/director_openrouter.py",
+      "source_location": "L192",
+      "weight": 1.0
+    },
+    {
+      "source": "src_agents_director_openrouter",
       "target": "src_agents_director_openrouter_repair_json",
       "relation": "contains",
       "_origin": "ast",
@@ -1320,24 +1355,13 @@
     },
     {
       "source": "src_agents_director_openrouter",
-      "target": "src_agents_director_openrouter_generate_fallback_plan",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L210",
-      "weight": 1.0
-    },
-    {
-      "source": "src_agents_director_openrouter",
       "target": "src_agents_director_openrouter_run_director_openrouter",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L243",
+      "source_location": "L225",
       "weight": 1.0
     },
     {
@@ -1348,7 +1372,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L385",
+      "source_location": "L367",
       "weight": 1.0
     },
     {
@@ -1616,6 +1640,17 @@
       "weight": 1.0
     },
     {
+      "source": "src_agents_director_openrouter_rationale_196",
+      "target": "src_agents_director_openrouter_generate_fallback_plan",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/agents/director_openrouter.py",
+      "source_location": "L196",
+      "weight": 1.0
+    },
+    {
       "source": "src_agents_director_openrouter_rationale_21",
       "target": "src_agents_director_openrouter_repair_json",
       "relation": "rationale_for",
@@ -1627,36 +1662,25 @@
       "weight": 1.0
     },
     {
-      "source": "src_agents_director_openrouter_rationale_214",
-      "target": "src_agents_director_openrouter_generate_fallback_plan",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L214",
-      "weight": 1.0
-    },
-    {
-      "source": "src_agents_director_openrouter_rationale_247",
+      "source": "src_agents_director_openrouter_rationale_229",
       "target": "src_agents_director_openrouter_run_director_openrouter",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L247",
+      "source_location": "L229",
       "weight": 1.0
     },
     {
-      "source": "src_agents_director_openrouter_rationale_386",
+      "source": "src_agents_director_openrouter_rationale_368",
       "target": "src_agents_director_openrouter_debug_log_prompt",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L386",
+      "source_location": "L368",
       "weight": 1.0
     },
     {
@@ -1911,20 +1935,8 @@
       "source_file": "src/tools/assets.py",
       "source_location": "L27",
       "weight": 1.0
-    },
-    {
-      "source": "src_agents_director_openrouter_run_director_openrouter",
-      "target": "src_ai_provider_call_openrouter",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "context": "call",
-      "source_file": "src/agents/director_openrouter.py",
-      "source_location": "L322",
-      "weight": 1.0
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "181e060ed9e05b92a9ef2a20848f8cfc9cd44ec9"
+  "built_at_commit": "ce5da6fefa19bc5d6d5a34495af4df94d64bbd7e"
 }

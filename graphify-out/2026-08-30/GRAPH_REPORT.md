@@ -1,16 +1,16 @@
-# Graph Report - agentic-video-editor  (2026-08-30)
+# Graph Report - agentic-video-editor  (2026-08-29)
 
 ## Corpus Check
-- 114 files · ~110,677 words
+- 114 files · ~110,577 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 69 nodes · 99 edges · 6 communities
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 1 edges (avg confidence: 0.85)
+- 69 nodes · 100 edges · 6 communities
+- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `181e060e`
+- Built from commit: `ce5da6fe`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -25,17 +25,17 @@
 ## God Nodes (most connected - your core abstractions)
 1. `_process_video()` - 12 edges
 2. `run_director_openrouter()` - 10 edges
-3. `call_openrouter()` - 7 edges
+3. `call_openrouter()` - 8 edges
 4. `preprocess_footage()` - 7 edges
 5. `_generate_fallback_plan()` - 6 edges
-6. `_validate_and_fix_entries()` - 5 edges
-7. `OpenAICompatibleProvider` - 5 edges
-8. `_transcribe_words()` - 5 edges
-9. `_words_for_shot()` - 5 edges
-10. `run_editor_openrouter()` - 5 edges
+6. `_transcribe_words()` - 5 edges
+7. `_words_for_shot()` - 5 edges
+8. `OpenAICompatibleProvider` - 5 edges
+9. `run_editor_openrouter()` - 5 edges
+10. `_validate_and_fix_entries()` - 5 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `run_director_openrouter()` --calls--> `call_openrouter()`  [INFERRED]
+- `run_director_openrouter()` --calls--> `call_openrouter()`  [EXTRACTED]
   src/agents/director_openrouter.py → src/ai_provider.py
 
 ## Import Cycles
@@ -45,7 +45,7 @@
 
 ### Community 0 - "run_director_openrouter"
 Cohesion: 0.18
-Nodes (15): CreativeBrief, EditPlanEntry, _debug_log_prompt(), _generate_fallback_plan(), Director agent using OpenRouter (bypasses ADK)., Repair common LLM JSON issues and parse progressively., Generate a fallback plan when LLM fails or returns bad entries., Run the Director via OpenRouter without ADK tool calling. Reads the… (+7 more)
+Nodes (15): CreativeBrief, EditPlanEntry, _debug_log_prompt(), _generate_fallback_plan(), Director agent using OpenRouter (bypasses ADK)., Generate a fallback plan when LLM fails or returns bad entries., Repair common LLM JSON issues and parse progressively., Run the Director via OpenRouter without ADK tool calling. Reads the… (+7 more)
 
 ### Community 1 - "call_openrouter"
 Cohesion: 0.18
@@ -70,9 +70,9 @@ Nodes (5): assemble_with_assets(), normalize_asset(), Media-asset normalization 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `run_director_openrouter()` connect `run_director_openrouter` to `call_openrouter`, `run_editor_openrouter`?**
-  _High betweenness centrality (0.398) - this node is a cross-community bridge._
 - **Why does `preprocess_footage()` connect `_process_video` to `run_editor_openrouter`?**
   _High betweenness centrality (0.328) - this node is a cross-community bridge._
 - **Why does `call_openrouter()` connect `call_openrouter` to `run_director_openrouter`?**
   _High betweenness centrality (0.293) - this node is a cross-community bridge._
+- **Why does `run_director_openrouter()` connect `run_director_openrouter` to `call_openrouter`, `run_editor_openrouter`?**
+  _High betweenness centrality (0.274) - this node is a cross-community bridge._
