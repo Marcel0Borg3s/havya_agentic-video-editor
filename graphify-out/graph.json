@@ -173,30 +173,6 @@
       "source_location": "L48"
     },
     {
-      "id": "src_pipeline_preprocess_log",
-      "label": "_log()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "_process_video",
-      "file_type": "code",
-      "norm_label": "_log()",
-      "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L43"
-    },
-    {
-      "id": "src_pipeline_preprocess_preprocess_footage",
-      "label": "preprocess_footage()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "_process_video",
-      "file_type": "code",
-      "norm_label": "preprocess_footage()",
-      "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L208"
-    },
-    {
       "id": "src_pipeline_preprocess_process_video",
       "label": "_process_video()",
       "_callable": true,
@@ -206,19 +182,7 @@
       "file_type": "code",
       "norm_label": "_process_video()",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L167"
-    },
-    {
-      "id": "src_pipeline_preprocess_transcribe_words",
-      "label": "_transcribe_words()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "_process_video",
-      "file_type": "code",
-      "norm_label": "_transcribe_words()",
-      "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L92"
+      "source_location": "L174"
     },
     {
       "id": "src_pipeline_preprocess_normalize_word_text",
@@ -226,11 +190,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "_words_for_shot",
+      "community_name": "preprocess.py",
       "file_type": "code",
       "norm_label": "_normalize_word_text()",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L118"
+      "source_location": "L125"
     },
     {
       "id": "src_pipeline_preprocess_words_for_shot",
@@ -238,11 +202,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "_words_for_shot",
+      "community_name": "preprocess.py",
       "file_type": "code",
       "norm_label": "_words_for_shot()",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L144"
+      "source_location": "L151"
     },
     {
       "id": "src_pipeline_preprocess_words_to_text",
@@ -250,11 +214,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "_words_for_shot",
+      "community_name": "preprocess.py",
       "file_type": "code",
       "norm_label": "_words_to_text()",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L123"
+      "source_location": "L130"
     },
     {
       "id": "src_agents_editor_openrouter_merge_ass_files",
@@ -315,6 +279,42 @@
       "norm_label": "normalize_asset()",
       "source_file": "src/tools/assets.py",
       "source_location": "L10"
+    },
+    {
+      "id": "src_pipeline_preprocess_log",
+      "label": "_log()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "preprocess_footage",
+      "file_type": "code",
+      "norm_label": "_log()",
+      "source_file": "src/pipeline/preprocess.py",
+      "source_location": "L43"
+    },
+    {
+      "id": "src_pipeline_preprocess_preprocess_footage",
+      "label": "preprocess_footage()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "preprocess_footage",
+      "file_type": "code",
+      "norm_label": "preprocess_footage()",
+      "source_file": "src/pipeline/preprocess.py",
+      "source_location": "L215"
+    },
+    {
+      "id": "src_pipeline_preprocess_transcribe_words",
+      "label": "_transcribe_words()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "_transcribe_words",
+      "file_type": "code",
+      "norm_label": "_transcribe_words()",
+      "source_file": "src/pipeline/preprocess.py",
+      "source_location": "L99"
     },
     {
       "id": "creativebrief",
@@ -526,40 +526,7 @@
       "source_location": ""
     },
     {
-      "id": "src_pipeline_preprocess",
-      "label": "preprocess.py",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "_process_video",
-      "file_type": "code",
-      "norm_label": "preprocess.py",
-      "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "whispermodel",
-      "label": "WhisperModel",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "_process_video",
-      "file_type": "code",
-      "norm_label": "whispermodel",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "src_pipeline_preprocess_rationale_1",
-      "label": "Pre-processing pipeline: scene detection + transcription. Walks an input\u2026",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "_process_video",
-      "file_type": "rationale",
-      "norm_label": "pre-processing pipeline: scene detection + transcription. walks an input...",
-      "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_pipeline_preprocess_rationale_172",
+      "id": "src_pipeline_preprocess_rationale_179",
       "label": "Detect shots in a video and assemble Shot objects with aligned transcripts.",
       "_origin": "ast",
       "community": 2,
@@ -567,18 +534,7 @@
       "file_type": "rationale",
       "norm_label": "detect shots in a video and assemble shot objects with aligned transcripts.",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L172"
-    },
-    {
-      "id": "src_pipeline_preprocess_rationale_215",
-      "label": "Pre-process a directory of footage into a FootageIndex. Walks ``input_dir``\u2026",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "_process_video",
-      "file_type": "rationale",
-      "norm_label": "pre-process a directory of footage into a footageindex. walks ``input_dir``...",
-      "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L215"
+      "source_location": "L179"
     },
     {
       "id": "src_pipeline_preprocess_rationale_35",
@@ -592,17 +548,6 @@
       "source_location": "L35"
     },
     {
-      "id": "src_pipeline_preprocess_rationale_44",
-      "label": "Emit progress to stderr.",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "_process_video",
-      "file_type": "rationale",
-      "norm_label": "emit progress to stderr.",
-      "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L44"
-    },
-    {
       "id": "src_pipeline_preprocess_rationale_51",
       "label": "Detect shots in a video using PySceneDetect ContentDetector. Args: video_path:\u2026",
       "_origin": "ast",
@@ -614,59 +559,70 @@
       "source_location": "L51"
     },
     {
-      "id": "src_pipeline_preprocess_rationale_95",
-      "label": "Transcribe a video and return word-level timestamps. Args: model: A pre-loaded\u2026",
+      "id": "src_pipeline_preprocess",
+      "label": "preprocess.py",
       "_origin": "ast",
-      "community": 2,
-      "community_name": "_process_video",
-      "file_type": "rationale",
-      "norm_label": "transcribe a video and return word-level timestamps. args: model: a pre-loaded...",
+      "community": 3,
+      "community_name": "preprocess.py",
+      "file_type": "code",
+      "norm_label": "preprocess.py",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L95"
+      "source_location": "L1"
     },
     {
       "id": "wordtimestamp",
       "label": "WordTimestamp",
       "_origin": "ast",
       "community": 3,
-      "community_name": "_words_for_shot",
+      "community_name": "preprocess.py",
       "file_type": "code",
       "norm_label": "wordtimestamp",
       "source_file": "",
       "source_location": ""
     },
     {
-      "id": "src_pipeline_preprocess_rationale_119",
+      "id": "src_pipeline_preprocess_rationale_1",
+      "label": "Pre-processing pipeline: scene detection + transcription. Walks an input\u2026",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "preprocess.py",
+      "file_type": "rationale",
+      "norm_label": "pre-processing pipeline: scene detection + transcription. walks an input...",
+      "source_file": "src/pipeline/preprocess.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_pipeline_preprocess_rationale_126",
       "label": "Collapse whitespace in a transcribed word while keeping punctuation.",
       "_origin": "ast",
       "community": 3,
-      "community_name": "_words_for_shot",
+      "community_name": "preprocess.py",
       "file_type": "rationale",
       "norm_label": "collapse whitespace in a transcribed word while keeping punctuation.",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L119"
+      "source_location": "L126"
     },
     {
-      "id": "src_pipeline_preprocess_rationale_124",
+      "id": "src_pipeline_preprocess_rationale_131",
       "label": "Render a token stream into readable caption/transcript text.",
       "_origin": "ast",
       "community": 3,
-      "community_name": "_words_for_shot",
+      "community_name": "preprocess.py",
       "file_type": "rationale",
       "norm_label": "render a token stream into readable caption/transcript text.",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L124"
+      "source_location": "L131"
     },
     {
-      "id": "src_pipeline_preprocess_rationale_149",
+      "id": "src_pipeline_preprocess_rationale_156",
       "label": "Return word timestamps whose midpoint falls within the shot window.",
       "_origin": "ast",
       "community": 3,
-      "community_name": "_words_for_shot",
+      "community_name": "preprocess.py",
       "file_type": "rationale",
       "norm_label": "return word timestamps whose midpoint falls within the shot window.",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L149"
+      "source_location": "L156"
     },
     {
       "id": "editplan",
@@ -788,6 +744,50 @@
       "norm_label": "assemble optional opening/content/closing videos into one mp4. external assets...",
       "source_file": "src/tools/assets.py",
       "source_location": "L27"
+    },
+    {
+      "id": "src_pipeline_preprocess_rationale_222",
+      "label": "Pre-process a directory of footage into a FootageIndex. Walks ``input_dir``\u2026",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "preprocess_footage",
+      "file_type": "rationale",
+      "norm_label": "pre-process a directory of footage into a footageindex. walks ``input_dir``...",
+      "source_file": "src/pipeline/preprocess.py",
+      "source_location": "L222"
+    },
+    {
+      "id": "src_pipeline_preprocess_rationale_44",
+      "label": "Emit progress to stderr.",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "preprocess_footage",
+      "file_type": "rationale",
+      "norm_label": "emit progress to stderr.",
+      "source_file": "src/pipeline/preprocess.py",
+      "source_location": "L44"
+    },
+    {
+      "id": "whispermodel",
+      "label": "WhisperModel",
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "_transcribe_words",
+      "file_type": "code",
+      "norm_label": "whispermodel",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "src_pipeline_preprocess_rationale_102",
+      "label": "Transcribe a video and return word-level timestamps. Args: model: A pre-loaded\u2026",
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "_transcribe_words",
+      "file_type": "rationale",
+      "norm_label": "transcribe a video and return word-level timestamps. args: model: a pre-loaded...",
+      "source_file": "src/pipeline/preprocess.py",
+      "source_location": "L102"
     }
   ],
   "links": [
@@ -956,7 +956,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L237",
+      "source_location": "L244",
       "weight": 1.0
     },
     {
@@ -968,7 +968,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L252",
+      "source_location": "L259",
       "weight": 1.0
     },
     {
@@ -980,7 +980,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L260",
+      "source_location": "L267",
       "weight": 1.0
     },
     {
@@ -992,7 +992,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L267",
+      "source_location": "L274",
       "weight": 1.0
     },
     {
@@ -1004,7 +1004,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L280",
+      "source_location": "L287",
       "weight": 1.0
     },
     {
@@ -1016,7 +1016,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L173",
+      "source_location": "L180",
       "weight": 1.0
     },
     {
@@ -1028,7 +1028,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L175",
+      "source_location": "L182",
       "weight": 1.0
     },
     {
@@ -1040,7 +1040,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L177",
+      "source_location": "L184",
       "weight": 1.0
     },
     {
@@ -1052,7 +1052,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L180",
+      "source_location": "L187",
       "weight": 1.0
     },
     {
@@ -1064,7 +1064,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L183",
+      "source_location": "L190",
       "weight": 1.0
     },
     {
@@ -1076,7 +1076,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L184",
+      "source_location": "L191",
       "weight": 1.0
     },
     {
@@ -1088,7 +1088,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L185",
+      "source_location": "L192",
       "weight": 1.0
     },
     {
@@ -1100,7 +1100,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L154",
+      "source_location": "L161",
       "weight": 1.0
     },
     {
@@ -1112,7 +1112,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L162",
+      "source_location": "L169",
       "weight": 1.0
     },
     {
@@ -1136,7 +1136,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L123",
+      "source_location": "L130",
       "weight": 1.0
     },
     {
@@ -1256,7 +1256,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L167",
+      "source_location": "L174",
       "weight": 1.0
     },
     {
@@ -1268,7 +1268,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L167",
+      "source_location": "L174",
       "weight": 1.0
     },
     {
@@ -1280,7 +1280,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L92",
+      "source_location": "L99",
       "weight": 1.0
     },
     {
@@ -1292,7 +1292,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L92",
+      "source_location": "L99",
       "weight": 1.0
     },
     {
@@ -1458,7 +1458,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L118",
+      "source_location": "L125",
       "weight": 1.0
     },
     {
@@ -1469,7 +1469,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L123",
+      "source_location": "L130",
       "weight": 1.0
     },
     {
@@ -1480,7 +1480,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L144",
+      "source_location": "L151",
       "weight": 1.0
     },
     {
@@ -1491,7 +1491,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L167",
+      "source_location": "L174",
       "weight": 1.0
     },
     {
@@ -1502,7 +1502,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L208",
+      "source_location": "L215",
       "weight": 1.0
     },
     {
@@ -1546,7 +1546,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L92",
+      "source_location": "L99",
       "weight": 1.0
     },
     {
@@ -1781,58 +1781,69 @@
       "weight": 1.0
     },
     {
-      "source": "src_pipeline_preprocess_rationale_119",
+      "source": "src_pipeline_preprocess_rationale_102",
+      "target": "src_pipeline_preprocess_transcribe_words",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/pipeline/preprocess.py",
+      "source_location": "L102",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pipeline_preprocess_rationale_126",
       "target": "src_pipeline_preprocess_normalize_word_text",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L119",
+      "source_location": "L126",
       "weight": 1.0
     },
     {
-      "source": "src_pipeline_preprocess_rationale_124",
+      "source": "src_pipeline_preprocess_rationale_131",
       "target": "src_pipeline_preprocess_words_to_text",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L124",
+      "source_location": "L131",
       "weight": 1.0
     },
     {
-      "source": "src_pipeline_preprocess_rationale_149",
+      "source": "src_pipeline_preprocess_rationale_156",
       "target": "src_pipeline_preprocess_words_for_shot",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L149",
+      "source_location": "L156",
       "weight": 1.0
     },
     {
-      "source": "src_pipeline_preprocess_rationale_172",
+      "source": "src_pipeline_preprocess_rationale_179",
       "target": "src_pipeline_preprocess_process_video",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L172",
+      "source_location": "L179",
       "weight": 1.0
     },
     {
-      "source": "src_pipeline_preprocess_rationale_215",
+      "source": "src_pipeline_preprocess_rationale_222",
       "target": "src_pipeline_preprocess_preprocess_footage",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L215",
+      "source_location": "L222",
       "weight": 1.0
     },
     {
@@ -1866,17 +1877,6 @@
       "confidence_score": 1.0,
       "source_file": "src/pipeline/preprocess.py",
       "source_location": "L51",
-      "weight": 1.0
-    },
-    {
-      "source": "src_pipeline_preprocess_rationale_95",
-      "target": "src_pipeline_preprocess_transcribe_words",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/pipeline/preprocess.py",
-      "source_location": "L95",
       "weight": 1.0
     },
     {
@@ -1926,5 +1926,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "181e060ed9e05b92a9ef2a20848f8cfc9cd44ec9"
+  "built_at_commit": "d668a0bb51816ad7b9d5c9e48d2297db79db7276"
 }

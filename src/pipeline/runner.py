@@ -800,7 +800,12 @@ def run_pipeline(
                     "director step produced an EditPlan"
                 )
             if AI_PROVIDER == "openrouter":
-                _log("[pipeline] trim_refiner skipped in OpenRouter mode")
+                # Use new refine module to split shots at pause boundaries.
+                from src.agents.refine import refine_edit_plan
+                _log("[pipeline] Running pause-aware refinement...")
+                result.edit_plan = refine_edit_plan(
+                    result.edit_plan, footage_index_path
+                )
             else:
                 result.edit_plan = _with_transient_retry(
                     refine_plan, result.edit_plan, footage_index_path
